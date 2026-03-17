@@ -192,6 +192,9 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
   }
 
   Future<void> _confirmDelete(BuildContext context) async {
+    final navigator = Navigator.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -216,25 +219,23 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
       ),
     );
 
-    if (confirmed == true && mounted) {
-      setState(() => _isDeleting = true);
-      try {
-        final deleteRound = ref.read(deleteRoundProvider);
-        await deleteRound(
-          roundId: widget.roundId,
-          sessionId: widget.sessionId,
-        );
-        if (mounted) {
-          context.pop();
-        }
-      } catch (e) {
-        if (mounted) {
-          setState(() => _isDeleting = false);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to delete round: $e')),
-          );
-        }
-      }
+    if (confirmed != true || !mounted) return;
+
+    setState(() => _isDeleting = true);
+    try {
+      final deleteRound = ref.read(deleteRoundProvider);
+      await deleteRound(
+        roundId: widget.roundId,
+        sessionId: widget.sessionId,
+      );
+      if (!mounted) return;
+      navigator.pop();
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isDeleting = false);
+      messenger.showSnackBar(
+        SnackBar(content: Text('Failed to delete round: $e')),
+      );
     }
   }
 

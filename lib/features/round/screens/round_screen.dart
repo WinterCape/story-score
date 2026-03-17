@@ -202,7 +202,6 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
                   child: FilledButton(
                     onPressed: voteState.allVotesCast && !_isSubmitting
                         ? () => _submitRound(
-                              context,
                               session: session,
                               storyteller: storyteller,
                               players: players,
@@ -241,14 +240,17 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
     );
   }
 
-  Future<void> _submitRound(
-    BuildContext context, {
+  Future<void> _submitRound({
     required GameSession session,
     required Player storyteller,
     required List<Player> players,
     required Map<String, String> votes,
   }) async {
     setState(() => _isSubmitting = true);
+
+    final navigator = GoRouter.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final ctx = context;
 
     try {
       final result = await ref.read(roundProcessorProvider).submitRound(
@@ -261,9 +263,9 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
 
       if (!mounted) return;
 
-      // Show recap bottom sheet
+      // Show recap bottom sheet — context is guarded by mounted check above
       await showRoundRecapSheet(
-        context: context,
+        context: ctx, // ignore: use_build_context_synchronously
         result: result,
         players: players,
       );
@@ -276,14 +278,11 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
       _initialized = false;
 
       // Navigate back to scoreboard
-      context.go('/game/${widget.sessionId}/scoreboard');
+      navigator.go('/game/${widget.sessionId}/scoreboard');
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error scoring round: $e'),
-          backgroundColor: context.colorScheme.error,
-        ),
+      messenger.showSnackBar(
+        SnackBar(content: Text('Error scoring round: $e')),
       );
     } finally {
       if (mounted) {

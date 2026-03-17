@@ -75,7 +75,7 @@ class VoterCardGrid extends StatelessWidget {
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: targets.length,
-              separatorBuilder: (_, __) =>
+              separatorBuilder: (_, _) =>
                   const SizedBox(width: SpacingTokens.sm),
               itemBuilder: (context, index) {
                 final target = targets[index];

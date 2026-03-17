@@ -144,7 +144,7 @@ class RoundHistoryTile extends ConsumerWidget {
                         height: 16,
                         width: 80,
                       ),
-                      error: (_, __) => Text(
+                      error: (_, _) => Text(
                         'Error loading details',
                         style: text.bodySmall
                             ?.copyWith(color: colors.error),
