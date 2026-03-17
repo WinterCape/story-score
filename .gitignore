@@ -43,3 +43,11 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+node_modules/
+docs/node_modules/
+docs/package.json
+docs/package-lock.json
+docs/pptx-build/
+docs/generate_*.js
+package.json
+package-lock.json
