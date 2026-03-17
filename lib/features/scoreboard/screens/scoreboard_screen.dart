@@ -84,7 +84,7 @@ class ScoreboardScreen extends ConsumerWidget {
                 ),
                 tooltip: sortByScore ? 'Sort by seat' : 'Sort by score',
                 onPressed: () {
-                  ref.read(sortByScoreProvider.notifier).state = !sortByScore;
+                  ref.read(sortByScoreProvider.notifier).toggle();
                 },
               ),
               // Overflow menu
