@@ -61,15 +61,23 @@ abstract final class StoryScoreTheme {
       appBarTheme: AppBarTheme(
         backgroundColor: colorScheme.surface,
         foregroundColor: colorScheme.onSurface,
-        elevation: 0,
-        scrolledUnderElevation: 0,
+        elevation: isDark ? 0 : 0.5,
+        scrolledUnderElevation: isDark ? 0 : 1,
+        shadowColor: isDark ? Colors.transparent : Colors.black26,
         centerTitle: true,
       ),
       cardTheme: CardThemeData(
         color: colorScheme.surfaceContainerHighest,
-        elevation: 0,
+        elevation: isDark ? 0 : 1,
+        shadowColor: isDark ? Colors.transparent : Colors.black12,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
+          side: isDark
+              ? BorderSide.none
+              : const BorderSide(
+                  color: ColorTokens.lightCardBorder,
+                  width: 0.5,
+                ),
         ),
       ),
       filledButtonTheme: FilledButtonThemeData(

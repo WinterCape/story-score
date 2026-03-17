@@ -11,13 +11,90 @@ import 'package:story_score/features/scoreboard/providers/scoreboard_providers.d
 import 'package:story_score/features/scoreboard/widgets/player_score_card.dart';
 import 'package:story_score/shared/extensions/context_extensions.dart';
 
-class ScoreboardScreen extends ConsumerWidget {
+class ScoreboardScreen extends ConsumerStatefulWidget {
   const ScoreboardScreen({super.key, required this.sessionId});
 
   final String sessionId;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ScoreboardScreen> createState() => _ScoreboardScreenState();
+}
+
+class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
+  /// Tracks player IDs that have already triggered the target-reached modal,
+  /// so we only show it once per threshold crossing.
+  final Set<String> _targetReachedShownFor = {};
+
+  String get sessionId => widget.sessionId;
+
+  void _checkTargetScore(
+    GameSession session,
+    List<Player> players,
+    BuildContext context,
+  ) {
+    final target = session.targetScore;
+    if (target == null || target <= 0) return;
+
+    for (final player in players) {
+      if (player.currentScore >= target &&
+          !_targetReachedShownFor.contains(player.id)) {
+        _targetReachedShownFor.add(player.id);
+        // Schedule the dialog after the current frame to avoid build conflicts.
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          _showTargetReachedDialog(context, ref, session, player);
+        });
+        // Only show one modal at a time.
+        break;
+      }
+    }
+  }
+
+  void _showTargetReachedDialog(
+    BuildContext context,
+    WidgetRef ref,
+    GameSession session,
+    Player player,
+  ) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => AlertDialog(
+        icon: Icon(
+          Icons.emoji_events,
+          size: 48,
+          color: context.storyTheme.goldAccent,
+        ),
+        title: Text('${player.name} reached ${session.targetScore} points!'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Continue Playing'),
+          ),
+          FilledButton(
+            onPressed: () async {
+              Navigator.of(dialogContext).pop();
+              await ref.read(sessionDaoProvider).updateSession(
+                    sessionId,
+                    GameSessionsCompanion(
+                      status: const Value(GameStatus.completed),
+                      updatedAt: Value(DateTime.now()),
+                    ),
+                  );
+              if (context.mounted) {
+                context.go('/game/$sessionId/endgame');
+              }
+            },
+            child: const Text('End Game Now'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ref = this.ref;
     final sessionAsync = ref.watch(sessionProvider(sessionId));
     final sortByScore = ref.watch(sortByScoreProvider);
     final playersAsync = sortByScore
@@ -128,6 +205,9 @@ class ScoreboardScreen extends ConsumerWidget {
                 );
               }
 
+              // Check if any player reached the target score.
+              _checkTargetScore(session, players, context);
+
               final storytellerId = storytellerAsync.value?.id;
 
               // Round info header
@@ -137,6 +217,8 @@ class ScoreboardScreen extends ConsumerWidget {
                   _RoundInfoHeader(
                     session: session,
                     storyteller: storytellerAsync.value,
+                    players: players,
+                    sessionId: sessionId,
                   ),
                   // Player grid
                   Expanded(
@@ -205,17 +287,21 @@ class ScoreboardScreen extends ConsumerWidget {
 }
 
 /// Header showing the current round number and storyteller.
-class _RoundInfoHeader extends StatelessWidget {
+class _RoundInfoHeader extends ConsumerWidget {
   const _RoundInfoHeader({
     required this.session,
     required this.storyteller,
+    required this.players,
+    required this.sessionId,
   });
 
   final GameSession session;
   final Player? storyteller;
+  final List<Player> players;
+  final String sessionId;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(
@@ -242,26 +328,104 @@ class _RoundInfoHeader extends StatelessWidget {
             ),
           ),
           const SizedBox(width: SpacingTokens.md),
-          // Storyteller indicator
+          // Storyteller indicator — tap to change
           if (storyteller != null) ...[
-            Icon(
-              Icons.auto_stories,
-              size: 16,
-              color: context.storyTheme.goldAccent,
-            ),
-            const SizedBox(width: SpacingTokens.xs),
             Expanded(
-              child: Text(
-                '${storyteller!.name} is storytelling',
-                style: context.textTheme.bodyMedium?.copyWith(
-                  color: context.colorScheme.onSurfaceVariant,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(SpacingTokens.radiusSm),
+                onTap: () => _showStorytellerPicker(context, ref),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: SpacingTokens.xs,
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.auto_stories,
+                        size: 16,
+                        color: context.storyTheme.goldAccent,
+                      ),
+                      const SizedBox(width: SpacingTokens.xs),
+                      Expanded(
+                        child: Text(
+                          '${storyteller!.name} is storytelling',
+                          style: context.textTheme.bodyMedium?.copyWith(
+                            color: context.colorScheme.onSurfaceVariant,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Icon(
+                        Icons.swap_horiz,
+                        size: 16,
+                        color: context.colorScheme.onSurfaceVariant,
+                      ),
+                    ],
+                  ),
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
         ],
+      ),
+    );
+  }
+
+  void _showStorytellerPicker(BuildContext context, WidgetRef ref) {
+    showModalBottomSheet(
+      context: context,
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                SpacingTokens.lg,
+                SpacingTokens.lg,
+                SpacingTokens.lg,
+                SpacingTokens.sm,
+              ),
+              child: Text(
+                'Choose Storyteller',
+                style: context.textTheme.titleMedium,
+              ),
+            ),
+            ...players.map((player) {
+              final isCurrentStoryteller = player.id == storyteller?.id;
+              return ListTile(
+                leading: Icon(
+                  Icons.auto_stories,
+                  color: isCurrentStoryteller
+                      ? context.storyTheme.goldAccent
+                      : context.colorScheme.onSurfaceVariant,
+                ),
+                title: Text(player.name),
+                trailing: isCurrentStoryteller
+                    ? Icon(
+                        Icons.check,
+                        color: context.storyTheme.goldAccent,
+                      )
+                    : null,
+                onTap: isCurrentStoryteller
+                    ? null
+                    : () async {
+                        Navigator.of(sheetContext).pop();
+                        await ref.read(sessionDaoProvider).updateSession(
+                              sessionId,
+                              GameSessionsCompanion(
+                                currentStorytellerSeat:
+                                    Value(player.seatOrder),
+                                updatedAt: Value(DateTime.now()),
+                              ),
+                            );
+                      },
+              );
+            }),
+            const SizedBox(height: SpacingTokens.md),
+          ],
+        ),
       ),
     );
   }

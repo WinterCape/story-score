@@ -22,13 +22,14 @@ abstract final class ColorTokens {
   // ---------------------------------------------------------------------------
   // Light palette
   // ---------------------------------------------------------------------------
-  static const Color lightBackground = Color(0xFFFDF8F0);
+  static const Color lightBackground = Color(0xFFFAF7FF);
   static const Color lightSurface = Color(0xFFFFFFFF);
-  static const Color lightSurfaceVariant = Color(0xFFF0E8F5);
-  static const Color lightPrimary = Color(0xFF5B3E96);
+  static const Color lightSurfaceVariant = Color(0xFFEDE5F3);
+  static const Color lightPrimary = Color(0xFF5234A0);
   static const Color lightGoldAccent = Color(0xFFB8912E);
   static const Color lightOnSurface = Color(0xFF1A1025);
-  static const Color lightOnSurfaceVariant = Color(0xFF5A4A6E);
+  static const Color lightOnSurfaceVariant = Color(0xFF4A3A5E);
+  static const Color lightCardBorder = Color(0xFFDDD4E8);
 
   // ---------------------------------------------------------------------------
   // Player colors – 12 distinct hues for player assignment

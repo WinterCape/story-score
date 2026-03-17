@@ -1,0 +1,10 @@
+{
+  "@@locale": "en",
+  "appTitle": "StoryScore",
+  "newGame": "New Game",
+  "settings": "Settings",
+  "startGame": "Start Game",
+  "scoreRound": "Score Round",
+  "endGame": "End Game",
+  "continuePlaying": "Continue Playing"
+}
