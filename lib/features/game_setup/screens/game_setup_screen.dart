@@ -1,18 +1,559 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:story_score/app/providers.dart';
+import 'package:story_score/app/theme/spacing_tokens.dart';
+import 'package:story_score/core/constants/player_colors.dart';
+import 'package:story_score/data/database/tables/game_sessions.dart';
+import 'package:story_score/features/game_setup/providers/game_setup_providers.dart';
+import 'package:story_score/features/game_setup/widgets/color_picker_chips.dart';
+import 'package:story_score/features/game_setup/widgets/player_tile.dart';
+import 'package:story_score/shared/extensions/context_extensions.dart';
 
-class GameSetupScreen extends ConsumerWidget {
+class GameSetupScreen extends ConsumerStatefulWidget {
   const GameSetupScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<GameSetupScreen> createState() => _GameSetupScreenState();
+}
+
+class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
+  final _titleController = TextEditingController();
+  final _targetScoreController = TextEditingController(text: '30');
+  bool _isCreating = false;
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _targetScoreController.dispose();
+    super.dispose();
+  }
+
+  // --------------------------------------------------------------------------
+  // Actions
+  // --------------------------------------------------------------------------
+
+  Future<void> _startGame() async {
+    if (_isCreating) return;
+    setState(() => _isCreating = true);
+
+    try {
+      final dao = ref.read(sessionDaoProvider);
+      final sessionId =
+          await ref.read(gameSetupProvider.notifier).createGame(dao);
+
+      if (mounted) {
+        context.go('/game/$sessionId/scoreboard');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to create game: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isCreating = false);
+    }
+  }
+
+  void _showAddPlayerSheet() {
+    final setupState = ref.read(gameSetupProvider);
+    if (setupState.isPlayerLimitReached) return;
+
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (sheetContext) => _AddPlayerSheet(
+        usedColorKeys: setupState.usedColorKeys,
+        onConfirm: (name, colorKey) {
+          ref
+              .read(gameSetupProvider.notifier)
+              .addPlayer(name: name, colorKey: colorKey);
+          Navigator.of(sheetContext).pop();
+        },
+      ),
+    );
+  }
+
+  // --------------------------------------------------------------------------
+  // Build
+  // --------------------------------------------------------------------------
+
+  @override
+  Widget build(BuildContext context) {
+    final state = ref.watch(gameSetupProvider);
+    final colorScheme = context.colorScheme;
+    final textTheme = context.textTheme;
+    final storyTheme = context.storyTheme;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('New Game')),
-      body: Center(
-        child: Text(
-          'Game Setup',
-          style: Theme.of(context).textTheme.headlineMedium,
+      appBar: AppBar(
+        title: const Text('New Game'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded),
+          onPressed: () => context.pop(),
         ),
+      ),
+      body: Column(
+        children: [
+          // Scrollable form content.
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(
+                horizontal: SpacingTokens.lg,
+                vertical: SpacingTokens.md,
+              ),
+              children: [
+                // ── Title field ──────────────────────────────────────────
+                Text(
+                  'Game Title',
+                  style: textTheme.labelLarge?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: SpacingTokens.sm),
+                TextFormField(
+                  controller: _titleController,
+                  decoration: const InputDecoration(
+                    hintText: 'e.g. Friday Night Dixit',
+                  ),
+                  textCapitalization: TextCapitalization.words,
+                  onChanged: (v) =>
+                      ref.read(gameSetupProvider.notifier).setTitle(v),
+                ),
+
+                const SizedBox(height: SpacingTokens.lg),
+
+                // ── Target type selector ─────────────────────────────────
+                Text(
+                  'Win Condition',
+                  style: textTheme.labelLarge?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: SpacingTokens.sm),
+                SizedBox(
+                  width: double.infinity,
+                  child: SegmentedButton<TargetType>(
+                    segments: const [
+                      ButtonSegment(
+                        value: TargetType.score,
+                        label: Text('Score Target'),
+                        icon: Icon(Icons.emoji_events_rounded),
+                      ),
+                      ButtonSegment(
+                        value: TargetType.freeplay,
+                        label: Text('Infinite'),
+                        icon: Icon(Icons.all_inclusive_rounded),
+                      ),
+                    ],
+                    selected: {state.targetType},
+                    onSelectionChanged: (s) => ref
+                        .read(gameSetupProvider.notifier)
+                        .setTargetType(s.first),
+                    showSelectedIcon: false,
+                  ),
+                ),
+
+                // ── Target score input (conditional) ─────────────────────
+                if (state.targetType == TargetType.score) ...[
+                  const SizedBox(height: SpacingTokens.md),
+                  Row(
+                    children: [
+                      Text(
+                        'Target Score',
+                        style: textTheme.labelLarge?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      const Spacer(),
+                      // Stepper controls.
+                      _StepperButton(
+                        icon: Icons.remove_rounded,
+                        onPressed: state.targetScore > 10
+                            ? () {
+                                final newVal = state.targetScore - 5;
+                                ref
+                                    .read(gameSetupProvider.notifier)
+                                    .setTargetScore(newVal);
+                                _targetScoreController.text =
+                                    newVal.clamp(10, 200).toString();
+                              }
+                            : null,
+                      ),
+                      const SizedBox(width: SpacingTokens.sm),
+                      SizedBox(
+                        width: 64,
+                        child: TextFormField(
+                          controller: _targetScoreController,
+                          textAlign: TextAlign.center,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            LengthLimitingTextInputFormatter(3),
+                          ],
+                          style: textTheme.titleMedium,
+                          decoration: const InputDecoration(
+                            contentPadding: EdgeInsets.symmetric(
+                              vertical: SpacingTokens.sm,
+                            ),
+                          ),
+                          onChanged: (v) {
+                            final parsed = int.tryParse(v);
+                            if (parsed != null) {
+                              ref
+                                  .read(gameSetupProvider.notifier)
+                                  .setTargetScore(parsed);
+                            }
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: SpacingTokens.sm),
+                      _StepperButton(
+                        icon: Icons.add_rounded,
+                        onPressed: state.targetScore < 200
+                            ? () {
+                                final newVal = state.targetScore + 5;
+                                ref
+                                    .read(gameSetupProvider.notifier)
+                                    .setTargetScore(newVal);
+                                _targetScoreController.text =
+                                    newVal.clamp(10, 200).toString();
+                              }
+                            : null,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: SpacingTokens.md),
+
+                  // Continue past target toggle.
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Continue Past Target',
+                              style: textTheme.titleSmall,
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'Keep playing after someone reaches the target',
+                              style: textTheme.bodySmall?.copyWith(
+                                color: colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Switch(
+                        value: state.continuePastTarget,
+                        onChanged: (v) => ref
+                            .read(gameSetupProvider.notifier)
+                            .setContinuePastTarget(v),
+                      ),
+                    ],
+                  ),
+                ],
+
+                const SizedBox(height: SpacingTokens.xl),
+
+                // ── Players section ──────────────────────────────────────
+                Row(
+                  children: [
+                    Text(
+                      'Players',
+                      style: textTheme.titleLarge,
+                    ),
+                    const SizedBox(width: SpacingTokens.sm),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: SpacingTokens.sm,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: colorScheme.primaryContainer,
+                        borderRadius: BorderRadius.circular(
+                          SpacingTokens.radiusSm,
+                        ),
+                      ),
+                      child: Text(
+                        '${state.players.length}/10',
+                        style: textTheme.labelSmall?.copyWith(
+                          color: colorScheme.onPrimaryContainer,
+                        ),
+                      ),
+                    ),
+                    const Spacer(),
+                    if (state.players.length < 3)
+                      Text(
+                        'Min 3 required',
+                        style: textTheme.bodySmall?.copyWith(
+                          color: colorScheme.error,
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: SpacingTokens.sm),
+
+                // Player list (non-scrollable inside the parent ListView).
+                if (state.players.isNotEmpty)
+                  ReorderableListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    buildDefaultDragHandles: false,
+                    proxyDecorator: (child, index, animation) {
+                      return AnimatedBuilder(
+                        animation: animation,
+                        builder: (context, child) => Material(
+                          color: Colors.transparent,
+                          elevation: 4,
+                          borderRadius: BorderRadius.circular(
+                            SpacingTokens.radiusMd,
+                          ),
+                          child: child,
+                        ),
+                        child: child,
+                      );
+                    },
+                    itemCount: state.players.length,
+                    onReorder: (oldIndex, newIndex) => ref
+                        .read(gameSetupProvider.notifier)
+                        .reorderPlayers(oldIndex, newIndex),
+                    itemBuilder: (context, index) {
+                      final player = state.players[index];
+                      return ReorderableDragStartListener(
+                        key: ValueKey('player_$index'),
+                        index: index,
+                        child: PlayerTile(
+                          name: player.name,
+                          colorKey: player.colorKey,
+                          seatNumber: player.seatOrder,
+                          onRemove: () => ref
+                              .read(gameSetupProvider.notifier)
+                              .removePlayer(index),
+                        ),
+                      );
+                    },
+                  ),
+
+                const SizedBox(height: SpacingTokens.sm),
+
+                // Add player button.
+                OutlinedButton.icon(
+                  onPressed:
+                      state.isPlayerLimitReached ? null : _showAddPlayerSheet,
+                  icon: const Icon(Icons.person_add_rounded),
+                  label: const Text('Add Player'),
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 48),
+                    side: BorderSide(
+                      color: state.isPlayerLimitReached
+                          ? colorScheme.outline.withValues(alpha: 0.3)
+                          : storyTheme.auroraTeal,
+                    ),
+                  ),
+                ),
+
+                // Bottom padding for scroll clearance.
+                const SizedBox(height: SpacingTokens.xxl),
+              ],
+            ),
+          ),
+
+          // ── Start Game button (pinned at bottom) ───────────────────────
+          SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(
+                SpacingTokens.lg,
+                SpacingTokens.sm,
+                SpacingTokens.lg,
+                SpacingTokens.md,
+              ),
+              child: FilledButton(
+                onPressed: state.canStart && !_isCreating ? _startGame : null,
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 56),
+                  backgroundColor: storyTheme.goldAccent,
+                  foregroundColor: Colors.black,
+                  disabledBackgroundColor:
+                      storyTheme.goldAccent.withValues(alpha: 0.3),
+                  disabledForegroundColor: Colors.black45,
+                ),
+                child: _isCreating
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.5,
+                          color: Colors.black54,
+                        ),
+                      )
+                    : const Text('Start Game'),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// Internal helper: stepper button
+// =============================================================================
+
+class _StepperButton extends StatelessWidget {
+  const _StepperButton({
+    required this.icon,
+    required this.onPressed,
+  });
+
+  final IconData icon;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = context.colorScheme;
+    return SizedBox(
+      width: 36,
+      height: 36,
+      child: IconButton.filled(
+        onPressed: onPressed,
+        icon: Icon(icon, size: 18),
+        style: IconButton.styleFrom(
+          backgroundColor: colorScheme.surfaceContainerHighest,
+          foregroundColor: colorScheme.onSurface,
+          disabledBackgroundColor:
+              colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+        ),
+        padding: EdgeInsets.zero,
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// Add Player Bottom Sheet
+// =============================================================================
+
+class _AddPlayerSheet extends StatefulWidget {
+  const _AddPlayerSheet({
+    required this.usedColorKeys,
+    required this.onConfirm,
+  });
+
+  final Set<String> usedColorKeys;
+  final void Function(String name, String colorKey) onConfirm;
+
+  @override
+  State<_AddPlayerSheet> createState() => _AddPlayerSheetState();
+}
+
+class _AddPlayerSheetState extends State<_AddPlayerSheet> {
+  final _nameController = TextEditingController();
+  late String _selectedColorKey;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedColorKey = PlayerColors.nextAvailable(widget.usedColorKeys);
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
+
+  bool get _isValid => _nameController.text.trim().isNotEmpty;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = context.colorScheme;
+    final textTheme = context.textTheme;
+    final storyTheme = context.storyTheme;
+
+    return Padding(
+      padding: EdgeInsets.only(
+        left: SpacingTokens.lg,
+        right: SpacingTokens.lg,
+        top: SpacingTokens.lg,
+        bottom: MediaQuery.of(context).viewInsets.bottom + SpacingTokens.lg,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Handle.
+          Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          const SizedBox(height: SpacingTokens.lg),
+
+          Text('Add Player', style: textTheme.titleLarge),
+          const SizedBox(height: SpacingTokens.lg),
+
+          // Name field.
+          TextFormField(
+            controller: _nameController,
+            autofocus: true,
+            maxLength: 30,
+            textCapitalization: TextCapitalization.words,
+            decoration: const InputDecoration(
+              hintText: 'Player name',
+              counterText: '',
+            ),
+            onChanged: (_) => setState(() {}),
+          ),
+          const SizedBox(height: SpacingTokens.lg),
+
+          // Color picker.
+          Text(
+            'Choose Color',
+            style: textTheme.labelLarge?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: SpacingTokens.sm),
+          ColorPickerChips(
+            selectedKey: _selectedColorKey,
+            usedKeys: widget.usedColorKeys,
+            onSelected: (key) => setState(() => _selectedColorKey = key),
+          ),
+
+          const SizedBox(height: SpacingTokens.lg),
+
+          // Confirm button.
+          FilledButton(
+            onPressed: _isValid
+                ? () => widget.onConfirm(
+                      _nameController.text.trim(),
+                      _selectedColorKey,
+                    )
+                : null,
+            style: FilledButton.styleFrom(
+              minimumSize: const Size(double.infinity, 52),
+              backgroundColor: storyTheme.auroraTeal,
+              foregroundColor: Colors.black,
+              disabledBackgroundColor:
+                  storyTheme.auroraTeal.withValues(alpha: 0.3),
+              disabledForegroundColor: Colors.black45,
+            ),
+            child: const Text('Add'),
+          ),
+        ],
       ),
     );
   }
