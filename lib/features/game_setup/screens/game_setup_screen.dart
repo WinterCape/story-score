@@ -524,10 +524,11 @@ class _AddPlayerSheetState extends State<_AddPlayerSheet> {
         top: SpacingTokens.lg,
         bottom: MediaQuery.of(context).viewInsets.bottom + SpacingTokens.lg,
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
           // Handle.
           Center(
             child: Container(
@@ -669,6 +670,7 @@ class _AddPlayerSheetState extends State<_AddPlayerSheet> {
             child: const Text('Add'),
           ),
         ],
+        ),
       ),
     );
   }
