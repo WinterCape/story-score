@@ -81,6 +81,12 @@ flutter:
     - assets/fonts/
     - assets/icon/
     - assets/sounds/
+    - assets/images/
+    - assets/images/illustrations/
+    - assets/images/decorative/
+    - assets/images/states/
+    - assets/images/premium/
+    - assets/images/textures/
     - assets/images/icons/dark/
     - assets/images/icons/light/
 
