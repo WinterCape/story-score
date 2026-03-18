@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:story_score/app/providers.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
 import 'package:story_score/core/constants/player_colors.dart';
+import 'package:story_score/core/utils/haptics.dart';
 import 'package:story_score/data/database/app_database.dart';
 import 'package:story_score/features/round/providers/round_providers.dart';
 import 'package:story_score/features/round/widgets/round_recap_sheet.dart';
@@ -170,6 +171,7 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
                             targets: targets,
                             selectedTargetId: voteState.votes[voter.id],
                             onTargetSelected: (targetId) {
+                              Haptics.selection();
                               // Toggle: tap again to deselect
                               if (voteState.votes[voter.id] == targetId) {
                                 ref
@@ -199,37 +201,45 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
               bottomNavigationBar: SafeArea(
                 child: Padding(
                   padding: const EdgeInsets.all(SpacingTokens.md),
-                  child: FilledButton(
-                    onPressed: voteState.allVotesCast && !_isSubmitting
-                        ? () => _submitRound(
-                              session: session,
-                              storyteller: storyteller,
-                              players: players,
-                              votes: voteState.completedVotes,
-                            )
-                        : null,
-                    style: FilledButton.styleFrom(
-                      backgroundColor: context.storyTheme.goldAccent,
-                      foregroundColor: Colors.black,
-                      disabledBackgroundColor:
-                          context.colorScheme.surfaceContainerHighest,
-                      padding: const EdgeInsets.symmetric(
-                        vertical: SpacingTokens.md,
+                  child: Semantics(
+                    label: voteState.allVotesCast
+                        ? 'Score round'
+                        : 'Score round, disabled, all players must vote first',
+                    button: true,
+                    enabled: voteState.allVotesCast && !_isSubmitting,
+                    excludeSemantics: true,
+                    child: FilledButton(
+                      onPressed: voteState.allVotesCast && !_isSubmitting
+                          ? () => _submitRound(
+                                session: session,
+                                storyteller: storyteller,
+                                players: players,
+                                votes: voteState.completedVotes,
+                              )
+                          : null,
+                      style: FilledButton.styleFrom(
+                        backgroundColor: context.storyTheme.goldAccent,
+                        foregroundColor: Colors.black,
+                        disabledBackgroundColor:
+                            context.colorScheme.surfaceContainerHighest,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: SpacingTokens.md,
+                        ),
                       ),
-                    ),
-                    child: _isSubmitting
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
+                      child: _isSubmitting
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : Text(
+                              voteState.allVotesCast
+                                  ? 'Score Round'
+                                  : 'All players must vote',
                             ),
-                          )
-                        : Text(
-                            voteState.allVotesCast
-                                ? 'Score Round'
-                                : 'All players must vote',
-                          ),
+                    ),
                   ),
                 ),
               ),
@@ -262,6 +272,8 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
           );
 
       if (!mounted) return;
+
+      Haptics.medium();
 
       // Show recap bottom sheet — context is guarded by mounted check above
       await showRoundRecapSheet(
@@ -327,43 +339,47 @@ class _RoundHeader extends StatelessWidget {
           ),
           const SizedBox(height: SpacingTokens.sm),
           // Storyteller row
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: SpacingTokens.md,
-              vertical: SpacingTokens.sm,
-            ),
-            decoration: BoxDecoration(
-              color: goldAccent.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(SpacingTokens.radiusMd),
-              border: Border.all(
-                color: goldAccent.withValues(alpha: 0.3),
+          Semantics(
+            label: '${storyteller.name} is the current storyteller',
+            excludeSemantics: true,
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: SpacingTokens.md,
+                vertical: SpacingTokens.sm,
               ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.auto_stories,
-                  size: 18,
-                  color: goldAccent,
+              decoration: BoxDecoration(
+                color: goldAccent.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(SpacingTokens.radiusMd),
+                border: Border.all(
+                  color: goldAccent.withValues(alpha: 0.3),
                 ),
-                const SizedBox(width: SpacingTokens.sm),
-                Container(
-                  width: 10,
-                  height: 10,
-                  decoration: BoxDecoration(
-                    color: storytellerColor,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                const SizedBox(width: SpacingTokens.sm),
-                Text(
-                  '${storyteller.name} is the Storyteller',
-                  style: context.textTheme.titleSmall?.copyWith(
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.auto_stories,
+                    size: 18,
                     color: goldAccent,
                   ),
-                ),
-              ],
+                  const SizedBox(width: SpacingTokens.sm),
+                  Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      color: storytellerColor,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: SpacingTokens.sm),
+                  Text(
+                    '${storyteller.name} is the Storyteller',
+                    style: context.textTheme.titleSmall?.copyWith(
+                      color: goldAccent,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],

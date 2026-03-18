@@ -1,16 +1,78 @@
-# story_score
+# StoryScore
 
-A new Flutter project.
+The most beautiful score companion for storytelling card games.
+
+[Screenshot placeholder]
+
+## Features
+
+- Automatic scoring with full storytelling card game rules
+- Tap-to-vote round entry -- score a round in 3 taps
+- Round history with undo, edit, and delete
+- Save and resume multiple games
+- Export/import sessions (JSON + CSV)
+- Beautiful Celestial/Aurora theme (dark + light mode)
+- Works fully offline -- no account, no internet required
+- 3-10 players with customizable colors
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+### Prerequisites
+- Flutter 3.32+ (stable channel)
+- Dart 3.8+
+- iOS 16.0+ / Android API 21+
 
-A few resources to get you started if this is your first Flutter project:
+### Setup
+```bash
+git clone https://github.com/WinterCape/story-score.git
+cd story-score
+flutter pub get
+dart run build_runner build --delete-conflicting-outputs
+flutter run
+```
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+### Running Tests
+```bash
+flutter test                    # All tests
+flutter test test/domain/       # Scoring engine tests only
+flutter analyze                 # Static analysis
+```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Architecture
+
+- **Framework**: Flutter (iOS + Android + Web-ready)
+- **State Management**: Riverpod 3.0
+- **Database**: Drift (SQLite ORM)
+- **Routing**: GoRouter
+- **Theme**: Material 3 with custom Celestial/Aurora design tokens
+
+### Project Structure
+```
+lib/
+  app/          # App config, routing, theme
+  core/         # Constants, utilities, l10n
+  data/         # Database, settings, export/import
+  domain/       # Scoring engine, business models
+  features/     # Feature modules (screens, widgets, providers)
+  shared/       # Shared widgets, extensions
+```
+
+## Scoring Rules
+
+| Scenario | Storyteller | Correct Guessers | Others |
+|----------|-------------|-----------------|--------|
+| Good clue (some guess right) | +3 | +3 each | -- |
+| Bad clue (all/none guess right) | 0 | -- | +2 each |
+| Fooled bonus (always) | -- | Can earn too | +1 per vote received |
+
+## Monetization
+
+Free with all core features. Optional Supporter Pack ($3.99) unlocks premium themes, celebration effects, and advanced stats.
+
+## License
+
+[Add license]
+
+## Privacy
+
+StoryScore collects no data. No analytics, no accounts, no network required. See [Privacy Policy](docs/store-materials.md).

@@ -45,7 +45,18 @@ class SessionCard extends ConsumerWidget {
             ? ColorTokens.auroraTeal
             : colors.onSurfaceVariant;
 
-    return Dismissible(
+    final statusLabel = switch (session.status) {
+      GameStatus.active => 'active',
+      GameStatus.paused => 'paused',
+      GameStatus.completed => 'completed',
+    };
+
+    return Semantics(
+      label:
+          'Game $title, $playerCount players, round ${session.roundCount}, $statusLabel',
+      button: true,
+      excludeSemantics: true,
+      child: Dismissible(
       key: ValueKey(session.id),
       direction: DismissDirection.endToStart,
       onDismissed: (_) => onDismissed(),
@@ -153,6 +164,7 @@ class SessionCard extends ConsumerWidget {
             ),
           ),
         ),
+      ),
       ),
     );
   }

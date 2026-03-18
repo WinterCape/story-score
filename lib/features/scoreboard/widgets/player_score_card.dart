@@ -26,9 +26,18 @@ class PlayerScoreCard extends StatelessWidget {
     final playerColor = PlayerColors.colorFor(player.colorKey);
     final goldAccent = context.storyTheme.goldAccent;
 
-    return GestureDetector(
+    final rankLabel = rank != null ? ', ${_ordinal(rank!)} place' : '';
+    final storytellerLabel = isStoryteller ? ', current storyteller' : '';
+
+    return Semantics(
+      label:
+          'Player ${player.name}, score ${player.currentScore}$rankLabel$storytellerLabel',
+      button: onLongPress != null,
       onLongPress: onLongPress,
-      child: AnimatedContainer(
+      excludeSemantics: true,
+      child: GestureDetector(
+        onLongPress: onLongPress,
+        child: AnimatedContainer(
         duration: MotionTokens.durationMedium,
         curve: MotionTokens.curveStandard,
         decoration: BoxDecoration(
@@ -138,6 +147,7 @@ class PlayerScoreCard extends StatelessWidget {
           ),
         ),
       ),
+      ),
     );
   }
 
@@ -214,9 +224,18 @@ class PlayerChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final playerColor = PlayerColors.colorFor(player.colorKey);
 
-    return GestureDetector(
-      onTap: isDisabled ? null : onTap,
-      child: AnimatedContainer(
+    final selectedLabel = isSelected ? ', selected' : '';
+    final disabledLabel = isDisabled ? ', unavailable' : '';
+
+    return Semantics(
+      label: 'Vote for ${player.name}$selectedLabel$disabledLabel',
+      button: true,
+      enabled: !isDisabled,
+      selected: isSelected,
+      excludeSemantics: true,
+      child: GestureDetector(
+        onTap: isDisabled ? null : onTap,
+        child: AnimatedContainer(
         duration: MotionTokens.durationFast,
         curve: MotionTokens.curveStandard,
         padding: const EdgeInsets.symmetric(
@@ -285,6 +304,7 @@ class PlayerChip extends StatelessWidget {
               ),
           ],
         ),
+      ),
       ),
     );
   }

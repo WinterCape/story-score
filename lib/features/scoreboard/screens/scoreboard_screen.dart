@@ -2,11 +2,15 @@ import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:story_score/app/providers.dart';
 import 'package:story_score/app/theme/color_tokens.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
 import 'package:story_score/data/database/app_database.dart';
 import 'package:story_score/data/database/tables/game_sessions.dart';
+import 'package:story_score/data/export/export_helper.dart';
+import 'package:story_score/data/export/session_exporter.dart';
 import 'package:story_score/features/scoreboard/providers/scoreboard_providers.dart';
 import 'package:story_score/features/scoreboard/widgets/player_score_card.dart';
 import 'package:story_score/shared/extensions/context_extensions.dart';
@@ -168,11 +172,23 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
               PopupMenuButton<String>(
                 onSelected: (value) {
                   switch (value) {
+                    case 'export_game':
+                      _showExportSheet(context, ref);
                     case 'end_game':
                       _showEndGameDialog(context, ref, session);
                   }
                 },
                 itemBuilder: (context) => [
+                  const PopupMenuItem(
+                    value: 'export_game',
+                    child: Row(
+                      children: [
+                        Icon(Icons.share_outlined, size: 20),
+                        SizedBox(width: SpacingTokens.sm),
+                        Text('Export Game'),
+                      ],
+                    ),
+                  ),
                   const PopupMenuItem(
                     value: 'end_game',
                     child: Row(
@@ -232,18 +248,106 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
               );
             },
           ),
-          floatingActionButton: FloatingActionButton.extended(
-            onPressed: () {
-              context.go('/game/$sessionId/round');
-            },
-            icon: const Icon(Icons.play_arrow),
-            label: const Text('New Round'),
-            backgroundColor: context.storyTheme.goldAccent,
-            foregroundColor: Colors.black,
+          floatingActionButton: Semantics(
+            label: 'Start new round',
+            button: true,
+            excludeSemantics: true,
+            child: FloatingActionButton.extended(
+              onPressed: () {
+                context.go('/game/$sessionId/round');
+              },
+              icon: const Icon(Icons.play_arrow),
+              label: const Text('New Round'),
+              backgroundColor: context.storyTheme.goldAccent,
+              foregroundColor: Colors.black,
+            ),
           ),
         );
       },
     );
+  }
+
+  void _showExportSheet(BuildContext context, WidgetRef ref) {
+    showModalBottomSheet(
+      context: context,
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                SpacingTokens.lg,
+                SpacingTokens.lg,
+                SpacingTokens.lg,
+                SpacingTokens.sm,
+              ),
+              child: Text(
+                'Export Game',
+                style: context.textTheme.titleMedium,
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.data_object),
+              title: const Text('Export as JSON'),
+              subtitle: const Text('Full game data, can be re-imported'),
+              onTap: () {
+                Navigator.of(sheetContext).pop();
+                _exportAs(context, ref, format: 'json');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.table_chart_outlined),
+              title: const Text('Export as CSV'),
+              subtitle: const Text('Spreadsheet-friendly format'),
+              onTap: () {
+                Navigator.of(sheetContext).pop();
+                _exportAs(context, ref, format: 'csv');
+              },
+            ),
+            const SizedBox(height: SpacingTokens.md),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _exportAs(
+    BuildContext context,
+    WidgetRef ref, {
+    required String format,
+  }) async {
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final info = await PackageInfo.fromPlatform();
+      final exported = await buildExportedSession(
+        sessionId: sessionId,
+        sessionDao: ref.read(sessionDaoProvider),
+        roundDao: ref.read(roundDaoProvider),
+        appVersion: info.version,
+      );
+
+      const exporter = SessionExporter();
+      final String content;
+      final String fileName;
+      if (format == 'csv') {
+        content = exporter.toCsv(exported);
+        fileName = 'storyscore_${sessionId.substring(0, 8)}.csv';
+      } else {
+        content = exporter.toJson(exported);
+        fileName = 'storyscore_${sessionId.substring(0, 8)}.json';
+      }
+
+      await SharePlus.instance.share(
+        ShareParams(
+          text: content,
+          title: fileName,
+        ),
+      );
+    } catch (e) {
+      messenger.showSnackBar(
+        SnackBar(content: Text('Export failed: $e')),
+      );
+    }
   }
 
   void _showEndGameDialog(
@@ -331,37 +435,44 @@ class _RoundInfoHeader extends ConsumerWidget {
           // Storyteller indicator — tap to change
           if (storyteller != null) ...[
             Expanded(
-              child: InkWell(
-                borderRadius: BorderRadius.circular(SpacingTokens.radiusSm),
-                onTap: () => _showStorytellerPicker(context, ref),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: SpacingTokens.xs,
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.auto_stories,
-                        size: 16,
-                        color: context.storyTheme.goldAccent,
-                      ),
-                      const SizedBox(width: SpacingTokens.xs),
-                      Expanded(
-                        child: Text(
-                          '${storyteller!.name} is storytelling',
-                          style: context.textTheme.bodyMedium?.copyWith(
-                            color: context.colorScheme.onSurfaceVariant,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+              child: Semantics(
+                label:
+                    '${storyteller!.name} is the current storyteller. Tap to change.',
+                button: true,
+                excludeSemantics: true,
+                child: InkWell(
+                  borderRadius:
+                      BorderRadius.circular(SpacingTokens.radiusSm),
+                  onTap: () => _showStorytellerPicker(context, ref),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: SpacingTokens.xs,
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.auto_stories,
+                          size: 16,
+                          color: context.storyTheme.goldAccent,
                         ),
-                      ),
-                      Icon(
-                        Icons.swap_horiz,
-                        size: 16,
-                        color: context.colorScheme.onSurfaceVariant,
-                      ),
-                    ],
+                        const SizedBox(width: SpacingTokens.xs),
+                        Expanded(
+                          child: Text(
+                            '${storyteller!.name} is storytelling',
+                            style: context.textTheme.bodyMedium?.copyWith(
+                              color: context.colorScheme.onSurfaceVariant,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        Icon(
+                          Icons.swap_horiz,
+                          size: 16,
+                          color: context.colorScheme.onSurfaceVariant,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

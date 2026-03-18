@@ -1,8 +1,15 @@
+import 'dart:io';
+
+import 'package:drift/drift.dart' show Value;
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:story_score/app/providers.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
 import 'package:story_score/data/database/app_database.dart';
+import 'package:story_score/data/database/tables/game_sessions.dart';
+import 'package:story_score/data/export/session_importer.dart';
 import 'package:story_score/features/home/providers/home_providers.dart';
 import 'package:story_score/features/home/widgets/empty_state.dart';
 import 'package:story_score/features/home/widgets/session_card.dart';
@@ -26,6 +33,11 @@ class HomeScreen extends ConsumerWidget {
           ),
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.file_download_outlined),
+            tooltip: 'Import Game',
+            onPressed: () => _importGame(context, ref),
+          ),
           IconButton(
             icon: const Icon(Icons.settings_outlined),
             tooltip: 'Settings',
@@ -130,6 +142,94 @@ class HomeScreen extends ConsumerWidget {
         ],
       ],
     );
+  }
+
+  Future<void> _importGame(BuildContext context, WidgetRef ref) async {
+    final messenger = ScaffoldMessenger.of(context);
+
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+      );
+
+      if (result == null || result.files.isEmpty) return;
+
+      final filePath = result.files.single.path;
+      if (filePath == null) return;
+
+      final jsonString = await File(filePath).readAsString();
+
+      const importer = SessionImporter();
+      final importResult = importer.fromJson(jsonString);
+
+      if (!importResult.isValid) {
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text('Import failed: ${importResult.errors.join(', ')}'),
+          ),
+        );
+        return;
+      }
+
+      final exported = importResult.session!;
+
+      // Parse target type
+      final targetType = switch (exported.session.targetType) {
+        'score' => TargetType.score,
+        'rounds' => TargetType.rounds,
+        _ => TargetType.freeplay,
+      };
+
+      // Parse game status
+      final status = switch (exported.session.status) {
+        'active' => GameStatus.active,
+        'paused' => GameStatus.paused,
+        _ => GameStatus.completed,
+      };
+
+      final sessionCompanion = GameSessionsCompanion.insert(
+        id: exported.session.id,
+        title: Value(exported.session.title),
+        status: status,
+        targetType: targetType,
+        targetScore: Value(exported.session.targetScore),
+      );
+
+      final playerCompanions = exported.players.map((p) {
+        return PlayersCompanion.insert(
+          id: p.id,
+          sessionId: exported.session.id,
+          name: p.name,
+          seatOrder: p.seatOrder,
+          colorKey: p.colorKey,
+          currentScore: Value(p.currentScore),
+        );
+      }).toList();
+
+      final dao = ref.read(sessionDaoProvider);
+      await dao.createSession(sessionCompanion, playerCompanions);
+
+      // Show warnings if any
+      if (importResult.warnings.isNotEmpty) {
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(
+              'Game imported with warnings: ${importResult.warnings.join(', ')}',
+            ),
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      } else {
+        messenger.showSnackBar(
+          const SnackBar(content: Text('Game imported successfully!')),
+        );
+      }
+    } catch (e) {
+      messenger.showSnackBar(
+        SnackBar(content: Text('Import failed: $e')),
+      );
+    }
   }
 
   Future<void> _deleteSession(WidgetRef ref, String sessionId) async {
