@@ -156,6 +156,10 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
 
         return Scaffold(
           appBar: AppBar(
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_rounded),
+              onPressed: () => context.go('/'),
+            ),
             title: Text(
               session.title.isNotEmpty ? session.title : 'Scoreboard',
             ),

@@ -72,7 +72,7 @@ class PresetManagementScreen extends ConsumerWidget {
             ),
             const SizedBox(height: SpacingTokens.xl),
             FilledButton.icon(
-              onPressed: () => context.go('/settings/premium'),
+              onPressed: () => context.push('/settings/premium'),
               icon: const Icon(Icons.star_rounded),
               label: const Text('Unlock Supporter Pack'),
             ),

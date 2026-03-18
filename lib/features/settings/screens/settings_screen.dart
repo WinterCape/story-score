@@ -211,7 +211,7 @@ class SettingsScreen extends ConsumerWidget {
               title: const Text('Player Presets'),
               subtitle: const Text('Save and manage player groups'),
               trailing: const Icon(Icons.chevron_right),
-              onTap: () => context.go('/settings/presets'),
+              onTap: () => context.push('/settings/presets'),
             ),
 
             const Divider(),
@@ -223,7 +223,7 @@ class SettingsScreen extends ConsumerWidget {
               title: const Text('Supporter Pack'),
               subtitle: const Text('Premium themes & extras'),
               trailing: const Icon(Icons.chevron_right),
-              onTap: () => context.go('/settings/premium'),
+              onTap: () => context.push('/settings/premium'),
             ),
 
             const Divider(),

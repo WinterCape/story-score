@@ -27,14 +27,23 @@ import 'package:story_score/features/stats/widgets/score_progression_chart.dart'
 import 'package:story_score/features/stats/widgets/session_stats_section.dart';
 import 'package:story_score/shared/extensions/context_extensions.dart';
 
-class EndgameScreen extends ConsumerWidget {
+class EndgameScreen extends ConsumerStatefulWidget {
   final String sessionId;
 
   const EndgameScreen({super.key, required this.sessionId});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final sessionDao = ref.watch(sessionDaoProvider);
+  ConsumerState<EndgameScreen> createState() => _EndgameScreenState();
+}
+
+class _EndgameScreenState extends ConsumerState<EndgameScreen> {
+  bool _celebrationFired = false;
+
+  String get sessionId => widget.sessionId;
+
+  @override
+  Widget build(BuildContext context) {
+    final sessionDao = ref.read(sessionDaoProvider);
     final theme = Theme.of(context);
     final skipAnimations = context.reduceMotion;
 
@@ -60,15 +69,27 @@ class EndgameScreen extends ConsumerWidget {
           final hasTie = winners.length > 1;
           final winnerLabel = winners.map((w) => w.name).join(' & ');
 
-          // Fire haptic + confetti on winner reveal
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            Haptics.heavy();
-            _triggerWinnerConfetti(context, ref);
-          });
+          // Fire haptic + confetti only once on winner reveal
+          if (!_celebrationFired) {
+            _celebrationFired = true;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (!mounted) return;
+              Haptics.heavy();
+              _triggerWinnerConfetti(context, ref);
+            });
+          }
 
           return SafeArea(
             child: CustomScrollView(
               slivers: [
+                SliverAppBar(
+                  pinned: true,
+                  title: const Text('Game Over'),
+                  leading: IconButton(
+                    icon: const Icon(Icons.arrow_back_rounded),
+                    onPressed: () => context.go('/'),
+                  ),
+                ),
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.all(SpacingTokens.lg),
@@ -412,7 +433,7 @@ class EndgameScreen extends ConsumerWidget {
     );
     nameController.dispose();
 
-    if (name == null || name.isEmpty) return;
+    if (name == null || name.isEmpty || !mounted) return;
 
     final messenger = ScaffoldMessenger.of(context);
     try {
@@ -432,8 +453,10 @@ class EndgameScreen extends ConsumerWidget {
             .toList(),
       );
       Haptics.selection();
+      if (!mounted) return;
       messenger.showSnackBar(SnackBar(content: Text('Saved preset "$name"')));
     } catch (e) {
+      if (!mounted) return;
       messenger.showSnackBar(
         SnackBar(content: Text('Failed to save preset: $e')),
       );
@@ -485,7 +508,7 @@ class EndgameScreen extends ConsumerWidget {
   }
 
   /// Triggers confetti overlay for supporters on winner reveal.
-  static void _triggerWinnerConfetti(BuildContext context, WidgetRef ref) {
+  void _triggerWinnerConfetti(BuildContext context, WidgetRef ref) {
     final isSupporter = ref.read(isSupporterProvider);
     if (!isSupporter) return;
 

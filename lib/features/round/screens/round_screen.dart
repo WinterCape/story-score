@@ -103,6 +103,14 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
                 .toList();
 
             return Scaffold(
+              appBar: AppBar(
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back_rounded),
+                  onPressed: () =>
+                      context.go('/game/${widget.sessionId}/scoreboard'),
+                ),
+                title: Text('Round ${session.roundCount + 1}'),
+              ),
               body: Center(
                 child: ConstrainedBox(
                   constraints: BoxConstraints(

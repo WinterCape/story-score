@@ -18,6 +18,13 @@ class HistoryScreen extends ConsumerWidget {
     final roundsAsync = ref.watch(roundHistoryProvider(sessionId));
 
     return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded),
+          onPressed: () => context.go('/game/$sessionId/scoreboard'),
+        ),
+        title: const Text('Round History'),
+      ),
       body: roundsAsync.when(
         data: (rounds) {
           if (rounds.isEmpty) {
