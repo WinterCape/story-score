@@ -18,6 +18,7 @@ class AppSettingsRepository {
   static const _keyDefaultTargetMode = 'settings.defaultTargetMode';
   static const _keyShowRoundNotes = 'settings.showRoundNotes';
   static const _keyPreferredSortOrder = 'settings.preferredSortOrder';
+  static const _keySelectedTheme = 'settings.selectedTheme';
 
   // ── Read ─────────────────────────────────────────────────────────────────
 
@@ -29,6 +30,7 @@ class AppSettingsRepository {
       defaultTargetMode: _loadTargetType(),
       showRoundNotes: _prefs.getBool(_keyShowRoundNotes) ?? true,
       preferredSortOrder: _loadSortOrder(),
+      selectedTheme: _prefs.getString(_keySelectedTheme) ?? 'celestial',
     );
   }
 
@@ -42,6 +44,7 @@ class AppSettingsRepository {
       setDefaultTargetMode(settings.defaultTargetMode),
       setShowRoundNotes(settings.showRoundNotes),
       setPreferredSortOrder(settings.preferredSortOrder),
+      setSelectedTheme(settings.selectedTheme),
     ]);
   }
 
@@ -69,6 +72,10 @@ class AppSettingsRepository {
 
   Future<void> setPreferredSortOrder(PlayerSortOrder order) async {
     await _prefs.setInt(_keyPreferredSortOrder, order.index);
+  }
+
+  Future<void> setSelectedTheme(String themeId) async {
+    await _prefs.setString(_keySelectedTheme, themeId);
   }
 
   // ── Helpers ──────────────────────────────────────────────────────────────

@@ -14,6 +14,7 @@ class AppSettings {
     this.defaultTargetMode = TargetType.score,
     this.showRoundNotes = true,
     this.preferredSortOrder = PlayerSortOrder.seat,
+    this.selectedTheme = 'celestial',
   });
 
   final ThemeMode themeMode;
@@ -23,6 +24,9 @@ class AppSettings {
   final bool showRoundNotes;
   final PlayerSortOrder preferredSortOrder;
 
+  /// The selected color theme identifier (e.g. 'celestial', 'ocean_depths').
+  final String selectedTheme;
+
   AppSettings copyWith({
     ThemeMode? themeMode,
     bool? hapticsEnabled,
@@ -30,6 +34,7 @@ class AppSettings {
     TargetType? defaultTargetMode,
     bool? showRoundNotes,
     PlayerSortOrder? preferredSortOrder,
+    String? selectedTheme,
   }) {
     return AppSettings(
       themeMode: themeMode ?? this.themeMode,
@@ -39,6 +44,7 @@ class AppSettings {
       defaultTargetMode: defaultTargetMode ?? this.defaultTargetMode,
       showRoundNotes: showRoundNotes ?? this.showRoundNotes,
       preferredSortOrder: preferredSortOrder ?? this.preferredSortOrder,
+      selectedTheme: selectedTheme ?? this.selectedTheme,
     );
   }
 }

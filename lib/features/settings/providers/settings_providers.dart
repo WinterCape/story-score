@@ -66,6 +66,12 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     state = AsyncData(state.requireValue.copyWith(preferredSortOrder: order));
   }
 
+  Future<void> setSelectedTheme(String themeId) async {
+    final repo = ref.read(appSettingsRepositoryProvider);
+    await repo.setSelectedTheme(themeId);
+    state = AsyncData(state.requireValue.copyWith(selectedTheme: themeId));
+  }
+
   Future<void> updateAll(AppSettings settings) async {
     final repo = ref.read(appSettingsRepositoryProvider);
     await repo.save(settings);
@@ -76,4 +82,9 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
 /// Derived provider that exposes only the current [ThemeMode].
 final themeModeProvider = Provider<ThemeMode>((ref) {
   return ref.watch(appSettingsProvider).value?.themeMode ?? ThemeMode.system;
+});
+
+/// Derived provider that exposes the selected theme identifier.
+final selectedThemeProvider = Provider<String>((ref) {
+  return ref.watch(appSettingsProvider).value?.selectedTheme ?? 'celestial';
 });

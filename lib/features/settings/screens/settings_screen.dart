@@ -6,6 +6,7 @@ import 'package:story_score/app/theme/spacing_tokens.dart';
 import 'package:story_score/data/database/tables/game_sessions.dart';
 import 'package:story_score/data/settings/app_settings.dart';
 import 'package:story_score/features/settings/providers/settings_providers.dart';
+import 'package:story_score/features/settings/widgets/theme_picker.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -52,6 +53,29 @@ class SettingsScreen extends ConsumerWidget {
                 showSelectedIcon: false,
               ),
             ),
+
+            // Theme color picker
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: SpacingTokens.lg,
+                vertical: SpacingTokens.sm,
+              ),
+              child: Text(
+                'Color Theme',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurfaceVariant,
+                    ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: SpacingTokens.lg,
+              ),
+              child: const ThemePicker(),
+            ),
+            const SizedBox(height: SpacingTokens.sm),
 
             const Divider(),
 

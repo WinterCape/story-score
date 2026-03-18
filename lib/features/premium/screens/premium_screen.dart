@@ -58,7 +58,13 @@ class PremiumScreen extends ConsumerWidget {
                 if (isSupporter)
                   _AlreadySupporterBanner(ext: ext)
                 else
-                  _PurchaseSection(ref: ref, ext: ext),
+                  const _PurchaseSection(),
+
+                // ---- Debug clear button (when supporter) ----
+                if (isSupporter) ...[
+                  const SizedBox(height: SpacingTokens.md),
+                  const _DebugClearButton(),
+                ],
 
                 const SizedBox(height: SpacingTokens.xxl),
               ]),
@@ -139,15 +145,13 @@ class _HeroHeader extends StatelessWidget {
 // Purchase button + restore link
 // ---------------------------------------------------------------------------
 
-class _PurchaseSection extends StatelessWidget {
-  const _PurchaseSection({required this.ref, required this.ext});
-
-  final WidgetRef ref;
-  final StoryScoreThemeExtension ext;
+class _PurchaseSection extends ConsumerWidget {
+  const _PurchaseSection();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final ext = theme.storyScore;
 
     return Column(
       children: [
@@ -199,9 +203,10 @@ class _PurchaseSection extends StatelessWidget {
   }
 
   Future<void> _handlePurchase(BuildContext context, WidgetRef ref) async {
-    // Invalidate to trigger the future again.
     ref.invalidate(purchaseSupporterPackProvider);
     final result = await ref.read(purchaseSupporterPackProvider.future);
+    // Invalidate the entitlement provider so isSupporterProvider updates
+    ref.invalidate(purchaseEntitlementProvider);
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(result)),
@@ -212,6 +217,7 @@ class _PurchaseSection extends StatelessWidget {
   Future<void> _handleRestore(BuildContext context, WidgetRef ref) async {
     ref.invalidate(restorePurchasesProvider);
     final result = await ref.read(restorePurchasesProvider.future);
+    ref.invalidate(purchaseEntitlementProvider);
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(result)),
@@ -274,5 +280,44 @@ class _AlreadySupporterBanner extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Debug clear button — allows toggling back to free state during development
+// ---------------------------------------------------------------------------
+
+class _DebugClearButton extends ConsumerWidget {
+  const _DebugClearButton();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton.icon(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: theme.colorScheme.error,
+          side: BorderSide(
+            color: theme.colorScheme.error.withValues(alpha: 0.5),
+          ),
+        ),
+        icon: const Icon(Icons.bug_report_outlined, size: 18),
+        label: const Text('Clear Purchase (Debug)'),
+        onPressed: () => _handleClear(context, ref),
+      ),
+    );
+  }
+
+  Future<void> _handleClear(BuildContext context, WidgetRef ref) async {
+    ref.invalidate(clearPurchaseProvider);
+    final result = await ref.read(clearPurchaseProvider.future);
+    ref.invalidate(purchaseEntitlementProvider);
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(result)),
+      );
+    }
   }
 }
