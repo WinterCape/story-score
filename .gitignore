@@ -51,3 +51,11 @@ docs/pptx-build/
 docs/generate_*.js
 package.json
 package-lock.json
+
+# Signing
+android/key.properties
+*.jks
+*.keystore
+
+# Generated icons/splash
+# (keep the generated files, but ignore temp build artifacts)

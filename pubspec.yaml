@@ -63,11 +63,16 @@ dev_dependencies:
   # Testing
   mocktail: ^1.0.4
 
+  # App icon & splash
+  flutter_launcher_icons: ^0.14.3
+  flutter_native_splash: ^2.4.6
+
 flutter:
   uses-material-design: true
 
   assets:
     - assets/fonts/
+    - assets/icon/
 
   fonts:
     - family: Nunito
