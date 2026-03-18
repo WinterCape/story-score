@@ -4,8 +4,13 @@ import 'package:go_router/go_router.dart';
 import 'package:story_score/app/providers.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
 import 'package:story_score/core/constants/player_colors.dart';
+import 'package:story_score/core/utils/haptics.dart';
 import 'package:story_score/data/database/app_database.dart';
+import 'package:story_score/data/database/daos/round_dao.dart';
+import 'package:story_score/domain/scoring/round_processor.dart';
+import 'package:story_score/domain/scoring/scoring_engine.dart';
 import 'package:story_score/features/history/providers/history_providers.dart';
+import 'package:story_score/features/round/widgets/round_recap_sheet.dart';
 import 'package:story_score/shared/extensions/context_extensions.dart';
 
 /// Provides the players list for a given session.
@@ -30,6 +35,10 @@ class RoundDetailScreen extends ConsumerStatefulWidget {
 
 class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
   bool _isDeleting = false;
+  bool _isEditing = false;
+  bool _isSavingEdit = false;
+  late Map<String, String> _editVotes; // voterPlayerId -> votedForPlayerId
+  String? _editStorytellerId;
 
   @override
   Widget build(BuildContext context) {
@@ -115,36 +124,87 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
               }),
               const SizedBox(height: SpacingTokens.xl),
 
-              // Action buttons
-              Row(
-                children: [
-                  // Delete button
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed:
-                          _isDeleting ? null : () => _confirmDelete(context),
-                      icon: _isDeleting
-                          ? SizedBox(
-                              width: 18,
-                              height: 18,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: colors.error,
-                              ),
-                            )
-                          : const Icon(Icons.delete_outline_rounded, size: 18),
-                      label: const Text('Delete Round'),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: colors.error,
-                        side: BorderSide(
-                          color: colors.error.withValues(alpha: 0.5),
+              // Edit mode: vote editing UI
+              if (_isEditing) ...[
+                _SectionTitle(title: 'Edit Votes'),
+                const SizedBox(height: SpacingTokens.sm),
+                ..._buildEditVoteRows(players, details),
+                const SizedBox(height: SpacingTokens.md),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: _isSavingEdit
+                            ? null
+                            : () => setState(() => _isEditing = false),
+                        child: const Text('Cancel'),
+                      ),
+                    ),
+                    const SizedBox(width: SpacingTokens.md),
+                    Expanded(
+                      child: FilledButton.icon(
+                        onPressed: _isSavingEdit
+                            ? null
+                            : () => _saveEdit(context, players, details),
+                        icon: _isSavingEdit
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Icon(Icons.check_rounded, size: 18),
+                        label: const Text('Save Changes'),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: SpacingTokens.xl),
+              ] else ...[
+                // Action buttons (view mode)
+                Row(
+                  children: [
+                    // Edit button
+                    Expanded(
+                      child: FilledButton.icon(
+                        onPressed: () => _startEditing(details),
+                        icon: const Icon(Icons.edit_rounded, size: 18),
+                        label: const Text('Edit Round'),
+                      ),
+                    ),
+                    const SizedBox(width: SpacingTokens.md),
+                    // Delete button
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: _isDeleting
+                            ? null
+                            : () => _confirmDelete(context),
+                        icon: _isDeleting
+                            ? SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: colors.error,
+                                ),
+                              )
+                            : const Icon(Icons.delete_outline_rounded,
+                                size: 18),
+                        label: const Text('Delete Round'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: colors.error,
+                          side: BorderSide(
+                            color: colors.error.withValues(alpha: 0.5),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: SpacingTokens.xl),
+                  ],
+                ),
+                const SizedBox(height: SpacingTokens.xl),
+              ],
             ],
           );
         },
@@ -178,6 +238,203 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
         ),
       ),
     );
+  }
+
+  void _startEditing(RoundWithDetails details) {
+    setState(() {
+      _isEditing = true;
+      _editStorytellerId = details.round.storytellerPlayerId;
+      _editVotes = {
+        for (final vote in details.votes)
+          vote.voterPlayerId: vote.votedForPlayerId,
+      };
+    });
+  }
+
+  List<Widget> _buildEditVoteRows(
+      List<Player> players, RoundWithDetails details) {
+    final colors = context.colorScheme;
+    final text = context.textTheme;
+    final storyTheme = context.storyTheme;
+    final storytellerId =
+        _editStorytellerId ?? details.round.storytellerPlayerId;
+    final voters = players.where((p) => p.id != storytellerId).toList();
+
+    return voters.map((voter) {
+      final currentVote = _editVotes[voter.id];
+      // Targets: all players except the voter themselves
+      final targets = players.where((p) => p.id != voter.id).toList();
+
+      return Card(
+        child: Padding(
+          padding: const EdgeInsets.all(SpacingTokens.sm),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 24,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: PlayerColors.colorFor(voter.colorKey)
+                          .withValues(alpha: 0.2),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      voter.name.isNotEmpty
+                          ? voter.name[0].toUpperCase()
+                          : '?',
+                      style: text.labelSmall?.copyWith(
+                        color: PlayerColors.colorFor(voter.colorKey),
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: SpacingTokens.sm),
+                  Text(
+                    voter.name,
+                    style: text.titleSmall
+                        ?.copyWith(color: colors.onSurface),
+                  ),
+                ],
+              ),
+              const SizedBox(height: SpacingTokens.xs),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: targets.map((target) {
+                    final isSelected = currentVote == target.id;
+                    final targetColor =
+                        PlayerColors.colorFor(target.colorKey);
+
+                    return Padding(
+                      padding:
+                          const EdgeInsets.only(right: SpacingTokens.xs),
+                      child: ActionChip(
+                        avatar: Container(
+                          width: 20,
+                          height: 20,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: targetColor.withValues(alpha: 0.3),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            target.name.isNotEmpty
+                                ? target.name[0].toUpperCase()
+                                : '?',
+                            style: text.labelSmall?.copyWith(
+                              color: targetColor,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 10,
+                            ),
+                          ),
+                        ),
+                        label: Text(
+                          target.name,
+                          style: TextStyle(
+                            color: isSelected
+                                ? storyTheme.goldAccent
+                                : colors.onSurfaceVariant,
+                            fontWeight: isSelected
+                                ? FontWeight.w700
+                                : FontWeight.normal,
+                          ),
+                        ),
+                        backgroundColor: isSelected
+                            ? storyTheme.goldAccent
+                                .withValues(alpha: 0.15)
+                            : null,
+                        side: isSelected
+                            ? BorderSide(color: storyTheme.goldAccent)
+                            : null,
+                        onPressed: () {
+                          Haptics.selection();
+                          setState(() {
+                            if (isSelected) {
+                              _editVotes.remove(voter.id);
+                            } else {
+                              _editVotes[voter.id] = target.id;
+                            }
+                          });
+                        },
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }).toList();
+  }
+
+  Future<void> _saveEdit(
+    BuildContext context,
+    List<Player> players,
+    RoundWithDetails details,
+  ) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final storytellerId =
+        _editStorytellerId ?? details.round.storytellerPlayerId;
+    final voters = players.where((p) => p.id != storytellerId).toList();
+
+    // Validate all voters have voted
+    for (final voter in voters) {
+      if (!_editVotes.containsKey(voter.id)) {
+        messenger.showSnackBar(
+          SnackBar(content: Text('${voter.name} has not voted yet')),
+        );
+        return;
+      }
+    }
+
+    setState(() => _isSavingEdit = true);
+    try {
+      final roundDao = ref.read(roundDaoProvider);
+      final sessionDao = ref.read(sessionDaoProvider);
+
+      final processor = RoundProcessor(
+        engine: const ScoringEngine(),
+        roundDao: roundDao,
+        sessionDao: sessionDao,
+      );
+
+      final result = await processor.editRound(
+        roundId: widget.roundId,
+        sessionId: widget.sessionId,
+        storytellerPlayerId: storytellerId,
+        allPlayerIds: players.map((p) => p.id).toList(),
+        votes: _editVotes,
+        note: details.round.note,
+      );
+
+      Haptics.medium();
+
+      if (!mounted) return;
+
+      setState(() {
+        _isEditing = false;
+        _isSavingEdit = false;
+      });
+
+      // Show recap
+      if (!mounted) return;
+      await showRoundRecapSheet(
+        context: context,
+        result: result,
+        players: players,
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isSavingEdit = false);
+      messenger.showSnackBar(
+        SnackBar(content: Text('Failed to save changes: $e')),
+      );
+    }
   }
 
   Map<String, List<ScoreChange>> _groupScoreChangesByPlayer(
