@@ -1,0 +1,232 @@
+{
+  "app_name": "StoryScore",
+  "fonts": {
+    "display": {
+      "primary": "Cormorant Garamond / EB Garamond",
+      "fallback": "serif"
+    },
+    "ui": {
+      "primary": "Nunito",
+      "fallback": "Inter, sans-serif"
+    },
+    "note": "Mockups were rendered with EB Garamond + Inter because those fonts were available in the environment."
+  },
+  "palette": {
+    "dark": {
+      "background": "#0F0A1A",
+      "surface": "#1E1233",
+      "card": "#2E1A4A",
+      "card_variant": "#3A2060",
+      "gold_accent": "#E8A020",
+      "burgundy": "#A01845",
+      "dusty_rose": "#D4758A",
+      "parchment": "#F5E0B8",
+      "muted_text": "#B89AAA",
+      "teal": "#1A8585",
+      "violet": "#7B50C8",
+      "coral": "#E8785E"
+    },
+    "light": {
+      "background": "#FBF0DD",
+      "surface": "#F5E0B8",
+      "card": "#FFFFFF",
+      "primary": "#A01845",
+      "text": "#6B3A1A",
+      "secondary_text": "#8B6A5A",
+      "border": "#E8D0A0"
+    },
+    "players": [
+      "#1A8585",
+      "#4B5FE2",
+      "#E8A020",
+      "#E8785E",
+      "#5F9E57",
+      "#53A8E2",
+      "#E08B28",
+      "#C44994",
+      "#7E8A2E",
+      "#6678B8",
+      "#E8A020",
+      "#8A4BE3"
+    ]
+  },
+  "spacing": {
+    "xs": 4,
+    "sm": 8,
+    "md": 16,
+    "lg": 24,
+    "xl": 32,
+    "xxl": 48,
+    "card_radius": 14,
+    "button_radius": 14,
+    "small_radius": 8,
+    "touch_min": 44
+  },
+  "typography": {
+    "app_title": {
+      "font": "display",
+      "weight": 800,
+      "size": 28,
+      "color_dark": "#E8A020",
+      "color_light": "#A01845"
+    },
+    "screen_title": {
+      "font": "ui",
+      "weight": 800,
+      "size": 24,
+      "color_dark": "#F5E0B8",
+      "color_light": "#6B3A1A"
+    },
+    "section_header": {
+      "font": "ui",
+      "weight": 700,
+      "size": 10,
+      "tracking": 1.5,
+      "uppercase": true,
+      "color_dark": "#E8A020",
+      "color_light": "#A01845"
+    },
+    "body": {
+      "font": "ui",
+      "weight": 400,
+      "size": 14,
+      "color_dark": "#F5E0B8",
+      "color_light": "#6B3A1A"
+    },
+    "secondary": {
+      "font": "ui",
+      "weight": 400,
+      "size": 12,
+      "color_dark": "#B89AAA",
+      "color_light": "#8B6A5A"
+    },
+    "score": {
+      "font": "ui",
+      "weight": 800,
+      "size_range": [
+        32,
+        58
+      ],
+      "color_dark": "#E8A020",
+      "color_light": "#A01845"
+    },
+    "button": {
+      "font": "ui",
+      "weight": 700,
+      "size": 15,
+      "color": "#FFFFFF"
+    }
+  },
+  "radii": {
+    "card": 14,
+    "button": 14,
+    "small": 8
+  },
+  "elevation": {
+    "dark_card_shadow": "0 4px 15px rgba(0,0,0,0.30)",
+    "gold_glow_shadow": "0 0 20px rgba(232,160,32,0.15)"
+  },
+  "motion": {
+    "page_transition": {
+      "duration_ms": 300,
+      "curve": "easeInOut",
+      "description": "Slide + fade between screens."
+    },
+    "card_appear": {
+      "duration_ms": 200,
+      "curve": "decelerate",
+      "description": "Scale 0.95 \u2192 1.0 with fade in."
+    },
+    "score_count": {
+      "duration_ms": 800,
+      "curve": "easeOut",
+      "description": "Number increments from previous score to final value."
+    },
+    "trophy_bounce": {
+      "duration_ms": 500,
+      "curve": "elasticOut",
+      "description": "Scale 0 \u2192 1.2 \u2192 1.0 on winner reveal."
+    },
+    "sparkle_fade": {
+      "duration_ms": 150,
+      "curve": "linear",
+      "description": "Opacity 0 \u2192 1 \u2192 0 with slight scale."
+    },
+    "gold_glow_pulse": {
+      "duration_ms": 2000,
+      "curve": "sinusoidal",
+      "description": "Glow opacity cycles 0.1 \u2192 0.25 \u2192 0.1."
+    },
+    "confetti_fall": {
+      "duration_ms": 3000,
+      "curve": "gravity",
+      "description": "Particles fall with drift."
+    },
+    "toast_slide": {
+      "duration_ms": 300,
+      "curve": "decelerate",
+      "description": "Slides down from top with fade."
+    }
+  },
+  "components": {
+    "app_bar_action": {
+      "size": 40,
+      "radius": 12,
+      "padding": 8
+    },
+    "primary_button": {
+      "height": 50,
+      "radius": 14,
+      "padding_h": 16
+    },
+    "outlined_button": {
+      "height": 50,
+      "radius": 14,
+      "padding_h": 16
+    },
+    "session_card": {
+      "radius": 16,
+      "padding": 14,
+      "thumb_size": [
+        42,
+        56
+      ]
+    },
+    "score_card": {
+      "radius": 18,
+      "padding": 14,
+      "avatar_size": 40
+    },
+    "vote_chip": {
+      "height": 36,
+      "radius": 14,
+      "padding_h": 12
+    },
+    "input": {
+      "height": 48,
+      "radius": 14,
+      "padding_h": 14
+    },
+    "bottom_sheet": {
+      "corner_radius": 30,
+      "top_padding": 24
+    },
+    "bottom_nav": {
+      "height": 68,
+      "radius": 20,
+      "padding_h": 12
+    }
+  },
+  "accessibility": {
+    "contrast_ratios": {
+      "dark_text_on_bg": 15.05,
+      "dark_text_on_card": 11.91,
+      "muted_on_bg": 7.64,
+      "gold_on_dark": 7.97,
+      "light_text_on_bg": 8.29,
+      "light_text_on_card": 9.35,
+      "primary_on_light": 6.86
+    },
+    "note": "Primary body and heading combinations meet or exceed 4.5:1 contrast."
+  }
+}
