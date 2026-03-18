@@ -52,6 +52,7 @@ class PlayerScoreCard extends StatelessWidget {
           padding: const EdgeInsets.all(SpacingTokens.md),
           child: Column(
             mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // Top row: color dot + name + storyteller badge
               Row(
@@ -116,12 +117,12 @@ class PlayerScoreCard extends StatelessWidget {
                   ],
                 ],
               ),
-              const SizedBox(height: SpacingTokens.sm),
+              const SizedBox(height: SpacingTokens.xs),
               // Score — animated counter
-              _AnimatedScore(
+              Flexible(child: _AnimatedScore(
                 score: player.currentScore,
                 color: playerColor,
-              ),
+              )),
               // Rank indicator
               if (rank != null)
                 Padding(
