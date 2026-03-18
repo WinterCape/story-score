@@ -556,7 +556,13 @@ class _PlayerGrid extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final crossAxisCount = players.length <= 4 ? 1 : 2;
+    final isTablet = context.isTablet;
+    final int crossAxisCount;
+    if (isTablet) {
+      crossAxisCount = 3;
+    } else {
+      crossAxisCount = players.length <= 4 ? 1 : 2;
+    }
 
     return GridView.builder(
       padding: const EdgeInsets.fromLTRB(

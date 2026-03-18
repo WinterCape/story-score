@@ -14,12 +14,14 @@ class PlayerTile extends StatelessWidget {
     required this.colorKey,
     required this.seatNumber,
     required this.onRemove,
+    this.avatarStyle = 'initials',
   });
 
   final String name;
   final String colorKey;
   final int seatNumber;
   final VoidCallback onRemove;
+  final String avatarStyle;
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +51,7 @@ class PlayerTile extends StatelessWidget {
             ),
             const SizedBox(width: SpacingTokens.sm),
 
-            // Color dot.
+            // Color dot / emoji avatar.
             Container(
               width: 28,
               height: 28,
@@ -64,6 +66,11 @@ class PlayerTile extends StatelessWidget {
                   ),
                 ],
               ),
+              alignment: Alignment.center,
+              child: avatarStyle != 'initials' && avatarStyle.isNotEmpty
+                  ? Text(avatarStyle,
+                      style: const TextStyle(fontSize: 14))
+                  : null,
             ),
             const SizedBox(width: SpacingTokens.md),
 

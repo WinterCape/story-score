@@ -98,6 +98,8 @@ class HomeScreen extends ConsumerWidget {
       );
     }
 
+    final isTablet = context.isTablet;
+
     return ListView(
       padding: const EdgeInsets.only(
         left: SpacingTokens.md,
@@ -110,18 +112,27 @@ class HomeScreen extends ConsumerWidget {
         if (activeSessions.isNotEmpty) ...[
           _SectionHeader(title: 'Active Games'),
           const SizedBox(height: SpacingTokens.sm),
-          ...activeSessions.map(
-            (session) => Padding(
-              padding: const EdgeInsets.only(bottom: SpacingTokens.sm),
-              child: SessionCard(
-                session: session,
-                onTap: () => context.go(
-                  '/game/${session.id}/scoreboard',
+          if (isTablet)
+            _SessionGrid(
+              sessions: activeSessions,
+              onTap: (session) =>
+                  context.go('/game/${session.id}/scoreboard'),
+              onDismissed: (session) =>
+                  _deleteSession(ref, session.id),
+            )
+          else
+            ...activeSessions.map(
+              (session) => Padding(
+                padding: const EdgeInsets.only(bottom: SpacingTokens.sm),
+                child: SessionCard(
+                  session: session,
+                  onTap: () => context.go(
+                    '/game/${session.id}/scoreboard',
+                  ),
+                  onDismissed: () => _deleteSession(ref, session.id),
                 ),
-                onDismissed: () => _deleteSession(ref, session.id),
               ),
             ),
-          ),
           const SizedBox(height: SpacingTokens.lg),
         ],
 
@@ -129,16 +140,25 @@ class HomeScreen extends ConsumerWidget {
         if (completedSessions.isNotEmpty) ...[
           _SectionHeader(title: 'Completed Games'),
           const SizedBox(height: SpacingTokens.sm),
-          ...completedSessions.map(
-            (session) => Padding(
-              padding: const EdgeInsets.only(bottom: SpacingTokens.sm),
-              child: SessionCard(
-                session: session,
-                onTap: () => context.go('/archive/${session.id}'),
-                onDismissed: () => _deleteSession(ref, session.id),
+          if (isTablet)
+            _SessionGrid(
+              sessions: completedSessions,
+              onTap: (session) =>
+                  context.go('/archive/${session.id}'),
+              onDismissed: (session) =>
+                  _deleteSession(ref, session.id),
+            )
+          else
+            ...completedSessions.map(
+              (session) => Padding(
+                padding: const EdgeInsets.only(bottom: SpacingTokens.sm),
+                child: SessionCard(
+                  session: session,
+                  onTap: () => context.go('/archive/${session.id}'),
+                  onDismissed: () => _deleteSession(ref, session.id),
+                ),
               ),
             ),
-          ),
         ],
       ],
     );
@@ -305,6 +325,42 @@ class _SectionHeader extends StatelessWidget {
           letterSpacing: 0.5,
         ),
       ),
+    );
+  }
+}
+
+/// A 2-column grid of session cards for tablet layouts.
+class _SessionGrid extends StatelessWidget {
+  const _SessionGrid({
+    required this.sessions,
+    required this.onTap,
+    required this.onDismissed,
+  });
+
+  final List<GameSession> sessions;
+  final void Function(GameSession session) onTap;
+  final void Function(GameSession session) onDismissed;
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: SpacingTokens.sm,
+        mainAxisSpacing: SpacingTokens.sm,
+        childAspectRatio: 2.5,
+      ),
+      itemCount: sessions.length,
+      itemBuilder: (context, index) {
+        final session = sessions[index];
+        return SessionCard(
+          session: session,
+          onTap: () => onTap(session),
+          onDismissed: () => onDismissed(session),
+        );
+      },
     );
   }
 }

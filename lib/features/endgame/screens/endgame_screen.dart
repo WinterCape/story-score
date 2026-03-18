@@ -49,6 +49,11 @@ class EndgameScreen extends ConsumerWidget {
           final hasTie = winners.length > 1;
           final winnerLabel = winners.map((w) => w.name).join(' & ');
 
+          // Fire haptic on winner reveal
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            Haptics.heavy();
+          });
+
           return SafeArea(
             child: CustomScrollView(
               slivers: [

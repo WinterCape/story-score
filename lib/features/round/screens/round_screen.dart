@@ -99,7 +99,12 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
                 players.where((p) => p.id != storyteller.id).toList();
 
             return Scaffold(
-              body: CustomScrollView(
+              body: Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: context.isTablet ? 600 : double.infinity,
+                  ),
+                  child: CustomScrollView(
                 slivers: [
                   // Header
                   SliverToBoxAdapter(
@@ -195,6 +200,8 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
                     child: SizedBox(height: 100),
                   ),
                 ],
+              ),
+                ),
               ),
 
               // Score Round button

@@ -66,15 +66,20 @@ class PlayerScoreCard extends StatelessWidget {
               // Top row: color dot + name + storyteller badge
               Row(
                 children: [
-                  // Color indicator
-                  Container(
-                    width: 12,
-                    height: 12,
-                    decoration: BoxDecoration(
-                      color: playerColor,
-                      shape: BoxShape.circle,
+                  // Color indicator / emoji avatar
+                  if (player.avatarStyle != 'initials' &&
+                      player.avatarStyle.isNotEmpty)
+                    Text(player.avatarStyle,
+                        style: const TextStyle(fontSize: 14))
+                  else
+                    Container(
+                      width: 12,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        color: playerColor,
+                        shape: BoxShape.circle,
+                      ),
                     ),
-                  ),
                   const SizedBox(width: SpacingTokens.sm),
                   // Player name
                   Expanded(
@@ -259,7 +264,7 @@ class PlayerChip extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Color dot
+            // Color dot / emoji avatar
             Container(
               width: 24,
               height: 24,
@@ -270,13 +275,19 @@ class PlayerChip extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: Center(
-                child: Text(
-                  player.name.isNotEmpty ? player.name[0].toUpperCase() : '?',
-                  style: context.textTheme.labelSmall?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                child: player.avatarStyle != 'initials' &&
+                        player.avatarStyle.isNotEmpty
+                    ? Text(player.avatarStyle,
+                        style: const TextStyle(fontSize: 13))
+                    : Text(
+                        player.name.isNotEmpty
+                            ? player.name[0].toUpperCase()
+                            : '?',
+                        style: context.textTheme.labelSmall?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
               ),
             ),
             const SizedBox(height: SpacingTokens.xs),

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:story_score/app/providers.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
 import 'package:story_score/core/constants/player_colors.dart';
+import 'package:story_score/core/utils/haptics.dart';
 import 'package:story_score/data/database/tables/game_sessions.dart';
 import 'package:story_score/features/game_setup/providers/game_setup_providers.dart';
 import 'package:story_score/features/game_setup/widgets/color_picker_chips.dart';
@@ -67,10 +68,13 @@ class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
       useSafeArea: true,
       builder: (sheetContext) => _AddPlayerSheet(
         usedColorKeys: setupState.usedColorKeys,
-        onConfirm: (name, colorKey) {
-          ref
-              .read(gameSetupProvider.notifier)
-              .addPlayer(name: name, colorKey: colorKey);
+        onConfirm: (name, colorKey, avatarStyle) {
+          Haptics.selection();
+          ref.read(gameSetupProvider.notifier).addPlayer(
+                name: name,
+                colorKey: colorKey,
+                avatarStyle: avatarStyle,
+              );
           Navigator.of(sheetContext).pop();
         },
       ),
@@ -96,8 +100,13 @@ class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
           onPressed: () => context.pop(),
         ),
       ),
-      body: Column(
-        children: [
+      body: Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: context.isTablet ? 600 : double.infinity,
+          ),
+          child: Column(
+            children: [
           // Scrollable form content.
           Expanded(
             child: ListView(
@@ -332,6 +341,7 @@ class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
                           name: player.name,
                           colorKey: player.colorKey,
                           seatNumber: player.seatOrder,
+                          avatarStyle: player.avatarStyle,
                           onRemove: () => ref
                               .read(gameSetupProvider.notifier)
                               .removePlayer(index),
@@ -399,6 +409,8 @@ class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
           ),
         ],
       ),
+        ),
+      ),
     );
   }
 }
@@ -448,7 +460,8 @@ class _AddPlayerSheet extends StatefulWidget {
   });
 
   final Set<String> usedColorKeys;
-  final void Function(String name, String colorKey) onConfirm;
+  final void Function(String name, String colorKey, String avatarStyle)
+      onConfirm;
 
   @override
   State<_AddPlayerSheet> createState() => _AddPlayerSheetState();
@@ -457,6 +470,30 @@ class _AddPlayerSheet extends StatefulWidget {
 class _AddPlayerSheetState extends State<_AddPlayerSheet> {
   final _nameController = TextEditingController();
   late String _selectedColorKey;
+  String _avatarStyle = 'initials';
+
+  static const _emojiOptions = [
+    '\u2B50', // star
+    '\uD83D\uDC51', // crown
+    '\uD83D\uDD25', // fire
+    '\u2764\uFE0F', // heart
+    '\uD83C\uDF19', // moon
+    '\u2600\uFE0F', // sun
+    '\u2728', // sparkles
+    '\uD83D\uDD2E', // crystal ball
+    '\uD83E\uDE84', // magic wand
+    '\u26A1', // lightning
+    '\uD83C\uDF08', // rainbow
+    '\uD83D\uDC09', // dragon
+    '\uD83E\uDD84', // unicorn
+    '\uD83E\uDDD9', // wizard
+    '\uD83C\uDFB2', // dice
+    '\uD83C\uDF40', // clover
+    '\uD83C\uDF3B', // flower
+    '\uD83E\uDD8B', // butterfly
+    '\uD83D\uDC7B', // ghost
+    '\uD83D\uDC31', // cat
+  ];
 
   @override
   void initState() {
@@ -471,6 +508,8 @@ class _AddPlayerSheetState extends State<_AddPlayerSheet> {
   }
 
   bool get _isValid => _nameController.text.trim().isNotEmpty;
+
+  bool get _isEmojiMode => _avatarStyle != 'initials';
 
   @override
   Widget build(BuildContext context) {
@@ -535,12 +574,88 @@ class _AddPlayerSheetState extends State<_AddPlayerSheet> {
 
           const SizedBox(height: SpacingTokens.lg),
 
+          // Avatar style section.
+          Text(
+            'Avatar Style',
+            style: textTheme.labelLarge?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: SpacingTokens.sm),
+          SizedBox(
+            width: double.infinity,
+            child: SegmentedButton<bool>(
+              segments: const [
+                ButtonSegment(
+                  value: false,
+                  label: Text('Initials'),
+                  icon: Icon(Icons.text_fields_rounded, size: 18),
+                ),
+                ButtonSegment(
+                  value: true,
+                  label: Text('Emoji'),
+                  icon: Icon(Icons.emoji_emotions_rounded, size: 18),
+                ),
+              ],
+              selected: {_isEmojiMode},
+              onSelectionChanged: (s) {
+                setState(() {
+                  if (s.first) {
+                    // Switch to emoji — pick first one as default
+                    _avatarStyle = _emojiOptions.first;
+                  } else {
+                    _avatarStyle = 'initials';
+                  }
+                });
+              },
+              showSelectedIcon: false,
+            ),
+          ),
+
+          // Emoji grid (shown only when emoji mode is active).
+          if (_isEmojiMode) ...[
+            const SizedBox(height: SpacingTokens.sm),
+            Wrap(
+              spacing: SpacingTokens.xs,
+              runSpacing: SpacingTokens.xs,
+              children: _emojiOptions.map((emoji) {
+                final isSelected = _avatarStyle == emoji;
+                return GestureDetector(
+                  onTap: () => setState(() => _avatarStyle = emoji),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 150),
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? storyTheme.auroraTeal.withValues(alpha: 0.2)
+                          : colorScheme.surfaceContainerHighest,
+                      borderRadius:
+                          BorderRadius.circular(SpacingTokens.radiusSm),
+                      border: Border.all(
+                        color: isSelected
+                            ? storyTheme.auroraTeal
+                            : Colors.transparent,
+                        width: 2,
+                      ),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(emoji, style: const TextStyle(fontSize: 20)),
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
+
+          const SizedBox(height: SpacingTokens.lg),
+
           // Confirm button.
           FilledButton(
             onPressed: _isValid
                 ? () => widget.onConfirm(
                       _nameController.text.trim(),
                       _selectedColorKey,
+                      _avatarStyle,
                     )
                 : null,
             style: FilledButton.styleFrom(

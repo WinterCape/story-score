@@ -15,21 +15,25 @@ class PendingPlayer {
     required this.name,
     required this.colorKey,
     required this.seatOrder,
+    this.avatarStyle = 'initials',
   });
 
   final String name;
   final String colorKey;
   final int seatOrder;
+  final String avatarStyle;
 
   PendingPlayer copyWith({
     String? name,
     String? colorKey,
     int? seatOrder,
+    String? avatarStyle,
   }) {
     return PendingPlayer(
       name: name ?? this.name,
       colorKey: colorKey ?? this.colorKey,
       seatOrder: seatOrder ?? this.seatOrder,
+      avatarStyle: avatarStyle ?? this.avatarStyle,
     );
   }
 }
@@ -100,12 +104,17 @@ class GameSetupNotifier extends Notifier<GameSetupState> {
     state = state.copyWith(continuePastTarget: value);
   }
 
-  void addPlayer({required String name, required String colorKey}) {
+  void addPlayer({
+    required String name,
+    required String colorKey,
+    String avatarStyle = 'initials',
+  }) {
     if (state.isPlayerLimitReached) return;
     final player = PendingPlayer(
       name: name,
       colorKey: colorKey,
       seatOrder: state.players.length,
+      avatarStyle: avatarStyle,
     );
     state = state.copyWith(players: [...state.players, player]);
   }
@@ -152,6 +161,7 @@ class GameSetupNotifier extends Notifier<GameSetupState> {
         name: p.name,
         seatOrder: p.seatOrder,
         colorKey: p.colorKey,
+        avatarStyle: Value(p.avatarStyle),
       );
     }).toList();
 

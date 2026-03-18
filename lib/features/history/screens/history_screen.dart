@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
+import 'package:story_score/core/utils/haptics.dart';
 import 'package:story_score/features/history/providers/history_providers.dart';
 import 'package:story_score/features/history/widgets/round_history_tile.dart';
 import 'package:story_score/features/home/widgets/empty_state.dart';
@@ -112,6 +113,7 @@ class HistoryScreen extends ConsumerWidget {
     );
 
     if (confirmed == true) {
+      Haptics.light();
       final undo = ref.read(undoLastRoundProvider);
       await undo(sessionId);
     }
