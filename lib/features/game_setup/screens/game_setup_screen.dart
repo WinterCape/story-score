@@ -594,7 +594,7 @@ class _StepperButton extends StatelessWidget {
 // Add Player Bottom Sheet
 // =============================================================================
 
-class _AddPlayerSheet extends StatefulWidget {
+class _AddPlayerSheet extends ConsumerStatefulWidget {
   const _AddPlayerSheet({
     required this.usedColorKeys,
     required this.onConfirm,
@@ -605,35 +605,40 @@ class _AddPlayerSheet extends StatefulWidget {
       onConfirm;
 
   @override
-  State<_AddPlayerSheet> createState() => _AddPlayerSheetState();
+  ConsumerState<_AddPlayerSheet> createState() => _AddPlayerSheetState();
 }
 
-class _AddPlayerSheetState extends State<_AddPlayerSheet> {
+class _AddPlayerSheetState extends ConsumerState<_AddPlayerSheet> {
   final _nameController = TextEditingController();
   late String _selectedColorKey;
   String _avatarStyle = 'initials';
 
-  static const _emojiOptions = [
-    '\u2B50', // star
-    '\uD83D\uDC51', // crown
-    '\uD83D\uDD25', // fire
-    '\u2764\uFE0F', // heart
-    '\uD83C\uDF19', // moon
-    '\u2600\uFE0F', // sun
-    '\u2728', // sparkles
-    '\uD83D\uDD2E', // crystal ball
-    '\uD83E\uDE84', // magic wand
-    '\u26A1', // lightning
-    '\uD83C\uDF08', // rainbow
-    '\uD83D\uDC09', // dragon
-    '\uD83E\uDD84', // unicorn
-    '\uD83E\uDDD9', // wizard
-    '\uD83C\uDFB2', // dice
-    '\uD83C\uDF40', // clover
-    '\uD83C\uDF3B', // flower
-    '\uD83E\uDD8B', // butterfly
-    '\uD83D\uDC7B', // ghost
-    '\uD83D\uDC31', // cat
+  // ── Free emoji packs ──────────────────────────────────────────────
+  static const _freeEmoji = [
+    // Animals
+    '🐱', '🐶', '🐻', '🦊', '🐼', '🐨', '🐸', '🐙',
+    '🦋', '🐬', '🦄', '🐉', '🐺', '🦁', '🐧', '🦉',
+    // Objects & symbols
+    '⭐', '👑', '🔥', '❤️', '🌙', '☀️', '✨', '🔮',
+    '🪄', '⚡', '🌈', '🎲', '🍀', '🌻', '👻', '🎭',
+    // People & roles
+    '🧙', '🧝', '🧚', '🦸', '🥷', '👸', '🤴', '🧑‍🎨',
+  ];
+
+  // ── Premium emoji packs (supporter only) ────────────────────────
+  static const _premiumFamousPeople = [
+    '🎩', '🕵️', '🧛', '🧟', '🤖', '👽', '🧜', '🦹',
+    '🫅', '💂', '🧑‍🚀', '🧑‍🔬', '🧑‍🍳', '🧑‍✈️', '🧑‍🎤', '🧑‍🏫',
+  ];
+
+  static const _premiumMythical = [
+    '🐲', '🦅', '🦇', '🕊️', '🐍', '🦂', '🦚', '🦩',
+    '🐋', '🦈', '🐊', '🐅', '🦏', '🐘', '🦬', '🐎',
+  ];
+
+  static const _premiumFood = [
+    '🍕', '🍔', '🌮', '🍣', '🧁', '🍩', '🍪', '🎂',
+    '🍉', '🍑', '🍒', '🥑', '🌶️', '🍄', '☕', '🧋',
   ];
 
   @override
@@ -757,36 +762,68 @@ class _AddPlayerSheetState extends State<_AddPlayerSheet> {
           // Emoji grid (shown only when emoji mode is active).
           if (_isEmojiMode) ...[
             const SizedBox(height: SpacingTokens.sm),
-            Wrap(
-              spacing: SpacingTokens.xs,
-              runSpacing: SpacingTokens.xs,
-              children: _emojiOptions.map((emoji) {
-                final isSelected = _avatarStyle == emoji;
-                return GestureDetector(
-                  onTap: () => setState(() => _avatarStyle = emoji),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 150),
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? storyTheme.auroraTeal.withValues(alpha: 0.2)
-                          : colorScheme.surfaceContainerHighest,
-                      borderRadius:
-                          BorderRadius.circular(SpacingTokens.radiusSm),
-                      border: Border.all(
-                        color: isSelected
-                            ? storyTheme.auroraTeal
-                            : Colors.transparent,
-                        width: 2,
+            _buildEmojiGrid(
+              'Free',
+              _freeEmoji,
+              storyTheme,
+              colorScheme,
+              false,
+            ),
+            if (ref.watch(isSupporterProvider)) ...[
+              const SizedBox(height: SpacingTokens.sm),
+              _buildEmojiGrid(
+                '👥 People Pack',
+                _premiumFamousPeople,
+                storyTheme,
+                colorScheme,
+                false,
+              ),
+              const SizedBox(height: SpacingTokens.sm),
+              _buildEmojiGrid(
+                '🐲 Mythical Pack',
+                _premiumMythical,
+                storyTheme,
+                colorScheme,
+                false,
+              ),
+              const SizedBox(height: SpacingTokens.sm),
+              _buildEmojiGrid(
+                '🍕 Food Pack',
+                _premiumFood,
+                storyTheme,
+                colorScheme,
+                false,
+              ),
+            ] else ...[
+              const SizedBox(height: SpacingTokens.md),
+              Container(
+                padding: const EdgeInsets.all(SpacingTokens.md),
+                decoration: BoxDecoration(
+                  color: colorScheme.surfaceContainerHighest,
+                  borderRadius:
+                      BorderRadius.circular(SpacingTokens.radiusMd),
+                  border: Border.all(
+                    color: storyTheme.goldAccent.withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.lock_rounded,
+                        size: 16,
+                        color: storyTheme.goldAccent),
+                    const SizedBox(width: SpacingTokens.sm),
+                    Expanded(
+                      child: Text(
+                        '3 bonus emoji packs with Supporter Pack',
+                        style: textTheme.labelMedium?.copyWith(
+                          color: storyTheme.goldAccent,
+                        ),
                       ),
                     ),
-                    alignment: Alignment.center,
-                    child: Text(emoji, style: const TextStyle(fontSize: 20)),
-                  ),
-                );
-              }).toList(),
-            ),
+                  ],
+                ),
+              ),
+            ],
           ],
 
           const SizedBox(height: SpacingTokens.lg),
@@ -813,6 +850,66 @@ class _AddPlayerSheetState extends State<_AddPlayerSheet> {
         ],
         ),
       ),
+    );
+  }
+
+  Widget _buildEmojiGrid(
+    String label,
+    List<String> emojis,
+    StoryScoreThemeExtension storyTheme,
+    ColorScheme colorScheme,
+    bool isLocked,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (label != 'Free')
+          Padding(
+            padding: const EdgeInsets.only(bottom: SpacingTokens.xs),
+            child: Text(
+              label,
+              style: context.textTheme.labelSmall?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+        Wrap(
+          spacing: SpacingTokens.xs,
+          runSpacing: SpacingTokens.xs,
+          children: emojis.map((emoji) {
+            final isSelected = _avatarStyle == emoji;
+            return GestureDetector(
+              onTap: isLocked
+                  ? null
+                  : () => setState(() => _avatarStyle = emoji),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 150),
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? storyTheme.auroraTeal.withValues(alpha: 0.2)
+                      : colorScheme.surfaceContainerHighest,
+                  borderRadius:
+                      BorderRadius.circular(SpacingTokens.radiusSm),
+                  border: Border.all(
+                    color: isSelected
+                        ? storyTheme.auroraTeal
+                        : Colors.transparent,
+                    width: 2,
+                  ),
+                ),
+                alignment: Alignment.center,
+                child: Text(emoji,
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: isLocked ? Colors.grey : null,
+                    )),
+              ),
+            );
+          }).toList(),
+        ),
+      ],
     );
   }
 }

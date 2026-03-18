@@ -66,10 +66,14 @@ class PlayerTile extends StatelessWidget {
                   ),
                 ],
               ),
-              alignment: Alignment.center,
               child: avatarStyle != 'initials' && avatarStyle.isNotEmpty
-                  ? Text(avatarStyle,
-                      style: const TextStyle(fontSize: 14))
+                  ? Center(
+                      child: Text(
+                        avatarStyle,
+                        style: const TextStyle(fontSize: 16, height: 1),
+                        textAlign: TextAlign.center,
+                      ),
+                    )
                   : null,
             ),
             const SizedBox(width: SpacingTokens.md),

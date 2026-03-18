@@ -69,8 +69,15 @@ class PlayerScoreCard extends StatelessWidget {
                   // Color indicator / emoji avatar
                   if (player.avatarStyle != 'initials' &&
                       player.avatarStyle.isNotEmpty)
-                    Text(player.avatarStyle,
-                        style: const TextStyle(fontSize: 14))
+                    SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: Center(
+                        child: Text(player.avatarStyle,
+                            style: const TextStyle(fontSize: 16, height: 1),
+                            textAlign: TextAlign.center),
+                      ),
+                    )
                   else
                     Container(
                       width: 12,
@@ -278,7 +285,8 @@ class PlayerChip extends StatelessWidget {
                 child: player.avatarStyle != 'initials' &&
                         player.avatarStyle.isNotEmpty
                     ? Text(player.avatarStyle,
-                        style: const TextStyle(fontSize: 13))
+                        style: const TextStyle(fontSize: 14, height: 1),
+                        textAlign: TextAlign.center)
                     : Text(
                         player.name.isNotEmpty
                             ? player.name[0].toUpperCase()

@@ -168,11 +168,12 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
                     delegate: SliverChildBuilderDelegate(
                       (context, index) {
                         final voter = nonStorytellerPlayers[index];
-                        // Targets: all players except storyteller and
-                        // the voter themselves.
+                        // Targets: all players except the voter themselves.
+                        // The storyteller IS a valid target (players vote
+                        // for the card they think is the storyteller's).
+                        // Players just cannot vote for their own card.
                         final targets = players
-                            .where((p) =>
-                                p.id != storyteller.id && p.id != voter.id)
+                            .where((p) => p.id != voter.id)
                             .toList();
 
                         return Padding(

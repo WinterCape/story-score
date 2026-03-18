@@ -19,7 +19,7 @@ class VoterCardGrid extends StatelessWidget {
   /// The player who is voting.
   final Player voter;
 
-  /// Available vote targets (all non-storyteller players except the voter).
+  /// Available vote targets (all players except the voter themselves).
   final List<Player> targets;
 
   /// The currently selected target's ID, or null if not yet voted.
