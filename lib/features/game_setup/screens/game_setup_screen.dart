@@ -704,6 +704,15 @@ class _AddPlayerSheetState extends ConsumerState<_AddPlayerSheet> {
 
   bool get _isEmojiMode => _avatarStyle != 'initials';
 
+  List<String> get _emojiOptions => [
+    ..._freeEmoji,
+    if (ref.read(isSupporterProvider)) ...[
+      ..._premiumFamousPeople,
+      ..._premiumMythical,
+      ..._premiumFood,
+    ],
+  ];
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = context.colorScheme;

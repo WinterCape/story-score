@@ -74,10 +74,11 @@ class PlayerScoreCard extends StatelessWidget {
                       SizedBox(
                         width: 20,
                         height: 20,
-                        child: Center(
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
                           child: Text(
                             player.avatarStyle,
-                            style: const TextStyle(fontSize: 16, height: 1),
+                            style: const TextStyle(fontSize: 18),
                             textAlign: TextAlign.center,
                           ),
                         ),
@@ -283,31 +284,14 @@ class PlayerChip extends StatelessWidget {
               Container(
                 width: 24,
                 height: 24,
+                alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: isDisabled
                       ? playerColor.withValues(alpha: 0.3)
                       : playerColor,
                   shape: BoxShape.circle,
                 ),
-                child: Center(
-                  child:
-                      player.avatarStyle != 'initials' &&
-                          player.avatarStyle.isNotEmpty
-                      ? Text(
-                          player.avatarStyle,
-                          style: const TextStyle(fontSize: 14, height: 1),
-                          textAlign: TextAlign.center,
-                        )
-                      : Text(
-                          player.name.isNotEmpty
-                              ? player.name[0].toUpperCase()
-                              : '?',
-                          style: context.textTheme.labelSmall?.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                ),
+                child: _buildChipAvatar(context, player, isDisabled),
               ),
               const SizedBox(height: SpacingTokens.xs),
               Text(
@@ -333,6 +317,30 @@ class PlayerChip extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildChipAvatar(
+    BuildContext context,
+    Player player,
+    bool isDisabled,
+  ) {
+    if (player.avatarStyle != 'initials' && player.avatarStyle.isNotEmpty) {
+      return FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(
+          player.avatarStyle,
+          style: const TextStyle(fontSize: 16),
+          textAlign: TextAlign.center,
+        ),
+      );
+    }
+    return Text(
+      player.name.isNotEmpty ? player.name[0].toUpperCase() : '?',
+      style: context.textTheme.labelSmall?.copyWith(
+        color: Colors.white,
+        fontWeight: FontWeight.bold,
       ),
     );
   }
