@@ -2900,6 +2900,839 @@ class PurchaseEntitlementsCompanion
   }
 }
 
+class $PlayerPresetsTable extends PlayerPresets
+    with TableInfo<$PlayerPresetsTable, PlayerPreset> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PlayerPresetsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _lastUsedAtMeta = const VerificationMeta(
+    'lastUsedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> lastUsedAt = GeneratedColumn<DateTime>(
+    'last_used_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    lastUsedAt,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'player_presets';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<PlayerPreset> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('last_used_at')) {
+      context.handle(
+        _lastUsedAtMeta,
+        lastUsedAt.isAcceptableOrUnknown(
+          data['last_used_at']!,
+          _lastUsedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  PlayerPreset map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PlayerPreset(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      lastUsedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}last_used_at'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $PlayerPresetsTable createAlias(String alias) {
+    return $PlayerPresetsTable(attachedDatabase, alias);
+  }
+}
+
+class PlayerPreset extends DataClass implements Insertable<PlayerPreset> {
+  final String id;
+  final String name;
+  final DateTime? lastUsedAt;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const PlayerPreset({
+    required this.id,
+    required this.name,
+    this.lastUsedAt,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || lastUsedAt != null) {
+      map['last_used_at'] = Variable<DateTime>(lastUsedAt);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  PlayerPresetsCompanion toCompanion(bool nullToAbsent) {
+    return PlayerPresetsCompanion(
+      id: Value(id),
+      name: Value(name),
+      lastUsedAt: lastUsedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastUsedAt),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory PlayerPreset.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PlayerPreset(
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      lastUsedAt: serializer.fromJson<DateTime?>(json['lastUsedAt']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String>(name),
+      'lastUsedAt': serializer.toJson<DateTime?>(lastUsedAt),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  PlayerPreset copyWith({
+    String? id,
+    String? name,
+    Value<DateTime?> lastUsedAt = const Value.absent(),
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => PlayerPreset(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    lastUsedAt: lastUsedAt.present ? lastUsedAt.value : this.lastUsedAt,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  PlayerPreset copyWithCompanion(PlayerPresetsCompanion data) {
+    return PlayerPreset(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      lastUsedAt: data.lastUsedAt.present
+          ? data.lastUsedAt.value
+          : this.lastUsedAt,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PlayerPreset(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('lastUsedAt: $lastUsedAt, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, name, lastUsedAt, createdAt, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PlayerPreset &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.lastUsedAt == this.lastUsedAt &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class PlayerPresetsCompanion extends UpdateCompanion<PlayerPreset> {
+  final Value<String> id;
+  final Value<String> name;
+  final Value<DateTime?> lastUsedAt;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const PlayerPresetsCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.lastUsedAt = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  PlayerPresetsCompanion.insert({
+    required String id,
+    required String name,
+    this.lastUsedAt = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       name = Value(name);
+  static Insertable<PlayerPreset> custom({
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<DateTime>? lastUsedAt,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (lastUsedAt != null) 'last_used_at': lastUsedAt,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  PlayerPresetsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? name,
+    Value<DateTime?>? lastUsedAt,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return PlayerPresetsCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      lastUsedAt: lastUsedAt ?? this.lastUsedAt,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (lastUsedAt.present) {
+      map['last_used_at'] = Variable<DateTime>(lastUsedAt.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PlayerPresetsCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('lastUsedAt: $lastUsedAt, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $PresetPlayersTable extends PresetPlayers
+    with TableInfo<$PresetPlayersTable, PresetPlayer> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PresetPlayersTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _presetIdMeta = const VerificationMeta(
+    'presetId',
+  );
+  @override
+  late final GeneratedColumn<String> presetId = GeneratedColumn<String>(
+    'preset_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES player_presets (id)',
+    ),
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _colorKeyMeta = const VerificationMeta(
+    'colorKey',
+  );
+  @override
+  late final GeneratedColumn<String> colorKey = GeneratedColumn<String>(
+    'color_key',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _avatarStyleMeta = const VerificationMeta(
+    'avatarStyle',
+  );
+  @override
+  late final GeneratedColumn<String> avatarStyle = GeneratedColumn<String>(
+    'avatar_style',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('initials'),
+  );
+  static const VerificationMeta _seatOrderMeta = const VerificationMeta(
+    'seatOrder',
+  );
+  @override
+  late final GeneratedColumn<int> seatOrder = GeneratedColumn<int>(
+    'seat_order',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _isFavoriteMeta = const VerificationMeta(
+    'isFavorite',
+  );
+  @override
+  late final GeneratedColumn<bool> isFavorite = GeneratedColumn<bool>(
+    'is_favorite',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_favorite" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    presetId,
+    name,
+    colorKey,
+    avatarStyle,
+    seatOrder,
+    isFavorite,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'preset_players';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<PresetPlayer> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('preset_id')) {
+      context.handle(
+        _presetIdMeta,
+        presetId.isAcceptableOrUnknown(data['preset_id']!, _presetIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_presetIdMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('color_key')) {
+      context.handle(
+        _colorKeyMeta,
+        colorKey.isAcceptableOrUnknown(data['color_key']!, _colorKeyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_colorKeyMeta);
+    }
+    if (data.containsKey('avatar_style')) {
+      context.handle(
+        _avatarStyleMeta,
+        avatarStyle.isAcceptableOrUnknown(
+          data['avatar_style']!,
+          _avatarStyleMeta,
+        ),
+      );
+    }
+    if (data.containsKey('seat_order')) {
+      context.handle(
+        _seatOrderMeta,
+        seatOrder.isAcceptableOrUnknown(data['seat_order']!, _seatOrderMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_seatOrderMeta);
+    }
+    if (data.containsKey('is_favorite')) {
+      context.handle(
+        _isFavoriteMeta,
+        isFavorite.isAcceptableOrUnknown(data['is_favorite']!, _isFavoriteMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  PresetPlayer map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PresetPlayer(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      presetId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}preset_id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      colorKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}color_key'],
+      )!,
+      avatarStyle: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}avatar_style'],
+      )!,
+      seatOrder: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}seat_order'],
+      )!,
+      isFavorite: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_favorite'],
+      )!,
+    );
+  }
+
+  @override
+  $PresetPlayersTable createAlias(String alias) {
+    return $PresetPlayersTable(attachedDatabase, alias);
+  }
+}
+
+class PresetPlayer extends DataClass implements Insertable<PresetPlayer> {
+  final String id;
+  final String presetId;
+  final String name;
+  final String colorKey;
+  final String avatarStyle;
+  final int seatOrder;
+  final bool isFavorite;
+  const PresetPlayer({
+    required this.id,
+    required this.presetId,
+    required this.name,
+    required this.colorKey,
+    required this.avatarStyle,
+    required this.seatOrder,
+    required this.isFavorite,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['preset_id'] = Variable<String>(presetId);
+    map['name'] = Variable<String>(name);
+    map['color_key'] = Variable<String>(colorKey);
+    map['avatar_style'] = Variable<String>(avatarStyle);
+    map['seat_order'] = Variable<int>(seatOrder);
+    map['is_favorite'] = Variable<bool>(isFavorite);
+    return map;
+  }
+
+  PresetPlayersCompanion toCompanion(bool nullToAbsent) {
+    return PresetPlayersCompanion(
+      id: Value(id),
+      presetId: Value(presetId),
+      name: Value(name),
+      colorKey: Value(colorKey),
+      avatarStyle: Value(avatarStyle),
+      seatOrder: Value(seatOrder),
+      isFavorite: Value(isFavorite),
+    );
+  }
+
+  factory PresetPlayer.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PresetPlayer(
+      id: serializer.fromJson<String>(json['id']),
+      presetId: serializer.fromJson<String>(json['presetId']),
+      name: serializer.fromJson<String>(json['name']),
+      colorKey: serializer.fromJson<String>(json['colorKey']),
+      avatarStyle: serializer.fromJson<String>(json['avatarStyle']),
+      seatOrder: serializer.fromJson<int>(json['seatOrder']),
+      isFavorite: serializer.fromJson<bool>(json['isFavorite']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'presetId': serializer.toJson<String>(presetId),
+      'name': serializer.toJson<String>(name),
+      'colorKey': serializer.toJson<String>(colorKey),
+      'avatarStyle': serializer.toJson<String>(avatarStyle),
+      'seatOrder': serializer.toJson<int>(seatOrder),
+      'isFavorite': serializer.toJson<bool>(isFavorite),
+    };
+  }
+
+  PresetPlayer copyWith({
+    String? id,
+    String? presetId,
+    String? name,
+    String? colorKey,
+    String? avatarStyle,
+    int? seatOrder,
+    bool? isFavorite,
+  }) => PresetPlayer(
+    id: id ?? this.id,
+    presetId: presetId ?? this.presetId,
+    name: name ?? this.name,
+    colorKey: colorKey ?? this.colorKey,
+    avatarStyle: avatarStyle ?? this.avatarStyle,
+    seatOrder: seatOrder ?? this.seatOrder,
+    isFavorite: isFavorite ?? this.isFavorite,
+  );
+  PresetPlayer copyWithCompanion(PresetPlayersCompanion data) {
+    return PresetPlayer(
+      id: data.id.present ? data.id.value : this.id,
+      presetId: data.presetId.present ? data.presetId.value : this.presetId,
+      name: data.name.present ? data.name.value : this.name,
+      colorKey: data.colorKey.present ? data.colorKey.value : this.colorKey,
+      avatarStyle: data.avatarStyle.present
+          ? data.avatarStyle.value
+          : this.avatarStyle,
+      seatOrder: data.seatOrder.present ? data.seatOrder.value : this.seatOrder,
+      isFavorite: data.isFavorite.present
+          ? data.isFavorite.value
+          : this.isFavorite,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PresetPlayer(')
+          ..write('id: $id, ')
+          ..write('presetId: $presetId, ')
+          ..write('name: $name, ')
+          ..write('colorKey: $colorKey, ')
+          ..write('avatarStyle: $avatarStyle, ')
+          ..write('seatOrder: $seatOrder, ')
+          ..write('isFavorite: $isFavorite')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    presetId,
+    name,
+    colorKey,
+    avatarStyle,
+    seatOrder,
+    isFavorite,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PresetPlayer &&
+          other.id == this.id &&
+          other.presetId == this.presetId &&
+          other.name == this.name &&
+          other.colorKey == this.colorKey &&
+          other.avatarStyle == this.avatarStyle &&
+          other.seatOrder == this.seatOrder &&
+          other.isFavorite == this.isFavorite);
+}
+
+class PresetPlayersCompanion extends UpdateCompanion<PresetPlayer> {
+  final Value<String> id;
+  final Value<String> presetId;
+  final Value<String> name;
+  final Value<String> colorKey;
+  final Value<String> avatarStyle;
+  final Value<int> seatOrder;
+  final Value<bool> isFavorite;
+  final Value<int> rowid;
+  const PresetPlayersCompanion({
+    this.id = const Value.absent(),
+    this.presetId = const Value.absent(),
+    this.name = const Value.absent(),
+    this.colorKey = const Value.absent(),
+    this.avatarStyle = const Value.absent(),
+    this.seatOrder = const Value.absent(),
+    this.isFavorite = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  PresetPlayersCompanion.insert({
+    required String id,
+    required String presetId,
+    required String name,
+    required String colorKey,
+    this.avatarStyle = const Value.absent(),
+    required int seatOrder,
+    this.isFavorite = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       presetId = Value(presetId),
+       name = Value(name),
+       colorKey = Value(colorKey),
+       seatOrder = Value(seatOrder);
+  static Insertable<PresetPlayer> custom({
+    Expression<String>? id,
+    Expression<String>? presetId,
+    Expression<String>? name,
+    Expression<String>? colorKey,
+    Expression<String>? avatarStyle,
+    Expression<int>? seatOrder,
+    Expression<bool>? isFavorite,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (presetId != null) 'preset_id': presetId,
+      if (name != null) 'name': name,
+      if (colorKey != null) 'color_key': colorKey,
+      if (avatarStyle != null) 'avatar_style': avatarStyle,
+      if (seatOrder != null) 'seat_order': seatOrder,
+      if (isFavorite != null) 'is_favorite': isFavorite,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  PresetPlayersCompanion copyWith({
+    Value<String>? id,
+    Value<String>? presetId,
+    Value<String>? name,
+    Value<String>? colorKey,
+    Value<String>? avatarStyle,
+    Value<int>? seatOrder,
+    Value<bool>? isFavorite,
+    Value<int>? rowid,
+  }) {
+    return PresetPlayersCompanion(
+      id: id ?? this.id,
+      presetId: presetId ?? this.presetId,
+      name: name ?? this.name,
+      colorKey: colorKey ?? this.colorKey,
+      avatarStyle: avatarStyle ?? this.avatarStyle,
+      seatOrder: seatOrder ?? this.seatOrder,
+      isFavorite: isFavorite ?? this.isFavorite,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (presetId.present) {
+      map['preset_id'] = Variable<String>(presetId.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (colorKey.present) {
+      map['color_key'] = Variable<String>(colorKey.value);
+    }
+    if (avatarStyle.present) {
+      map['avatar_style'] = Variable<String>(avatarStyle.value);
+    }
+    if (seatOrder.present) {
+      map['seat_order'] = Variable<int>(seatOrder.value);
+    }
+    if (isFavorite.present) {
+      map['is_favorite'] = Variable<bool>(isFavorite.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PresetPlayersCompanion(')
+          ..write('id: $id, ')
+          ..write('presetId: $presetId, ')
+          ..write('name: $name, ')
+          ..write('colorKey: $colorKey, ')
+          ..write('avatarStyle: $avatarStyle, ')
+          ..write('seatOrder: $seatOrder, ')
+          ..write('isFavorite: $isFavorite, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -2910,9 +3743,12 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $ScoreChangesTable scoreChanges = $ScoreChangesTable(this);
   late final $PurchaseEntitlementsTable purchaseEntitlements =
       $PurchaseEntitlementsTable(this);
+  late final $PlayerPresetsTable playerPresets = $PlayerPresetsTable(this);
+  late final $PresetPlayersTable presetPlayers = $PresetPlayersTable(this);
   late final SessionDao sessionDao = SessionDao(this as AppDatabase);
   late final RoundDao roundDao = RoundDao(this as AppDatabase);
   late final PurchaseDao purchaseDao = PurchaseDao(this as AppDatabase);
+  late final PresetDao presetDao = PresetDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2924,6 +3760,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     votes,
     scoreChanges,
     purchaseEntitlements,
+    playerPresets,
+    presetPlayers,
   ];
 }
 
@@ -5814,6 +6652,683 @@ typedef $$PurchaseEntitlementsTableProcessedTableManager =
       PurchaseEntitlement,
       PrefetchHooks Function()
     >;
+typedef $$PlayerPresetsTableCreateCompanionBuilder =
+    PlayerPresetsCompanion Function({
+      required String id,
+      required String name,
+      Value<DateTime?> lastUsedAt,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+typedef $$PlayerPresetsTableUpdateCompanionBuilder =
+    PlayerPresetsCompanion Function({
+      Value<String> id,
+      Value<String> name,
+      Value<DateTime?> lastUsedAt,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+
+final class $$PlayerPresetsTableReferences
+    extends BaseReferences<_$AppDatabase, $PlayerPresetsTable, PlayerPreset> {
+  $$PlayerPresetsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static MultiTypedResultKey<$PresetPlayersTable, List<PresetPlayer>>
+  _presetPlayersRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.presetPlayers,
+    aliasName: $_aliasNameGenerator(
+      db.playerPresets.id,
+      db.presetPlayers.presetId,
+    ),
+  );
+
+  $$PresetPlayersTableProcessedTableManager get presetPlayersRefs {
+    final manager = $$PresetPlayersTableTableManager(
+      $_db,
+      $_db.presetPlayers,
+    ).filter((f) => f.presetId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_presetPlayersRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$PlayerPresetsTableFilterComposer
+    extends Composer<_$AppDatabase, $PlayerPresetsTable> {
+  $$PlayerPresetsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get lastUsedAt => $composableBuilder(
+    column: $table.lastUsedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  Expression<bool> presetPlayersRefs(
+    Expression<bool> Function($$PresetPlayersTableFilterComposer f) f,
+  ) {
+    final $$PresetPlayersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.presetPlayers,
+      getReferencedColumn: (t) => t.presetId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PresetPlayersTableFilterComposer(
+            $db: $db,
+            $table: $db.presetPlayers,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$PlayerPresetsTableOrderingComposer
+    extends Composer<_$AppDatabase, $PlayerPresetsTable> {
+  $$PlayerPresetsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastUsedAt => $composableBuilder(
+    column: $table.lastUsedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$PlayerPresetsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PlayerPresetsTable> {
+  $$PlayerPresetsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastUsedAt => $composableBuilder(
+    column: $table.lastUsedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  Expression<T> presetPlayersRefs<T extends Object>(
+    Expression<T> Function($$PresetPlayersTableAnnotationComposer a) f,
+  ) {
+    final $$PresetPlayersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.presetPlayers,
+      getReferencedColumn: (t) => t.presetId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PresetPlayersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.presetPlayers,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$PlayerPresetsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $PlayerPresetsTable,
+          PlayerPreset,
+          $$PlayerPresetsTableFilterComposer,
+          $$PlayerPresetsTableOrderingComposer,
+          $$PlayerPresetsTableAnnotationComposer,
+          $$PlayerPresetsTableCreateCompanionBuilder,
+          $$PlayerPresetsTableUpdateCompanionBuilder,
+          (PlayerPreset, $$PlayerPresetsTableReferences),
+          PlayerPreset,
+          PrefetchHooks Function({bool presetPlayersRefs})
+        > {
+  $$PlayerPresetsTableTableManager(_$AppDatabase db, $PlayerPresetsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PlayerPresetsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PlayerPresetsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PlayerPresetsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<DateTime?> lastUsedAt = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => PlayerPresetsCompanion(
+                id: id,
+                name: name,
+                lastUsedAt: lastUsedAt,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String name,
+                Value<DateTime?> lastUsedAt = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => PlayerPresetsCompanion.insert(
+                id: id,
+                name: name,
+                lastUsedAt: lastUsedAt,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$PlayerPresetsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({presetPlayersRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (presetPlayersRefs) db.presetPlayers,
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (presetPlayersRefs)
+                    await $_getPrefetchedData<
+                      PlayerPreset,
+                      $PlayerPresetsTable,
+                      PresetPlayer
+                    >(
+                      currentTable: table,
+                      referencedTable: $$PlayerPresetsTableReferences
+                          ._presetPlayersRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$PlayerPresetsTableReferences(
+                            db,
+                            table,
+                            p0,
+                          ).presetPlayersRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where((e) => e.presetId == item.id),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$PlayerPresetsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $PlayerPresetsTable,
+      PlayerPreset,
+      $$PlayerPresetsTableFilterComposer,
+      $$PlayerPresetsTableOrderingComposer,
+      $$PlayerPresetsTableAnnotationComposer,
+      $$PlayerPresetsTableCreateCompanionBuilder,
+      $$PlayerPresetsTableUpdateCompanionBuilder,
+      (PlayerPreset, $$PlayerPresetsTableReferences),
+      PlayerPreset,
+      PrefetchHooks Function({bool presetPlayersRefs})
+    >;
+typedef $$PresetPlayersTableCreateCompanionBuilder =
+    PresetPlayersCompanion Function({
+      required String id,
+      required String presetId,
+      required String name,
+      required String colorKey,
+      Value<String> avatarStyle,
+      required int seatOrder,
+      Value<bool> isFavorite,
+      Value<int> rowid,
+    });
+typedef $$PresetPlayersTableUpdateCompanionBuilder =
+    PresetPlayersCompanion Function({
+      Value<String> id,
+      Value<String> presetId,
+      Value<String> name,
+      Value<String> colorKey,
+      Value<String> avatarStyle,
+      Value<int> seatOrder,
+      Value<bool> isFavorite,
+      Value<int> rowid,
+    });
+
+final class $$PresetPlayersTableReferences
+    extends BaseReferences<_$AppDatabase, $PresetPlayersTable, PresetPlayer> {
+  $$PresetPlayersTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $PlayerPresetsTable _presetIdTable(_$AppDatabase db) =>
+      db.playerPresets.createAlias(
+        $_aliasNameGenerator(db.presetPlayers.presetId, db.playerPresets.id),
+      );
+
+  $$PlayerPresetsTableProcessedTableManager get presetId {
+    final $_column = $_itemColumn<String>('preset_id')!;
+
+    final manager = $$PlayerPresetsTableTableManager(
+      $_db,
+      $_db.playerPresets,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_presetIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$PresetPlayersTableFilterComposer
+    extends Composer<_$AppDatabase, $PresetPlayersTable> {
+  $$PresetPlayersTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get colorKey => $composableBuilder(
+    column: $table.colorKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get avatarStyle => $composableBuilder(
+    column: $table.avatarStyle,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get seatOrder => $composableBuilder(
+    column: $table.seatOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isFavorite => $composableBuilder(
+    column: $table.isFavorite,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$PlayerPresetsTableFilterComposer get presetId {
+    final $$PlayerPresetsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.presetId,
+      referencedTable: $db.playerPresets,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PlayerPresetsTableFilterComposer(
+            $db: $db,
+            $table: $db.playerPresets,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PresetPlayersTableOrderingComposer
+    extends Composer<_$AppDatabase, $PresetPlayersTable> {
+  $$PresetPlayersTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get colorKey => $composableBuilder(
+    column: $table.colorKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get avatarStyle => $composableBuilder(
+    column: $table.avatarStyle,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get seatOrder => $composableBuilder(
+    column: $table.seatOrder,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isFavorite => $composableBuilder(
+    column: $table.isFavorite,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$PlayerPresetsTableOrderingComposer get presetId {
+    final $$PlayerPresetsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.presetId,
+      referencedTable: $db.playerPresets,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PlayerPresetsTableOrderingComposer(
+            $db: $db,
+            $table: $db.playerPresets,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PresetPlayersTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PresetPlayersTable> {
+  $$PresetPlayersTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get colorKey =>
+      $composableBuilder(column: $table.colorKey, builder: (column) => column);
+
+  GeneratedColumn<String> get avatarStyle => $composableBuilder(
+    column: $table.avatarStyle,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get seatOrder =>
+      $composableBuilder(column: $table.seatOrder, builder: (column) => column);
+
+  GeneratedColumn<bool> get isFavorite => $composableBuilder(
+    column: $table.isFavorite,
+    builder: (column) => column,
+  );
+
+  $$PlayerPresetsTableAnnotationComposer get presetId {
+    final $$PlayerPresetsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.presetId,
+      referencedTable: $db.playerPresets,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PlayerPresetsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.playerPresets,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PresetPlayersTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $PresetPlayersTable,
+          PresetPlayer,
+          $$PresetPlayersTableFilterComposer,
+          $$PresetPlayersTableOrderingComposer,
+          $$PresetPlayersTableAnnotationComposer,
+          $$PresetPlayersTableCreateCompanionBuilder,
+          $$PresetPlayersTableUpdateCompanionBuilder,
+          (PresetPlayer, $$PresetPlayersTableReferences),
+          PresetPlayer,
+          PrefetchHooks Function({bool presetId})
+        > {
+  $$PresetPlayersTableTableManager(_$AppDatabase db, $PresetPlayersTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PresetPlayersTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PresetPlayersTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PresetPlayersTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> presetId = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String> colorKey = const Value.absent(),
+                Value<String> avatarStyle = const Value.absent(),
+                Value<int> seatOrder = const Value.absent(),
+                Value<bool> isFavorite = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => PresetPlayersCompanion(
+                id: id,
+                presetId: presetId,
+                name: name,
+                colorKey: colorKey,
+                avatarStyle: avatarStyle,
+                seatOrder: seatOrder,
+                isFavorite: isFavorite,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String presetId,
+                required String name,
+                required String colorKey,
+                Value<String> avatarStyle = const Value.absent(),
+                required int seatOrder,
+                Value<bool> isFavorite = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => PresetPlayersCompanion.insert(
+                id: id,
+                presetId: presetId,
+                name: name,
+                colorKey: colorKey,
+                avatarStyle: avatarStyle,
+                seatOrder: seatOrder,
+                isFavorite: isFavorite,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$PresetPlayersTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({presetId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (presetId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.presetId,
+                                referencedTable: $$PresetPlayersTableReferences
+                                    ._presetIdTable(db),
+                                referencedColumn: $$PresetPlayersTableReferences
+                                    ._presetIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$PresetPlayersTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $PresetPlayersTable,
+      PresetPlayer,
+      $$PresetPlayersTableFilterComposer,
+      $$PresetPlayersTableOrderingComposer,
+      $$PresetPlayersTableAnnotationComposer,
+      $$PresetPlayersTableCreateCompanionBuilder,
+      $$PresetPlayersTableUpdateCompanionBuilder,
+      (PresetPlayer, $$PresetPlayersTableReferences),
+      PresetPlayer,
+      PrefetchHooks Function({bool presetId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -5830,4 +7345,8 @@ class $AppDatabaseManager {
       $$ScoreChangesTableTableManager(_db, _db.scoreChanges);
   $$PurchaseEntitlementsTableTableManager get purchaseEntitlements =>
       $$PurchaseEntitlementsTableTableManager(_db, _db.purchaseEntitlements);
+  $$PlayerPresetsTableTableManager get playerPresets =>
+      $$PlayerPresetsTableTableManager(_db, _db.playerPresets);
+  $$PresetPlayersTableTableManager get presetPlayers =>
+      $$PresetPlayersTableTableManager(_db, _db.presetPlayers);
 }
