@@ -52,7 +52,7 @@ class FeaturePreviewList extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final checkColor = isDark ? ColorTokens.auroraTeal : ColorTokens.auroraTeal;
+    final checkColor = isDark ? ColorTokens.teal : ColorTokens.teal;
 
     return Column(
       children: [

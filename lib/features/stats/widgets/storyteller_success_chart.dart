@@ -60,7 +60,7 @@ class StorytellerSuccessChart extends StatelessWidget {
                 ),
                 PieChartSectionData(
                   value: badClueCount.toDouble(),
-                  color: ColorTokens.coralAccent,
+                  color: ColorTokens.coral,
                   radius: size * 0.18,
                   showTitle: false,
                 ),
@@ -115,7 +115,7 @@ class StorytellerSuccessLegend extends StatelessWidget {
         const SizedBox(width: SpacingTokens.xs),
         Text('Good ($goodClueCount)', style: textTheme.bodySmall),
         const SizedBox(width: SpacingTokens.md),
-        _LegendDot(color: ColorTokens.coralAccent),
+        _LegendDot(color: ColorTokens.coral),
         const SizedBox(width: SpacingTokens.xs),
         Text('Bad ($badClueCount)', style: textTheme.bodySmall),
       ],

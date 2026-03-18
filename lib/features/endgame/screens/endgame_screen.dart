@@ -112,7 +112,7 @@ class _EndgameScreenState extends ConsumerState<EndgameScreen> {
                                 gradient: LinearGradient(
                                   colors: [
                                     ColorTokens.goldAccent,
-                                    ColorTokens.goldAccentLight,
+                                    ColorTokens.goldAccent,
                                   ],
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,

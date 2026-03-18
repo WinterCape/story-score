@@ -40,7 +40,7 @@ class HeadToHeadCard extends StatelessWidget {
                     '${record.winsA} wins',
                     style: textTheme.bodySmall?.copyWith(
                       color: record.winsA > record.winsB
-                          ? ColorTokens.auroraGreen
+                          ? ColorTokens.teal
                           : colors.onSurfaceVariant,
                       fontWeight: record.winsA > record.winsB
                           ? FontWeight.bold
@@ -97,7 +97,7 @@ class HeadToHeadCard extends StatelessWidget {
                     '${record.winsB} wins',
                     style: textTheme.bodySmall?.copyWith(
                       color: record.winsB > record.winsA
-                          ? ColorTokens.auroraGreen
+                          ? ColorTokens.teal
                           : colors.onSurfaceVariant,
                       fontWeight: record.winsB > record.winsA
                           ? FontWeight.bold

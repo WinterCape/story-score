@@ -37,14 +37,14 @@ class SessionStatsSection extends StatelessWidget {
           icon: Icons.trending_up_rounded,
           label: 'Best Round',
           value: stats.bestRound > 0 ? 'Round ${stats.bestRound}' : '--',
-          iconColor: ColorTokens.auroraGreen,
+          iconColor: ColorTokens.teal,
         ),
         const SizedBox(height: SpacingTokens.xs),
         StatCard(
           icon: Icons.trending_down_rounded,
           label: 'Worst Round',
           value: stats.worstRound > 0 ? 'Round ${stats.worstRound}' : '--',
-          iconColor: ColorTokens.coralAccent,
+          iconColor: ColorTokens.coral,
         ),
         const SizedBox(height: SpacingTokens.xs),
         StatCard(
@@ -52,7 +52,7 @@ class SessionStatsSection extends StatelessWidget {
           label: 'Guess Accuracy',
           value: '${(stats.guessAccuracy * 100).round()}%',
           subtitle: '${stats.totalBonusPoints} bonus points earned',
-          iconColor: ColorTokens.auroraTeal,
+          iconColor: ColorTokens.teal,
         ),
         const SizedBox(height: SpacingTokens.xs),
         StatCard(
@@ -60,7 +60,7 @@ class SessionStatsSection extends StatelessWidget {
           label: 'Storyteller Success',
           value: '${(stats.storytellerSuccessRate * 100).round()}%',
           subtitle: 'good clue rate',
-          iconColor: ColorTokens.softViolet,
+          iconColor: ColorTokens.violet,
         ),
       ],
     );

@@ -28,7 +28,7 @@ class ScoreDistributionChart extends StatelessWidget {
   Widget build(BuildContext context) {
     final storyTheme = context.storyTheme;
     final colors = context.colorScheme;
-    final barColor = playerColor ?? storyTheme.auroraTeal;
+    final barColor = playerColor ?? storyTheme.teal;
 
     final maxCount = distribution.values.fold(
       0,

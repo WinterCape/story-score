@@ -647,9 +647,9 @@ class _PlayerGrid extends ConsumerWidget {
                       '${adjustment >= 0 ? '+' : ''}$adjustment',
                       style: context.textTheme.headlineMedium?.copyWith(
                         color: adjustment > 0
-                            ? ColorTokens.auroraGreen
+                            ? ColorTokens.teal
                             : adjustment < 0
-                            ? ColorTokens.coralAccent
+                            ? ColorTokens.coral
                             : context.colorScheme.onSurface,
                       ),
                     ),

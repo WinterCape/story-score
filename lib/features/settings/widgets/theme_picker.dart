@@ -28,8 +28,8 @@ class ThemePicker extends ConsumerWidget {
           themeId: 'celestial',
           name: 'Celestial',
           colors: const [
-            ColorTokens.softViolet,
-            ColorTokens.auroraTeal,
+            ColorTokens.violet,
+            ColorTokens.teal,
             ColorTokens.goldAccent,
           ],
           isSelected: selectedTheme == 'celestial',

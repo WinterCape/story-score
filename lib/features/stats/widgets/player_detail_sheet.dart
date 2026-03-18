@@ -124,14 +124,14 @@ class PlayerDetailSheet extends ConsumerWidget {
           label: 'Average Score',
           value: stats.avgScore.toStringAsFixed(1),
           subtitle: 'Best: ${stats.bestGameScore}',
-          iconColor: ColorTokens.auroraTeal,
+          iconColor: ColorTokens.teal,
         ),
         const SizedBox(height: SpacingTokens.xs),
         StatCard(
           icon: Icons.bolt_rounded,
           label: 'Total Points',
           value: '${stats.totalPoints}',
-          iconColor: ColorTokens.softViolet,
+          iconColor: ColorTokens.violet,
         ),
         const SizedBox(height: SpacingTokens.lg),
         // Streaks
@@ -141,7 +141,7 @@ class PlayerDetailSheet extends ConsumerWidget {
           icon: Icons.local_fire_department_rounded,
           label: 'Current Win Streak',
           value: '${stats.currentWinStreak}',
-          iconColor: ColorTokens.coralAccent,
+          iconColor: ColorTokens.coral,
         ),
         const SizedBox(height: SpacingTokens.xs),
         StatCard(

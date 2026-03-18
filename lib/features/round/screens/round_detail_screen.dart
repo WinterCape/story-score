@@ -774,7 +774,7 @@ class _VoteTile extends StatelessWidget {
               Icon(
                 Icons.check_circle_rounded,
                 size: 18,
-                color: storyTheme.auroraTeal,
+                color: storyTheme.teal,
               )
             else
               Icon(

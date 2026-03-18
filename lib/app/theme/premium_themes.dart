@@ -106,12 +106,15 @@ class PremiumThemePalette {
 
     final extension = StoryScoreThemeExtension(
       goldAccent: accent,
-      auroraTeal: secondary,
-      softViolet: primary,
-      auroraGradient: LinearGradient(
+      teal: secondary,
+      violet: primary,
+      burgundy: primary,
+      dustyRose: Color.lerp(primary, Colors.white, 0.4)!,
+      parchment: onSurfColor,
+      accentGradient: LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
-        colors: [secondary, primary, accent],
+        colors: [primary, accent],
       ),
       cardGradient: LinearGradient(
         begin: Alignment.topLeft,

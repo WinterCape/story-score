@@ -41,7 +41,7 @@ class SessionCard extends ConsumerWidget {
     final accentColor = isActive
         ? storyTheme.goldAccent
         : isPaused
-        ? ColorTokens.auroraTeal
+        ? ColorTokens.teal
         : colors.onSurfaceVariant;
 
     final statusLabel = switch (session.status) {

@@ -9,9 +9,12 @@ class StoryScoreThemeExtension
     extends ThemeExtension<StoryScoreThemeExtension> {
   const StoryScoreThemeExtension({
     required this.goldAccent,
-    required this.auroraTeal,
-    required this.softViolet,
-    required this.auroraGradient,
+    required this.teal,
+    required this.violet,
+    required this.burgundy,
+    required this.dustyRose,
+    required this.parchment,
+    required this.accentGradient,
     required this.cardGradient,
     required this.playerColors,
   });
@@ -19,14 +22,23 @@ class StoryScoreThemeExtension
   /// Gold accent used for highlights, star ratings, premium badges.
   final Color goldAccent;
 
-  /// Aurora teal used for positive actions & success states.
-  final Color auroraTeal;
+  /// Teal used for positive actions & success states.
+  final Color teal;
 
-  /// Soft violet used for secondary emphasis & decorative elements.
-  final Color softViolet;
+  /// Violet used for secondary emphasis & decorative elements.
+  final Color violet;
 
-  /// Multi-stop gradient inspired by the northern lights / aurora borealis.
-  final LinearGradient auroraGradient;
+  /// Burgundy / deep wine used for primary actions & branding.
+  final Color burgundy;
+
+  /// Dusty rose / vivid rose for softer accent elements.
+  final Color dustyRose;
+
+  /// Parchment / warm cream for primary text on dark surfaces.
+  final Color parchment;
+
+  /// Accent gradient from burgundy to gold.
+  final LinearGradient accentGradient;
 
   /// Subtle gradient applied to elevated card surfaces.
   final LinearGradient cardGradient;
@@ -40,42 +52,46 @@ class StoryScoreThemeExtension
 
   static const StoryScoreThemeExtension dark = StoryScoreThemeExtension(
     goldAccent: ColorTokens.goldAccent,
-    auroraTeal: ColorTokens.auroraTeal,
-    softViolet: ColorTokens.softViolet,
-    auroraGradient: LinearGradient(
+    teal: ColorTokens.teal,
+    violet: ColorTokens.violet,
+    burgundy: ColorTokens.burgundy,
+    dustyRose: ColorTokens.dustyRose,
+    parchment: ColorTokens.parchment,
+    accentGradient: LinearGradient(
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
       colors: [
-        ColorTokens.auroraTeal,
-        ColorTokens.softViolet,
+        ColorTokens.burgundy,
         ColorTokens.goldAccent,
       ],
     ),
     cardGradient: LinearGradient(
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
-      colors: [ColorTokens.darkSurface, ColorTokens.darkSurfaceVariant],
+      colors: [ColorTokens.darkCard, ColorTokens.darkCardVariant],
     ),
     playerColors: ColorTokens.playerColorsByName,
   );
 
   static const StoryScoreThemeExtension light = StoryScoreThemeExtension(
-    goldAccent: ColorTokens.lightGoldAccent,
-    auroraTeal: ColorTokens.auroraTeal,
-    softViolet: ColorTokens.lightPrimary,
-    auroraGradient: LinearGradient(
+    goldAccent: ColorTokens.goldAccent,
+    teal: ColorTokens.teal,
+    violet: ColorTokens.violet,
+    burgundy: ColorTokens.lightPrimary,
+    dustyRose: ColorTokens.dustyRose,
+    parchment: ColorTokens.lightSurface,
+    accentGradient: LinearGradient(
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
       colors: [
-        ColorTokens.auroraTeal,
         ColorTokens.lightPrimary,
-        ColorTokens.lightGoldAccent,
+        ColorTokens.goldAccent,
       ],
     ),
     cardGradient: LinearGradient(
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
-      colors: [ColorTokens.lightSurface, ColorTokens.lightSurfaceVariant],
+      colors: [ColorTokens.lightCard, ColorTokens.lightSurface],
     ),
     playerColors: ColorTokens.playerColorsByName,
   );
@@ -87,17 +103,23 @@ class StoryScoreThemeExtension
   @override
   StoryScoreThemeExtension copyWith({
     Color? goldAccent,
-    Color? auroraTeal,
-    Color? softViolet,
-    LinearGradient? auroraGradient,
+    Color? teal,
+    Color? violet,
+    Color? burgundy,
+    Color? dustyRose,
+    Color? parchment,
+    LinearGradient? accentGradient,
     LinearGradient? cardGradient,
     Map<String, Color>? playerColors,
   }) {
     return StoryScoreThemeExtension(
       goldAccent: goldAccent ?? this.goldAccent,
-      auroraTeal: auroraTeal ?? this.auroraTeal,
-      softViolet: softViolet ?? this.softViolet,
-      auroraGradient: auroraGradient ?? this.auroraGradient,
+      teal: teal ?? this.teal,
+      violet: violet ?? this.violet,
+      burgundy: burgundy ?? this.burgundy,
+      dustyRose: dustyRose ?? this.dustyRose,
+      parchment: parchment ?? this.parchment,
+      accentGradient: accentGradient ?? this.accentGradient,
       cardGradient: cardGradient ?? this.cardGradient,
       playerColors: playerColors ?? this.playerColors,
     );
@@ -111,11 +133,14 @@ class StoryScoreThemeExtension
     if (other is! StoryScoreThemeExtension) return this;
     return StoryScoreThemeExtension(
       goldAccent: Color.lerp(goldAccent, other.goldAccent, t)!,
-      auroraTeal: Color.lerp(auroraTeal, other.auroraTeal, t)!,
-      softViolet: Color.lerp(softViolet, other.softViolet, t)!,
-      auroraGradient: LinearGradient.lerp(
-        auroraGradient,
-        other.auroraGradient,
+      teal: Color.lerp(teal, other.teal, t)!,
+      violet: Color.lerp(violet, other.violet, t)!,
+      burgundy: Color.lerp(burgundy, other.burgundy, t)!,
+      dustyRose: Color.lerp(dustyRose, other.dustyRose, t)!,
+      parchment: Color.lerp(parchment, other.parchment, t)!,
+      accentGradient: LinearGradient.lerp(
+        accentGradient,
+        other.accentGradient,
         t,
       )!,
       cardGradient: LinearGradient.lerp(cardGradient, other.cardGradient, t)!,

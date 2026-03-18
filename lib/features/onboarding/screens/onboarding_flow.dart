@@ -94,8 +94,8 @@ class _OnboardingFlowState extends ConsumerState<OnboardingFlow> {
                             shape: BoxShape.circle,
                             gradient: LinearGradient(
                               colors: [
-                                ColorTokens.softViolet.withValues(alpha: 0.3),
-                                ColorTokens.auroraTeal.withValues(alpha: 0.3),
+                                ColorTokens.violet.withValues(alpha: 0.3),
+                                ColorTokens.teal.withValues(alpha: 0.3),
                               ],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,

@@ -102,7 +102,7 @@ class _HeroHeader extends StatelessWidget {
               end: Alignment.bottomRight,
               colors: [
                 ext.goldAccent.withValues(alpha: 0.25),
-                ext.softViolet.withValues(alpha: 0.20),
+                ext.violet.withValues(alpha: 0.20),
               ],
             ),
             shape: BoxShape.circle,
@@ -306,13 +306,13 @@ class _AlreadySupporterBanner extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(SpacingTokens.lg),
       decoration: BoxDecoration(
-        color: ext.auroraTeal.withValues(alpha: 0.12),
+        color: ext.teal.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(SpacingTokens.radiusLg),
-        border: Border.all(color: ext.auroraTeal.withValues(alpha: 0.30)),
+        border: Border.all(color: ext.teal.withValues(alpha: 0.30)),
       ),
       child: Row(
         children: [
-          Icon(Icons.verified_rounded, color: ext.auroraTeal, size: 28),
+          Icon(Icons.verified_rounded, color: ext.teal, size: 28),
           const SizedBox(width: SpacingTokens.md),
           Expanded(
             child: Column(
@@ -321,7 +321,7 @@ class _AlreadySupporterBanner extends StatelessWidget {
                 Text(
                   context.l10n.supporterPackActive,
                   style: theme.textTheme.titleSmall?.copyWith(
-                    color: ext.auroraTeal,
+                    color: ext.teal,
                     fontWeight: FontWeight.w600,
                   ),
                 ),

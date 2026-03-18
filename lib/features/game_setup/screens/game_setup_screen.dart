@@ -494,7 +494,7 @@ class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
                         side: BorderSide(
                           color: state.isPlayerLimitReached
                               ? colorScheme.outline.withValues(alpha: 0.3)
-                              : storyTheme.auroraTeal,
+                              : storyTheme.teal,
                         ),
                       ),
                     ),
@@ -898,9 +898,9 @@ class _AddPlayerSheetState extends ConsumerState<_AddPlayerSheet> {
                   : null,
               style: FilledButton.styleFrom(
                 minimumSize: const Size(double.infinity, 52),
-                backgroundColor: storyTheme.auroraTeal,
+                backgroundColor: storyTheme.teal,
                 foregroundColor: Colors.black,
-                disabledBackgroundColor: storyTheme.auroraTeal.withValues(
+                disabledBackgroundColor: storyTheme.teal.withValues(
                   alpha: 0.3,
                 ),
                 disabledForegroundColor: Colors.black45,
@@ -948,12 +948,12 @@ class _AddPlayerSheetState extends ConsumerState<_AddPlayerSheet> {
                 height: 40,
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? storyTheme.auroraTeal.withValues(alpha: 0.2)
+                      ? storyTheme.teal.withValues(alpha: 0.2)
                       : colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(SpacingTokens.radiusSm),
                   border: Border.all(
                     color: isSelected
-                        ? storyTheme.auroraTeal
+                        ? storyTheme.teal
                         : Colors.transparent,
                     width: 2,
                   ),

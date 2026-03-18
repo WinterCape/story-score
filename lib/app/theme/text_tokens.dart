@@ -47,7 +47,7 @@ abstract final class TextTokens {
   static const TextStyle headlineLarge = TextStyle(
     fontFamily: fontFamily,
     fontSize: 32,
-    fontWeight: semiBold,
+    fontWeight: extraBold,
     letterSpacing: 0,
     height: 1.25,
   );
@@ -55,7 +55,7 @@ abstract final class TextTokens {
   static const TextStyle headlineMedium = TextStyle(
     fontFamily: fontFamily,
     fontSize: 28,
-    fontWeight: semiBold,
+    fontWeight: extraBold,
     letterSpacing: 0,
     height: 1.29,
   );
@@ -63,7 +63,7 @@ abstract final class TextTokens {
   static const TextStyle headlineSmall = TextStyle(
     fontFamily: fontFamily,
     fontSize: 24,
-    fontWeight: semiBold,
+    fontWeight: extraBold,
     letterSpacing: 0,
     height: 1.33,
   );
@@ -74,7 +74,7 @@ abstract final class TextTokens {
   static const TextStyle titleLarge = TextStyle(
     fontFamily: fontFamily,
     fontSize: 22,
-    fontWeight: semiBold,
+    fontWeight: extraBold,
     letterSpacing: 0,
     height: 1.27,
   );
@@ -82,7 +82,7 @@ abstract final class TextTokens {
   static const TextStyle titleMedium = TextStyle(
     fontFamily: fontFamily,
     fontSize: 16,
-    fontWeight: semiBold,
+    fontWeight: extraBold,
     letterSpacing: 0.15,
     height: 1.50,
   );
@@ -90,7 +90,7 @@ abstract final class TextTokens {
   static const TextStyle titleSmall = TextStyle(
     fontFamily: fontFamily,
     fontSize: 14,
-    fontWeight: semiBold,
+    fontWeight: extraBold,
     letterSpacing: 0.1,
     height: 1.43,
   );

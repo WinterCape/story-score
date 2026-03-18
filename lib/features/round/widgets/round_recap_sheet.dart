@@ -64,7 +64,7 @@ class RoundRecapSheet extends StatelessWidget {
               size: 40,
               color: isGoodClue
                   ? context.storyTheme.goldAccent
-                  : ColorTokens.coralAccent,
+                  : ColorTokens.coral,
             ),
             const SizedBox(height: SpacingTokens.sm),
             Text(
@@ -72,7 +72,7 @@ class RoundRecapSheet extends StatelessWidget {
               style: context.textTheme.headlineSmall?.copyWith(
                 color: isGoodClue
                     ? context.storyTheme.goldAccent
-                    : ColorTokens.coralAccent,
+                    : ColorTokens.coral,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -189,7 +189,7 @@ class _PlayerRecapRow extends StatelessWidget {
               '+$totalDelta',
               style: context.textTheme.titleLarge?.copyWith(
                 color: totalDelta > 0
-                    ? ColorTokens.auroraGreen
+                    ? ColorTokens.teal
                     : context.colorScheme.onSurface,
                 fontWeight: FontWeight.bold,
               ),
