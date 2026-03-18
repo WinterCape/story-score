@@ -8,10 +8,12 @@ import 'package:story_score/features/history/screens/history_screen.dart';
 import 'package:story_score/features/home/screens/home_screen.dart';
 import 'package:story_score/features/onboarding/screens/onboarding_flow.dart';
 import 'package:story_score/features/premium/screens/premium_screen.dart';
+import 'package:story_score/features/presets/screens/preset_management_screen.dart';
 import 'package:story_score/features/round/screens/round_detail_screen.dart';
 import 'package:story_score/features/round/screens/round_screen.dart';
 import 'package:story_score/features/scoreboard/screens/scoreboard_screen.dart';
 import 'package:story_score/features/settings/screens/settings_screen.dart';
+import 'package:story_score/features/stats/screens/stats_screen.dart';
 
 // ── Router provider ──────────────────────────────────────────────────────────
 
@@ -41,7 +43,17 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: 'premium',
             builder: (context, state) => const PremiumScreen(),
           ),
+          GoRoute(
+            path: 'presets',
+            builder: (context, state) => const PresetManagementScreen(),
+          ),
         ],
+      ),
+
+      // ── Stats ──────────────────────────────────────────────────────────────
+      GoRoute(
+        path: '/stats',
+        builder: (context, state) => const StatsScreen(),
       ),
 
       // ── Game setup ────────────────────────────────────────────────────────

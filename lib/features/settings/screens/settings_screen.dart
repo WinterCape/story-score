@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
 import 'package:story_score/data/database/tables/game_sessions.dart';
 import 'package:story_score/data/settings/app_settings.dart';
+import 'package:story_score/features/premium/providers/premium_providers.dart';
 import 'package:story_score/features/settings/providers/settings_providers.dart';
 import 'package:story_score/features/settings/widgets/theme_picker.dart';
 
@@ -14,6 +15,7 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settingsAsync = ref.watch(appSettingsProvider);
+    final isSupporter = ref.watch(isSupporterProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -97,6 +99,38 @@ class SettingsScreen extends ConsumerWidget {
                     .read(appSettingsProvider.notifier)
                     .setHapticsEnabled(v);
               },
+            ),
+            SwitchListTile(
+              secondary: Icon(
+                Icons.volume_up_outlined,
+                color: isSupporter ? null : Theme.of(context).disabledColor,
+              ),
+              title: Row(
+                children: [
+                  const Text('Sound Effects'),
+                  if (!isSupporter) ...[
+                    const SizedBox(width: SpacingTokens.xs),
+                    Icon(
+                      Icons.lock_outline,
+                      size: 16,
+                      color: Theme.of(context).disabledColor,
+                    ),
+                  ],
+                ],
+              ),
+              subtitle: Text(
+                isSupporter
+                    ? 'Play sounds for celebrations'
+                    : 'Supporter Pack feature',
+              ),
+              value: settings.soundEffectsEnabled && isSupporter,
+              onChanged: isSupporter
+                  ? (v) {
+                      ref
+                          .read(appSettingsProvider.notifier)
+                          .setSoundEffectsEnabled(v);
+                    }
+                  : null,
             ),
             SwitchListTile(
               secondary: const Icon(Icons.slow_motion_video_outlined),

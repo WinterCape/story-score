@@ -72,6 +72,14 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     state = AsyncData(state.requireValue.copyWith(selectedTheme: themeId));
   }
 
+  Future<void> setSoundEffectsEnabled(bool enabled) async {
+    final repo = ref.read(appSettingsRepositoryProvider);
+    await repo.setSoundEffectsEnabled(enabled);
+    state = AsyncData(
+      state.requireValue.copyWith(soundEffectsEnabled: enabled),
+    );
+  }
+
   Future<void> updateAll(AppSettings settings) async {
     final repo = ref.read(appSettingsRepositoryProvider);
     await repo.save(settings);

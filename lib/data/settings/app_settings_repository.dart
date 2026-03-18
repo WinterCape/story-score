@@ -19,6 +19,7 @@ class AppSettingsRepository {
   static const _keyShowRoundNotes = 'settings.showRoundNotes';
   static const _keyPreferredSortOrder = 'settings.preferredSortOrder';
   static const _keySelectedTheme = 'settings.selectedTheme';
+  static const _keySoundEffectsEnabled = 'settings.soundEffectsEnabled';
 
   // ── Read ─────────────────────────────────────────────────────────────────
 
@@ -31,6 +32,7 @@ class AppSettingsRepository {
       showRoundNotes: _prefs.getBool(_keyShowRoundNotes) ?? true,
       preferredSortOrder: _loadSortOrder(),
       selectedTheme: _prefs.getString(_keySelectedTheme) ?? 'celestial',
+      soundEffectsEnabled: _prefs.getBool(_keySoundEffectsEnabled) ?? false,
     );
   }
 
@@ -45,6 +47,7 @@ class AppSettingsRepository {
       setShowRoundNotes(settings.showRoundNotes),
       setPreferredSortOrder(settings.preferredSortOrder),
       setSelectedTheme(settings.selectedTheme),
+      setSoundEffectsEnabled(settings.soundEffectsEnabled),
     ]);
   }
 
@@ -76,6 +79,10 @@ class AppSettingsRepository {
 
   Future<void> setSelectedTheme(String themeId) async {
     await _prefs.setString(_keySelectedTheme, themeId);
+  }
+
+  Future<void> setSoundEffectsEnabled(bool enabled) async {
+    await _prefs.setBool(_keySoundEffectsEnabled, enabled);
   }
 
   // ── Helpers ──────────────────────────────────────────────────────────────

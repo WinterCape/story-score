@@ -6,10 +6,15 @@ import 'package:story_score/app/providers.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
 import 'package:story_score/core/constants/player_colors.dart';
 import 'package:story_score/core/utils/haptics.dart';
+import 'package:story_score/data/database/app_database.dart';
 import 'package:story_score/data/database/tables/game_sessions.dart';
 import 'package:story_score/features/game_setup/providers/game_setup_providers.dart';
 import 'package:story_score/features/game_setup/widgets/color_picker_chips.dart';
 import 'package:story_score/features/game_setup/widgets/player_tile.dart';
+import 'package:story_score/features/premium/providers/premium_providers.dart';
+import 'package:story_score/features/presets/providers/preset_providers.dart';
+import 'package:story_score/features/presets/widgets/favorite_player_chips.dart';
+import 'package:story_score/features/presets/widgets/preset_list_tile.dart';
 import 'package:story_score/shared/extensions/context_extensions.dart';
 
 class GameSetupScreen extends ConsumerStatefulWidget {
@@ -58,6 +63,102 @@ class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
     }
   }
 
+  Future<void> _showSavePresetDialog() async {
+    final state = ref.read(gameSetupProvider);
+    if (state.players.length < 3) return;
+
+    final nameController = TextEditingController();
+    final name = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Save as Preset'),
+        content: TextField(
+          controller: nameController,
+          autofocus: true,
+          maxLength: 30,
+          textCapitalization: TextCapitalization.words,
+          decoration: const InputDecoration(
+            hintText: 'Preset name',
+            counterText: '',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () =>
+                Navigator.of(dialogContext).pop(nameController.text.trim()),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+    nameController.dispose();
+
+    if (name == null || name.isEmpty) return;
+
+    try {
+      final dao = ref.read(presetDaoProvider);
+      await savePreset(
+        dao: dao,
+        name: name,
+        players: state.players
+            .map((p) => (
+                  name: p.name,
+                  colorKey: p.colorKey,
+                  avatarStyle: p.avatarStyle,
+                  seatOrder: p.seatOrder,
+                ))
+            .toList(),
+      );
+      Haptics.selection();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Saved preset "$name"')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to save preset: $e')),
+        );
+      }
+    }
+  }
+
+  void _showLoadPresetSheet() {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (sheetContext) => _LoadPresetSheet(
+        onPresetSelected: (preset, players) {
+          Navigator.of(sheetContext).pop();
+          _loadPreset(players);
+        },
+      ),
+    );
+  }
+
+  void _loadPreset(List<PresetPlayer> players) {
+    final notifier = ref.read(gameSetupProvider.notifier);
+    // Clear existing players and add from preset
+    final currentState = ref.read(gameSetupProvider);
+    for (var i = currentState.players.length - 1; i >= 0; i--) {
+      notifier.removePlayer(i);
+    }
+    for (final p in players) {
+      notifier.addPlayer(
+        name: p.name,
+        colorKey: p.colorKey,
+        avatarStyle: p.avatarStyle,
+      );
+    }
+    Haptics.selection();
+  }
+
   void _showAddPlayerSheet() {
     final setupState = ref.read(gameSetupProvider);
     if (setupState.isPlayerLimitReached) return;
@@ -99,6 +200,14 @@ class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
           icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => context.pop(),
         ),
+        actions: [
+          if (state.players.length >= 3 && ref.watch(isSupporterProvider))
+            IconButton(
+              icon: const Icon(Icons.bookmark_add_outlined),
+              tooltip: 'Save as Preset',
+              onPressed: () => _showSavePresetDialog(),
+            ),
+        ],
       ),
       body: Center(
         child: ConstrainedBox(
@@ -270,6 +379,21 @@ class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
 
                 const SizedBox(height: SpacingTokens.xl),
 
+                // ── Load Preset button (premium-gated) ──────────────────
+                if (ref.watch(isSupporterProvider))
+                  Padding(
+                    padding:
+                        const EdgeInsets.only(bottom: SpacingTokens.md),
+                    child: OutlinedButton.icon(
+                      onPressed: () => _showLoadPresetSheet(),
+                      icon: const Icon(Icons.group_outlined),
+                      label: const Text('Load Preset'),
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 44),
+                      ),
+                    ),
+                  ),
+
                 // ── Players section ──────────────────────────────────────
                 Row(
                   children: [
@@ -367,6 +491,23 @@ class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
                     ),
                   ),
                 ),
+
+                // Favorite player chips (premium-gated).
+                if (ref.watch(isSupporterProvider))
+                  _FavoriteChipsSection(
+                    usedColorKeys: state.usedColorKeys,
+                    existingNames: state.players
+                        .map((p) => p.name.trim().toLowerCase())
+                        .toSet(),
+                    onSelect: (name, colorKey, avatarStyle) {
+                      Haptics.selection();
+                      ref.read(gameSetupProvider.notifier).addPlayer(
+                            name: name,
+                            colorKey: colorKey,
+                            avatarStyle: avatarStyle,
+                          );
+                    },
+                  ),
 
                 // Bottom padding for scroll clearance.
                 const SizedBox(height: SpacingTokens.xxl),
@@ -672,6 +813,154 @@ class _AddPlayerSheetState extends State<_AddPlayerSheet> {
         ],
         ),
       ),
+    );
+  }
+}
+
+// =============================================================================
+// Load Preset Bottom Sheet
+// =============================================================================
+
+class _LoadPresetSheet extends ConsumerWidget {
+  const _LoadPresetSheet({required this.onPresetSelected});
+
+  final void Function(PlayerPreset preset, List<PresetPlayer> players)
+      onPresetSelected;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final presetsAsync = ref.watch(presetsProvider);
+    final colorScheme = context.colorScheme;
+    final textTheme = context.textTheme;
+
+    return Padding(
+      padding: const EdgeInsets.only(
+        left: SpacingTokens.lg,
+        right: SpacingTokens.lg,
+        top: SpacingTokens.lg,
+        bottom: SpacingTokens.lg,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          const SizedBox(height: SpacingTokens.lg),
+          Text('Load Preset', style: textTheme.titleLarge),
+          const SizedBox(height: SpacingTokens.md),
+          presetsAsync.when(
+            loading: () =>
+                const Center(child: CircularProgressIndicator()),
+            error: (e, _) => Text('Error: $e'),
+            data: (presets) {
+              if (presets.isEmpty) {
+                return Padding(
+                  padding: const EdgeInsets.all(SpacingTokens.lg),
+                  child: Center(
+                    child: Text(
+                      'No presets saved yet.',
+                      style: textTheme.bodyMedium?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                );
+              }
+              return ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * 0.4,
+                ),
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: presets.length,
+                  itemBuilder: (context, index) {
+                    final preset = presets[index];
+                    return _LoadPresetTile(
+                      preset: preset,
+                      onTap: (players) =>
+                          onPresetSelected(preset, players),
+                    );
+                  },
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LoadPresetTile extends ConsumerWidget {
+  const _LoadPresetTile({
+    required this.preset,
+    required this.onTap,
+  });
+
+  final PlayerPreset preset;
+  final void Function(List<PresetPlayer> players) onTap;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final playersAsync = ref.watch(presetPlayersProvider(preset.id));
+
+    return playersAsync.when(
+      loading: () => const SizedBox(height: 56),
+      error: (e, _) => ListTile(title: Text('Error: $e')),
+      data: (players) => PresetListTile(
+        preset: preset,
+        players: players,
+        onTap: () => onTap(players),
+        onDelete: () {}, // no delete in load sheet
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// Favorite Chips Section (loads favorites from provider)
+// =============================================================================
+
+class _FavoriteChipsSection extends ConsumerWidget {
+  const _FavoriteChipsSection({
+    required this.usedColorKeys,
+    required this.existingNames,
+    required this.onSelect,
+  });
+
+  final Set<String> usedColorKeys;
+  final Set<String> existingNames;
+  final void Function(String name, String colorKey, String avatarStyle)
+      onSelect;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final favoritesAsync = ref.watch(favoritePlayersProvider);
+
+    return favoritesAsync.when(
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
+      data: (favorites) {
+        if (favorites.isEmpty) return const SizedBox.shrink();
+
+        return Padding(
+          padding: const EdgeInsets.only(top: SpacingTokens.md),
+          child: FavoritePlayerChips(
+            favorites: favorites,
+            excludeNames: existingNames,
+            onSelect: onSelect,
+          ),
+        );
+      },
     );
   }
 }

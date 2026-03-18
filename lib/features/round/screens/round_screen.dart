@@ -6,10 +6,17 @@ import 'package:story_score/app/theme/spacing_tokens.dart';
 import 'package:story_score/core/constants/player_colors.dart';
 import 'package:story_score/core/utils/haptics.dart';
 import 'package:story_score/data/database/app_database.dart';
+import 'package:story_score/domain/celebrations/celebration_engine.dart';
+import 'package:story_score/domain/scoring/scoring_engine.dart';
+import 'package:story_score/domain/stats/milestone_detector.dart';
+import 'package:story_score/domain/stats/stats_models.dart';
+import 'package:story_score/features/celebrations/celebration_controller.dart';
+import 'package:story_score/features/premium/providers/premium_providers.dart';
 import 'package:story_score/features/round/providers/round_providers.dart';
 import 'package:story_score/features/round/widgets/round_recap_sheet.dart';
 import 'package:story_score/features/round/widgets/voter_card_grid.dart';
 import 'package:story_score/features/scoreboard/providers/scoreboard_providers.dart';
+import 'package:story_score/features/settings/providers/settings_providers.dart';
 import 'package:story_score/shared/extensions/context_extensions.dart';
 
 class RoundScreen extends ConsumerStatefulWidget {
@@ -282,6 +289,14 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
 
       Haptics.medium();
 
+      // Detect milestones for this round
+      _triggerMilestoneCelebrations(
+        result: result,
+        storyteller: storyteller,
+        players: players,
+        votes: votes,
+      );
+
       // Show recap bottom sheet — context is guarded by mounted check above
       await showRoundRecapSheet(
         context: ctx, // ignore: use_build_context_synchronously
@@ -308,6 +323,68 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
         setState(() => _isSubmitting = false);
       }
     }
+  }
+
+  void _triggerMilestoneCelebrations({
+    required RoundResult result,
+    required Player storyteller,
+    required List<Player> players,
+    required Map<String, String> votes,
+  }) {
+    final isSupporter = ref.read(isSupporterProvider);
+    final settings = ref.read(appSettingsProvider).value;
+    final selectedTheme = settings?.selectedTheme ?? 'celestial';
+    final soundEnabled =
+        isSupporter && (settings?.soundEffectsEnabled ?? false);
+    final isReducedMotion = context.reduceMotion;
+
+    // Build the RoundData for milestone detection
+    final hasGoodClue = result.clueOutcome == ClueOutcome.goodClue;
+
+    // Build score deltas map from the result
+    final scoreDeltas = <String, int>{};
+    for (final player in players) {
+      scoreDeltas[player.id] = result.totalDeltaFor(player.id);
+    }
+
+    final latestRound = RoundData(
+      roundNumber: 1, // Only the latest round matters for detection
+      storytellerId: storyteller.id,
+      votes: votes,
+      scoreDeltas: scoreDeltas,
+      hasGoodClue: hasGoodClue,
+    );
+
+    // Build player names map
+    final playerNames = {
+      for (final p in players) p.id: p.name,
+    };
+
+    final milestones = MilestoneDetector.detectMilestones(
+      sessionRounds: [latestRound], // simplified: only latest round
+      latestRound: latestRound,
+      playerNames: playerNames,
+    );
+
+    if (milestones.isEmpty) return;
+
+    final celebrationResult = CelebrationEngine.computeMilestoneEffects(
+      isSupporter: isSupporter,
+      selectedTheme: selectedTheme,
+      isReducedMotion: isReducedMotion,
+      milestones: milestones,
+    );
+
+    if (!celebrationResult.hasEffects) return;
+
+    final overlay = Overlay.of(context);
+    final controller = CelebrationController(
+      overlayState: overlay,
+      isReducedMotion: isReducedMotion,
+      isSoundEnabled: soundEnabled,
+    );
+
+    controller.play(celebrationResult);
   }
 }
 

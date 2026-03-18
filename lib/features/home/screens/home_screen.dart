@@ -13,6 +13,8 @@ import 'package:story_score/data/export/session_importer.dart';
 import 'package:story_score/features/home/providers/home_providers.dart';
 import 'package:story_score/features/home/widgets/empty_state.dart';
 import 'package:story_score/features/home/widgets/session_card.dart';
+import 'package:story_score/features/premium/providers/premium_providers.dart';
+import 'package:story_score/features/presets/providers/preset_providers.dart';
 import 'package:story_score/shared/extensions/context_extensions.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -33,6 +35,11 @@ class HomeScreen extends ConsumerWidget {
           ),
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.insights_rounded),
+            tooltip: 'Stats',
+            onPressed: () => context.push('/stats'),
+          ),
           IconButton(
             icon: const Icon(Icons.file_download_outlined),
             tooltip: 'Import Game',
@@ -108,6 +115,10 @@ class HomeScreen extends ConsumerWidget {
         bottom: 88, // space for FAB
       ),
       children: [
+        // Quick Start chip (premium-gated, shown when presets exist)
+        if (ref.watch(isSupporterProvider))
+          _QuickStartSection(ref: ref),
+
         // Active Games section
         if (activeSessions.isNotEmpty) ...[
           _SectionHeader(title: 'Active Games'),
@@ -326,6 +337,115 @@ class _SectionHeader extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+/// Quick Start section — shows an ActionChip when presets exist.
+class _QuickStartSection extends ConsumerWidget {
+  const _QuickStartSection({required this.ref});
+
+  // ignore: unused_field — ref is used in the build method via ConsumerWidget
+  final WidgetRef ref;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final presetsAsync = ref.watch(presetsProvider);
+
+    return presetsAsync.when(
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
+      data: (presets) {
+        if (presets.isEmpty) return const SizedBox.shrink();
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: SpacingTokens.md),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: ActionChip(
+              avatar: const Icon(Icons.bolt_rounded, size: 18),
+              label: const Text('Quick Start'),
+              onPressed: () => _showPresetPicker(context, ref, presets),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _showPresetPicker(
+    BuildContext context,
+    WidgetRef ref,
+    List<PlayerPreset> presets,
+  ) async {
+    final selected = await showModalBottomSheet<PlayerPreset>(
+      context: context,
+      builder: (sheetContext) => Padding(
+        padding: const EdgeInsets.all(SpacingTokens.lg),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: context.colorScheme.onSurfaceVariant
+                      .withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: SpacingTokens.lg),
+            Text('Quick Start', style: context.textTheme.titleLarge),
+            const SizedBox(height: SpacingTokens.sm),
+            Text(
+              'Pick a preset to start a game instantly.',
+              style: context.textTheme.bodyMedium?.copyWith(
+                color: context.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: SpacingTokens.md),
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.4,
+              ),
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: presets.length,
+                itemBuilder: (context, index) {
+                  final preset = presets[index];
+                  return ListTile(
+                    leading: const Icon(Icons.group_outlined),
+                    title: Text(preset.name),
+                    onTap: () => Navigator.of(sheetContext).pop(preset),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (selected == null || !context.mounted) return;
+
+    try {
+      final sessionId = await quickStart(
+        presetDao: ref.read(presetDaoProvider),
+        sessionDao: ref.read(sessionDaoProvider),
+        presetId: selected.id,
+      );
+      if (context.mounted) {
+        context.go('/game/$sessionId/scoreboard');
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Quick Start failed: $e')),
+        );
+      }
+    }
   }
 }
 

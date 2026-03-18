@@ -15,6 +15,7 @@ class AppSettings {
     this.showRoundNotes = true,
     this.preferredSortOrder = PlayerSortOrder.seat,
     this.selectedTheme = 'celestial',
+    this.soundEffectsEnabled = false,
   });
 
   final ThemeMode themeMode;
@@ -27,6 +28,10 @@ class AppSettings {
   /// The selected color theme identifier (e.g. 'celestial', 'ocean_depths').
   final String selectedTheme;
 
+  /// Whether sound effects are enabled for celebrations.
+  /// Requires supporter status to take effect.
+  final bool soundEffectsEnabled;
+
   AppSettings copyWith({
     ThemeMode? themeMode,
     bool? hapticsEnabled,
@@ -35,6 +40,7 @@ class AppSettings {
     bool? showRoundNotes,
     PlayerSortOrder? preferredSortOrder,
     String? selectedTheme,
+    bool? soundEffectsEnabled,
   }) {
     return AppSettings(
       themeMode: themeMode ?? this.themeMode,
@@ -45,6 +51,7 @@ class AppSettings {
       showRoundNotes: showRoundNotes ?? this.showRoundNotes,
       preferredSortOrder: preferredSortOrder ?? this.preferredSortOrder,
       selectedTheme: selectedTheme ?? this.selectedTheme,
+      soundEffectsEnabled: soundEffectsEnabled ?? this.soundEffectsEnabled,
     );
   }
 }

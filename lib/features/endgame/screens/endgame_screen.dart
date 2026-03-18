@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -15,6 +17,11 @@ import 'package:story_score/data/database/app_database.dart';
 import 'package:story_score/data/database/tables/game_sessions.dart';
 import 'package:story_score/data/export/export_helper.dart';
 import 'package:story_score/data/export/session_exporter.dart';
+import 'package:story_score/features/premium/providers/premium_providers.dart';
+import 'package:story_score/features/presets/providers/preset_providers.dart';
+import 'package:story_score/features/stats/providers/stats_providers.dart';
+import 'package:story_score/features/stats/widgets/score_progression_chart.dart';
+import 'package:story_score/features/stats/widgets/session_stats_section.dart';
 import 'package:story_score/shared/extensions/context_extensions.dart';
 
 class EndgameScreen extends ConsumerWidget {
@@ -279,6 +286,15 @@ class EndgameScreen extends ConsumerWidget {
                         .slideX(begin: 0.1, end: 0);
                   },
                 ),
+                // ── Session Stats (free) + Score Progression (premium) ──
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: SpacingTokens.lg,
+                    ),
+                    child: _SessionStatsBlock(sessionId: sessionId),
+                  ),
+                ),
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.all(SpacingTokens.lg),
@@ -396,6 +412,89 @@ class EndgameScreen extends ConsumerWidget {
       3 => '${n}rd',
       _ => '${n}th',
     };
+  }
+}
+
+/// Displays session stats (free) and score progression chart (premium-gated).
+class _SessionStatsBlock extends ConsumerWidget {
+  const _SessionStatsBlock({required this.sessionId});
+  final String sessionId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final statsAsync = ref.watch(sessionStatsProvider(sessionId));
+    final progressionAsync = ref.watch(scoreProgressionProvider(sessionId));
+    final isSupporter = ref.watch(isSupporterProvider);
+    final storyTheme = context.storyTheme;
+    final textTheme = context.textTheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: SpacingTokens.lg),
+        // Session stats -- free for all users
+        statsAsync.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (_, __) => const SizedBox.shrink(),
+          data: (stats) => SessionStatsSection(stats: stats),
+        ),
+        const SizedBox(height: SpacingTokens.lg),
+        // Score progression chart -- premium-gated
+        Text(
+          'Score Progression',
+          style: textTheme.titleMedium,
+        ),
+        const SizedBox(height: SpacingTokens.sm),
+        if (isSupporter)
+          progressionAsync.when(
+            loading: () => const SizedBox(
+              height: 220,
+              child: Center(child: CircularProgressIndicator()),
+            ),
+            error: (_, __) => const SizedBox.shrink(),
+            data: (progression) =>
+                ScoreProgressionChart(progression: progression),
+          )
+        else
+          Stack(
+            children: [
+              ImageFiltered(
+                imageFilter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+                child: IgnorePointer(
+                  child: progressionAsync.when(
+                    loading: () => const SizedBox(height: 220),
+                    error: (_, __) => const SizedBox(height: 220),
+                    data: (progression) =>
+                        ScoreProgressionChart(progression: progression),
+                  ),
+                ),
+              ),
+              Positioned.fill(
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.lock_rounded,
+                        color: storyTheme.goldAccent,
+                        size: 32,
+                      ),
+                      const SizedBox(height: SpacingTokens.sm),
+                      Text(
+                        'Supporter Pack',
+                        style: textTheme.bodySmall?.copyWith(
+                          color: storyTheme.goldAccent,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+      ],
+    );
   }
 }
 
