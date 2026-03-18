@@ -47,355 +47,581 @@ class _EndgameScreenState extends ConsumerState<EndgameScreen> {
     final sessionDao = ref.read(sessionDaoProvider);
     final theme = Theme.of(context);
     final skipAnimations = context.reduceMotion;
+    final storyTheme = context.storyTheme;
 
     return Scaffold(
-      body: StreamBuilder<List<Player>>(
-        stream: sessionDao.watchPlayersForSession(sessionId),
-        builder: (context, playersSnap) {
-          if (!playersSnap.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              ColorTokens.darkBackground,
+              ColorTokens.darkSurface,
+              ColorTokens.burgundy,
+            ],
+            stops: [0.0, 0.6, 1.0],
+          ),
+        ),
+        child: StreamBuilder<List<Player>>(
+          stream: sessionDao.watchPlayersForSession(sessionId),
+          builder: (context, playersSnap) {
+            if (!playersSnap.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-          final l10n = AppLocalizations.of(context)!;
-          final players = [...playersSnap.data!]
-            ..sort((a, b) => b.currentScore.compareTo(a.currentScore));
+            final l10n = AppLocalizations.of(context)!;
+            final players = [...playersSnap.data!]
+              ..sort((a, b) => b.currentScore.compareTo(a.currentScore));
 
-          if (players.isEmpty) {
-            return Center(child: Text(l10n.noPlayersFound));
-          }
+            if (players.isEmpty) {
+              return Center(child: Text(l10n.noPlayersFound));
+            }
 
-          final topScore = players.first.currentScore;
-          final winners = players
-              .where((p) => p.currentScore == topScore)
-              .toList();
-          final hasTie = winners.length > 1;
-          final winnerLabel = winners.map((w) => w.name).join(' & ');
+            final topScore = players.first.currentScore;
+            final winners = players
+                .where((p) => p.currentScore == topScore)
+                .toList();
+            final hasTie = winners.length > 1;
+            final winnerLabel = winners.map((w) => w.name).join(' & ');
 
-          // Fire haptic + confetti only once on winner reveal
-          if (!_celebrationFired) {
-            _celebrationFired = true;
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (!mounted) return;
-              Haptics.heavy();
-              _triggerWinnerConfetti(context, ref);
-            });
-          }
+            // Fire haptic + confetti only once on winner reveal
+            if (!_celebrationFired) {
+              _celebrationFired = true;
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (!mounted) return;
+                Haptics.heavy();
+                _triggerWinnerConfetti(context, ref);
+              });
+            }
 
-          return SafeArea(
-            child: CustomScrollView(
-              slivers: [
-                SliverAppBar(
-                  pinned: true,
-                  title: Text(l10n.gameOver),
-                  leading: IconButton(
-                    icon: const Icon(Icons.arrow_back_rounded),
-                    onPressed: () => context.go('/'),
-                  ),
-                ),
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.all(SpacingTokens.lg),
-                    child: Column(
-                      children: [
-                        const SizedBox(height: SpacingTokens.xxl),
-                        // Trophy icon with bounce animation
-                        Semantics(
-                          label: 'Trophy',
-                          excludeSemantics: true,
-                          child: _maybeAnimate(
-                            skipAnimations: skipAnimations,
-                            child: Container(
-                              width: 80,
-                              height: 80,
-                              decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                                gradient: LinearGradient(
-                                  colors: [
-                                    ColorTokens.goldAccent,
-                                    ColorTokens.goldAccent,
-                                  ],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
-                              ),
-                              child: const Icon(
-                                Icons.emoji_events_rounded,
-                                size: 40,
-                                color: Colors.white,
-                              ),
-                            ),
-                            animate: (child) => child
-                                .animate()
-                                .scale(
-                                  duration: 600.ms,
-                                  curve: Curves.elasticOut,
-                                  begin: const Offset(0.5, 0.5),
-                                  end: const Offset(1.0, 1.0),
-                                )
-                                .then()
-                                .scale(
-                                  duration: 1500.ms,
-                                  begin: const Offset(1.0, 1.0),
-                                  end: const Offset(1.06, 1.06),
-                                  curve: Curves.easeInOut,
-                                )
-                                .then()
-                                .scale(
-                                  duration: 1500.ms,
-                                  begin: const Offset(1.06, 1.06),
-                                  end: const Offset(1.0, 1.0),
-                                  curve: Curves.easeInOut,
-                                ),
-                          ),
-                        ),
-                        const SizedBox(height: SpacingTokens.lg),
-                        // Winner headline with fade + slide
-                        _maybeAnimate(
-                          skipAnimations: skipAnimations,
-                          child: Text(
-                            hasTie ? l10n.itsATie : l10n.winner,
-                            style: theme.textTheme.headlineMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          animate: (child) => child
-                              .animate()
-                              .fadeIn(delay: 300.ms, duration: 500.ms)
-                              .slideY(begin: 0.3, end: 0),
-                        ),
-                        const SizedBox(height: SpacingTokens.sm),
-                        // Winner name with fade + slide
-                        Semantics(
-                          label: 'Winner: $winnerLabel with $topScore points',
-                          child: _maybeAnimate(
-                            skipAnimations: skipAnimations,
-                            child: Text(
-                              winnerLabel,
-                              style: theme.textTheme.titleLarge?.copyWith(
-                                color: ColorTokens.goldAccent,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            animate: (child) => child
-                                .animate()
-                                .fadeIn(delay: 500.ms, duration: 500.ms)
-                                .slideY(begin: 0.3, end: 0),
-                          ),
-                        ),
-                        // Score with counter animation
-                        _maybeAnimate(
-                          skipAnimations: skipAnimations,
-                          child: Text(
-                            l10n.points(topScore),
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              color: theme.colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                          animate: (child) => _AnimatedScoreCounter(
-                            targetScore: topScore,
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              color: theme.colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: SpacingTokens.xxl),
-                        _maybeAnimate(
-                          skipAnimations: skipAnimations,
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              l10n.finalStandings,
-                              style: theme.textTheme.titleMedium,
-                            ),
-                          ),
-                          animate: (child) => child.animate().fadeIn(
-                            delay: 700.ms,
-                            duration: 400.ms,
-                          ),
-                        ),
-                        const SizedBox(height: SpacingTokens.md),
-                      ],
+            return SafeArea(
+              child: Stack(
+                children: [
+                  // Sparkle particles
+                  const Positioned(
+                    top: 60,
+                    left: 30,
+                    child: Text(
+                      '\u2605',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Color(0x33E8A020),
+                      ),
                     ),
                   ),
-                ),
-                SliverList.builder(
-                  itemCount: players.length,
-                  itemBuilder: (context, index) {
-                    final player = players[index];
-                    final isWinner = player.currentScore == topScore;
+                  const Positioned(
+                    top: 120,
+                    right: 40,
+                    child: Text(
+                      '\u2726',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Color(0x33D4758A),
+                      ),
+                    ),
+                  ),
+                  const Positioned(
+                    top: 200,
+                    left: 60,
+                    child: Text(
+                      '\u2726',
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: Color(0x26E8A020),
+                      ),
+                    ),
+                  ),
+                  const Positioned(
+                    bottom: 200,
+                    right: 50,
+                    child: Text(
+                      '\u2605',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Color(0x26D4758A),
+                      ),
+                    ),
+                  ),
+                  const Positioned(
+                    bottom: 300,
+                    left: 40,
+                    child: Text(
+                      '\u2605',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Color(0x1AE8A020),
+                      ),
+                    ),
+                  ),
 
-                    final card = Semantics(
-                      label:
-                          '${_ordinal(index + 1)} place, ${player.name}, ${player.currentScore} points',
-                      excludeSemantics: true,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: SpacingTokens.lg,
-                          vertical: SpacingTokens.xs,
+                  // Main content
+                  CustomScrollView(
+                    slivers: [
+                      SliverAppBar(
+                        pinned: true,
+                        backgroundColor: Colors.transparent,
+                        title: Text(
+                          l10n.gameOver,
+                          style: TextStyle(color: ColorTokens.parchment),
                         ),
-                        child: Card(
-                          color: isWinner
-                              ? ColorTokens.goldAccent.withValues(alpha: 0.1)
-                              : null,
-                          child: ListTile(
-                            leading: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                SizedBox(
-                                  width: 28,
-                                  child: Text(
-                                    '#${index + 1}',
-                                    style: theme.textTheme.titleMedium
-                                        ?.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                          color: isWinner
-                                              ? ColorTokens.goldAccent
-                                              : theme
-                                                    .colorScheme
-                                                    .onSurfaceVariant,
-                                        ),
+                        leading: IconButton(
+                          icon: const Icon(
+                            Icons.arrow_back_rounded,
+                            color: ColorTokens.goldAccent,
+                          ),
+                          onPressed: () => context.go('/'),
+                        ),
+                      ),
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.all(SpacingTokens.lg),
+                          child: Column(
+                            children: [
+                              const SizedBox(height: SpacingTokens.xxl),
+                              // Trophy icon with radial gold glow
+                              Semantics(
+                                label: 'Trophy',
+                                excludeSemantics: true,
+                                child: _maybeAnimate(
+                                  skipAnimations: skipAnimations,
+                                  child: Container(
+                                    width: 100,
+                                    height: 100,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      gradient: RadialGradient(
+                                        colors: [
+                                          ColorTokens.goldAccent
+                                              .withValues(alpha: 0.4),
+                                          ColorTokens.goldAccent
+                                              .withValues(alpha: 0.1),
+                                          Colors.transparent,
+                                        ],
+                                        stops: const [0.0, 0.5, 1.0],
+                                      ),
+                                    ),
+                                    child: const Icon(
+                                      Icons.emoji_events_rounded,
+                                      size: 48,
+                                      color: ColorTokens.goldAccent,
+                                    ),
+                                  ),
+                                  animate: (child) => child
+                                      .animate()
+                                      .scale(
+                                        duration: 600.ms,
+                                        curve: Curves.elasticOut,
+                                        begin: const Offset(0.5, 0.5),
+                                        end: const Offset(1.0, 1.0),
+                                      )
+                                      .then()
+                                      .scale(
+                                        duration: 1500.ms,
+                                        begin: const Offset(1.0, 1.0),
+                                        end: const Offset(1.06, 1.06),
+                                        curve: Curves.easeInOut,
+                                      )
+                                      .then()
+                                      .scale(
+                                        duration: 1500.ms,
+                                        begin: const Offset(1.06, 1.06),
+                                        end: const Offset(1.0, 1.0),
+                                        curve: Curves.easeInOut,
+                                      ),
+                                ),
+                              ),
+                              const SizedBox(height: SpacingTokens.lg),
+                              // "WINNER" label
+                              _maybeAnimate(
+                                skipAnimations: skipAnimations,
+                                child: Text(
+                                  hasTie
+                                      ? l10n.itsATie.toUpperCase()
+                                      : l10n.winner.toUpperCase(),
+                                  style:
+                                      theme.textTheme.headlineMedium?.copyWith(
+                                    color: ColorTokens.goldAccent,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: 3,
                                   ),
                                 ),
-                                const SizedBox(width: SpacingTokens.sm),
-                                CircleAvatar(
-                                  radius: 16,
-                                  backgroundColor: PlayerColors.colorFor(
-                                    player.colorKey,
-                                  ),
+                                animate: (child) => child
+                                    .animate()
+                                    .fadeIn(delay: 300.ms, duration: 500.ms)
+                                    .slideY(begin: 0.3, end: 0),
+                              ),
+                              const SizedBox(height: SpacingTokens.sm),
+                              // Winner name
+                              Semantics(
+                                label:
+                                    'Winner: $winnerLabel with $topScore points',
+                                child: _maybeAnimate(
+                                  skipAnimations: skipAnimations,
                                   child: Text(
-                                    player.name.isNotEmpty
-                                        ? player.name[0].toUpperCase()
-                                        : '?',
-                                    style: const TextStyle(
-                                      color: Colors.white,
+                                    winnerLabel,
+                                    style:
+                                        theme.textTheme.titleLarge?.copyWith(
+                                      color: ColorTokens.parchment,
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.w800,
+                                      shadows: [
+                                        Shadow(
+                                          color: ColorTokens.goldAccent
+                                              .withValues(alpha: 0.5),
+                                          blurRadius: 12,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  animate: (child) => child
+                                      .animate()
+                                      .fadeIn(delay: 500.ms, duration: 500.ms)
+                                      .slideY(begin: 0.3, end: 0),
+                                ),
+                              ),
+                              // Score
+                              _maybeAnimate(
+                                skipAnimations: skipAnimations,
+                                child: Text(
+                                  l10n.points(topScore),
+                                  style:
+                                      theme.textTheme.displaySmall?.copyWith(
+                                    color: ColorTokens.goldAccent,
+                                    fontSize: 42,
+                                    fontWeight: FontWeight.w800,
+                                    shadows: [
+                                      Shadow(
+                                        color: ColorTokens.goldAccent
+                                            .withValues(alpha: 0.4),
+                                        blurRadius: 16,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                animate: (child) =>
+                                    _AnimatedScoreCounter(
+                                  targetScore: topScore,
+                                  style:
+                                      theme.textTheme.displaySmall?.copyWith(
+                                    color: ColorTokens.goldAccent,
+                                    fontSize: 42,
+                                    fontWeight: FontWeight.w800,
+                                    shadows: [
+                                      Shadow(
+                                        color: ColorTokens.goldAccent
+                                            .withValues(alpha: 0.4),
+                                        blurRadius: 16,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: SpacingTokens.lg),
+
+                              // Ornate gold divider
+                              Container(
+                                width: 120,
+                                height: 1,
+                                decoration: const BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Colors.transparent,
+                                      ColorTokens.goldAccent,
+                                      Colors.transparent,
+                                    ],
+                                  ),
+                                ),
+                              ),
+
+                              const SizedBox(height: SpacingTokens.lg),
+                              _maybeAnimate(
+                                skipAnimations: skipAnimations,
+                                child: Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    l10n.finalStandings.toUpperCase(),
+                                    style: theme.textTheme.labelLarge?.copyWith(
+                                      color: ColorTokens.goldAccent,
+                                      letterSpacing: 1.5,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                                animate: (child) => child.animate().fadeIn(
+                                      delay: 700.ms,
+                                      duration: 400.ms,
+                                    ),
+                              ),
+                              const SizedBox(height: SpacingTokens.md),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SliverList.builder(
+                        itemCount: players.length,
+                        itemBuilder: (context, index) {
+                          final player = players[index];
+                          final isWinner = player.currentScore == topScore;
+
+                          final card = Semantics(
+                            label:
+                                '${_ordinal(index + 1)} place, ${player.name}, ${player.currentScore} points',
+                            excludeSemantics: true,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: SpacingTokens.lg,
+                                vertical: SpacingTokens.xs,
+                              ),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  gradient: isWinner
+                                      ? LinearGradient(
+                                          colors: [
+                                            ColorTokens.goldAccent
+                                                .withValues(alpha: 0.15),
+                                            ColorTokens.goldAccent
+                                                .withValues(alpha: 0.05),
+                                          ],
+                                          begin: Alignment.centerLeft,
+                                          end: Alignment.centerRight,
+                                        )
+                                      : null,
+                                  color: isWinner ? null : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(14),
+                                  border: isWinner
+                                      ? Border.all(
+                                          color: ColorTokens.goldAccent
+                                              .withValues(alpha: 0.3),
+                                        )
+                                      : null,
+                                ),
+                                child: ListTile(
+                                  leading: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      SizedBox(
+                                        width: 28,
+                                        child: Text(
+                                          '#${index + 1}',
+                                          style: theme.textTheme.titleMedium
+                                              ?.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                            color: isWinner
+                                                ? ColorTokens.goldAccent
+                                                : ColorTokens.dustyRose,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: SpacingTokens.sm),
+                                      Container(
+                                        width: 32,
+                                        height: 32,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              PlayerColors.colorFor(
+                                                player.colorKey,
+                                              ),
+                                              PlayerColors.colorFor(
+                                                player.colorKey,
+                                              ).withValues(alpha: 0.7),
+                                            ],
+                                          ),
+                                          border: Border.all(
+                                            color: PlayerColors.colorFor(
+                                              player.colorKey,
+                                            ).withValues(alpha: 0.5),
+                                            width: 2,
+                                          ),
+                                        ),
+                                        alignment: Alignment.center,
+                                        child: player.avatarStyle !=
+                                                    'initials' &&
+                                                player
+                                                    .avatarStyle.isNotEmpty
+                                            ? Text(
+                                                player.avatarStyle,
+                                                style: const TextStyle(
+                                                  fontSize: 16,
+                                                ),
+                                              )
+                                            : Text(
+                                                player.name.isNotEmpty
+                                                    ? player.name[0]
+                                                        .toUpperCase()
+                                                    : '?',
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                      ),
+                                    ],
+                                  ),
+                                  title: Text(
+                                    player.name,
+                                    style: TextStyle(
+                                      fontWeight: isWinner
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                      color: ColorTokens.parchment,
+                                    ),
+                                  ),
+                                  trailing: Text(
+                                    '${player.currentScore}',
+                                    style:
+                                        theme.textTheme.titleLarge?.copyWith(
                                       fontWeight: FontWeight.bold,
-                                      fontSize: 14,
+                                      color: isWinner
+                                          ? ColorTokens.goldAccent
+                                          : ColorTokens.parchment,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+
+                          if (skipAnimations) return card;
+
+                          return card
+                              .animate()
+                              .fadeIn(
+                                delay: (800 + index * 100).ms,
+                                duration: 400.ms,
+                              )
+                              .slideX(begin: 0.1, end: 0);
+                        },
+                      ),
+                      // Session Stats (free) + Score Progression (premium)
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: SpacingTokens.lg,
+                          ),
+                          child:
+                              _SessionStatsBlock(sessionId: sessionId),
+                        ),
+                      ),
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.all(SpacingTokens.lg),
+                          child: Column(
+                            children: [
+                              const SizedBox(height: SpacingTokens.lg),
+                              // New Game button with gradient
+                              SizedBox(
+                                width: double.infinity,
+                                child: DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    gradient: storyTheme.accentGradient,
+                                    borderRadius: BorderRadius.circular(
+                                      SpacingTokens.radiusMd,
+                                    ),
+                                  ),
+                                  child: FilledButton.icon(
+                                    onPressed: () => context.go('/game/new'),
+                                    icon: const Icon(Icons.replay_rounded),
+                                    label: Text(l10n.newGame),
+                                    style: FilledButton.styleFrom(
+                                      backgroundColor: Colors.transparent,
+                                      foregroundColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: SpacingTokens.md,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: SpacingTokens.sm),
+                              // Share button with gold outline
+                              SizedBox(
+                                width: double.infinity,
+                                child: OutlinedButton.icon(
+                                  onPressed: () =>
+                                      _shareResults(context, ref),
+                                  icon: const Icon(Icons.share_outlined),
+                                  label: Text(l10n.shareResults),
+                                  style: OutlinedButton.styleFrom(
+                                    foregroundColor: ColorTokens.goldAccent,
+                                    side: const BorderSide(
+                                      color: ColorTokens.goldAccent,
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: SpacingTokens.md,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              // Save as Preset (premium-gated)
+                              if (ref.watch(isSupporterProvider) &&
+                                  players.length >= 3) ...[
+                                const SizedBox(height: SpacingTokens.sm),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: OutlinedButton.icon(
+                                    onPressed: () =>
+                                        _saveAsPreset(context, ref, players),
+                                    icon: const Icon(
+                                      Icons.bookmark_add_outlined,
+                                    ),
+                                    label: Text(l10n.saveAsPreset),
+                                    style: OutlinedButton.styleFrom(
+                                      foregroundColor: ColorTokens.parchment,
+                                      side: BorderSide(
+                                        color: ColorTokens.parchment
+                                            .withValues(alpha: 0.3),
+                                      ),
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: SpacingTokens.md,
+                                      ),
                                     ),
                                   ),
                                 ),
                               ],
-                            ),
-                            title: Text(
-                              player.name,
-                              style: TextStyle(
-                                fontWeight: isWinner
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
+                              const SizedBox(height: SpacingTokens.sm),
+                              SizedBox(
+                                width: double.infinity,
+                                child: OutlinedButton.icon(
+                                  onPressed: () {
+                                    sessionDao.updateSession(
+                                      sessionId,
+                                      GameSessionsCompanion(
+                                        status: Value(GameStatus.completed),
+                                        updatedAt: Value(DateTime.now()),
+                                      ),
+                                    );
+                                    context.go('/');
+                                  },
+                                  icon: const Icon(Icons.home_rounded),
+                                  label: Text(l10n.backToHome),
+                                  style: OutlinedButton.styleFrom(
+                                    foregroundColor: ColorTokens.parchment,
+                                    side: BorderSide(
+                                      color: ColorTokens.parchment
+                                          .withValues(alpha: 0.3),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: SpacingTokens.md,
+                                    ),
+                                  ),
+                                ),
                               ),
-                            ),
-                            trailing: Text(
-                              '${player.currentScore}',
-                              style: theme.textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: isWinner ? ColorTokens.goldAccent : null,
-                              ),
-                            ),
+                              const SizedBox(height: SpacingTokens.xxl),
+                            ],
                           ),
                         ),
                       ),
-                    );
-
-                    if (skipAnimations) return card;
-
-                    return card
-                        .animate()
-                        .fadeIn(delay: (800 + index * 100).ms, duration: 400.ms)
-                        .slideX(begin: 0.1, end: 0);
-                  },
-                ),
-                // ── Session Stats (free) + Score Progression (premium) ──
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: SpacingTokens.lg,
-                    ),
-                    child: _SessionStatsBlock(sessionId: sessionId),
+                    ],
                   ),
-                ),
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.all(SpacingTokens.lg),
-                    child: Column(
-                      children: [
-                        const SizedBox(height: SpacingTokens.lg),
-                        SizedBox(
-                          width: double.infinity,
-                          child: FilledButton.icon(
-                            onPressed: () => context.go('/game/new'),
-                            icon: const Icon(Icons.replay_rounded),
-                            label: Text(l10n.newGame),
-                            style: FilledButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: SpacingTokens.md,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: SpacingTokens.sm),
-                        SizedBox(
-                          width: double.infinity,
-                          child: OutlinedButton.icon(
-                            onPressed: () => _shareResults(context, ref),
-                            icon: const Icon(Icons.share_outlined),
-                            label: Text(l10n.shareResults),
-                            style: OutlinedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: SpacingTokens.md,
-                              ),
-                            ),
-                          ),
-                        ),
-                        // Save as Preset (premium-gated)
-                        if (ref.watch(isSupporterProvider) &&
-                            players.length >= 3) ...[
-                          const SizedBox(height: SpacingTokens.sm),
-                          SizedBox(
-                            width: double.infinity,
-                            child: OutlinedButton.icon(
-                              onPressed: () =>
-                                  _saveAsPreset(context, ref, players),
-                              icon: const Icon(Icons.bookmark_add_outlined),
-                              label: Text(l10n.saveAsPreset),
-                              style: OutlinedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: SpacingTokens.md,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                        const SizedBox(height: SpacingTokens.sm),
-                        SizedBox(
-                          width: double.infinity,
-                          child: OutlinedButton.icon(
-                            onPressed: () {
-                              sessionDao.updateSession(
-                                sessionId,
-                                GameSessionsCompanion(
-                                  status: Value(GameStatus.completed),
-                                  updatedAt: Value(DateTime.now()),
-                                ),
-                              );
-                              context.go('/');
-                            },
-                            icon: const Icon(Icons.home_rounded),
-                            label: Text(l10n.backToHome),
-                            style: OutlinedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: SpacingTokens.md,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: SpacingTokens.xxl),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }
@@ -571,7 +797,9 @@ class _SessionStatsBlock extends ConsumerWidget {
         // Score progression chart -- premium-gated
         Text(
           AppLocalizations.of(context)?.scoreProgression ?? 'Score Progression',
-          style: textTheme.titleMedium,
+          style: textTheme.titleMedium?.copyWith(
+            color: ColorTokens.parchment,
+          ),
         ),
         const SizedBox(height: SpacingTokens.sm),
         if (isSupporter)

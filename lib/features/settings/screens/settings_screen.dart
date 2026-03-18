@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:story_score/app/theme/color_tokens.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
 import 'package:story_score/data/database/tables/game_sessions.dart';
 import 'package:story_score/data/settings/app_settings.dart';
@@ -21,9 +22,15 @@ class SettingsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.settings),
+        title: Text(
+          l10n.settings,
+          style: const TextStyle(color: ColorTokens.parchment),
+        ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded),
+          icon: const Icon(
+            Icons.arrow_back_rounded,
+            color: ColorTokens.goldAccent,
+          ),
           onPressed: () {
             if (Navigator.of(context).canPop()) {
               Navigator.of(context).pop();
@@ -43,8 +50,14 @@ class SettingsScreen extends ConsumerWidget {
             _SectionHeader(title: l10n.appearance),
             ListTile(
               leading: const Icon(Icons.palette_outlined),
-              title: Text(l10n.theme),
-              subtitle: Text(_themeModeLabel(context, settings.themeMode)),
+              title: Text(
+                l10n.theme,
+                style: const TextStyle(color: ColorTokens.parchment),
+              ),
+              subtitle: Text(
+                _themeModeLabel(context, settings.themeMode),
+                style: const TextStyle(color: ColorTokens.mutedText),
+              ),
               trailing: SegmentedButton<ThemeMode>(
                 segments: const [
                   ButtonSegment(
@@ -79,7 +92,7 @@ class SettingsScreen extends ConsumerWidget {
               child: Text(
                 l10n.colorTheme,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  color: ColorTokens.mutedText,
                 ),
               ),
             ),
@@ -95,7 +108,10 @@ class SettingsScreen extends ConsumerWidget {
             _SectionHeader(title: l10n.language),
             ListTile(
               leading: const Icon(Icons.language_outlined),
-              title: Text(l10n.language),
+              title: Text(
+                l10n.language,
+                style: const TextStyle(color: ColorTokens.parchment),
+              ),
               trailing: DropdownButton<String?>(
                 value: settings.locale,
                 underline: const SizedBox.shrink(),
@@ -125,9 +141,16 @@ class SettingsScreen extends ConsumerWidget {
             _SectionHeader(title: l10n.gameplay),
             SwitchListTile(
               secondary: const Icon(Icons.vibration_outlined),
-              title: Text(l10n.hapticFeedback),
-              subtitle: Text(l10n.hapticFeedbackDescription),
+              title: Text(
+                l10n.hapticFeedback,
+                style: const TextStyle(color: ColorTokens.parchment),
+              ),
+              subtitle: Text(
+                l10n.hapticFeedbackDescription,
+                style: const TextStyle(color: ColorTokens.mutedText),
+              ),
               value: settings.hapticsEnabled,
+              activeTrackColor: ColorTokens.goldAccent,
               onChanged: (v) {
                 ref.read(appSettingsProvider.notifier).setHapticsEnabled(v);
               },
@@ -139,7 +162,10 @@ class SettingsScreen extends ConsumerWidget {
               ),
               title: Row(
                 children: [
-                  Text(l10n.soundEffects),
+                  Text(
+                    l10n.soundEffects,
+                    style: const TextStyle(color: ColorTokens.parchment),
+                  ),
                   if (!isSupporter) ...[
                     const SizedBox(width: SpacingTokens.xs),
                     Icon(
@@ -154,8 +180,10 @@ class SettingsScreen extends ConsumerWidget {
                 isSupporter
                     ? l10n.soundEffectsDescription
                     : l10n.supporterPackFeature,
+                style: const TextStyle(color: ColorTokens.mutedText),
               ),
               value: settings.soundEffectsEnabled && isSupporter,
+              activeTrackColor: ColorTokens.goldAccent,
               onChanged: isSupporter
                   ? (v) {
                       ref
@@ -166,9 +194,16 @@ class SettingsScreen extends ConsumerWidget {
             ),
             SwitchListTile(
               secondary: const Icon(Icons.slow_motion_video_outlined),
-              title: Text(l10n.reduceMotion),
-              subtitle: Text(l10n.reduceMotionDescription),
+              title: Text(
+                l10n.reduceMotion,
+                style: const TextStyle(color: ColorTokens.parchment),
+              ),
+              subtitle: Text(
+                l10n.reduceMotionDescription,
+                style: const TextStyle(color: ColorTokens.mutedText),
+              ),
               value: settings.reducedMotionOverride,
+              activeTrackColor: ColorTokens.goldAccent,
               onChanged: (v) {
                 ref
                     .read(appSettingsProvider.notifier)
@@ -177,18 +212,29 @@ class SettingsScreen extends ConsumerWidget {
             ),
             SwitchListTile(
               secondary: const Icon(Icons.note_outlined),
-              title: Text(l10n.roundNotes),
-              subtitle: Text(l10n.roundNotesDescription),
+              title: Text(
+                l10n.roundNotes,
+                style: const TextStyle(color: ColorTokens.parchment),
+              ),
+              subtitle: Text(
+                l10n.roundNotesDescription,
+                style: const TextStyle(color: ColorTokens.mutedText),
+              ),
               value: settings.showRoundNotes,
+              activeTrackColor: ColorTokens.goldAccent,
               onChanged: (v) {
                 ref.read(appSettingsProvider.notifier).setShowRoundNotes(v);
               },
             ),
             ListTile(
               leading: const Icon(Icons.flag_outlined),
-              title: Text(l10n.defaultTargetMode),
+              title: Text(
+                l10n.defaultTargetMode,
+                style: const TextStyle(color: ColorTokens.parchment),
+              ),
               subtitle: Text(
                 _targetTypeLabel(context, settings.defaultTargetMode),
+                style: const TextStyle(color: ColorTokens.mutedText),
               ),
               trailing: SegmentedButton<TargetType>(
                 segments: [
@@ -212,9 +258,13 @@ class SettingsScreen extends ConsumerWidget {
             ),
             ListTile(
               leading: const Icon(Icons.sort_outlined),
-              title: Text(l10n.playerSortOrder),
+              title: Text(
+                l10n.playerSortOrder,
+                style: const TextStyle(color: ColorTokens.parchment),
+              ),
               subtitle: Text(
                 _sortOrderLabel(context, settings.preferredSortOrder),
+                style: const TextStyle(color: ColorTokens.mutedText),
               ),
               trailing: DropdownButton<PlayerSortOrder>(
                 value: settings.preferredSortOrder,
@@ -247,8 +297,14 @@ class SettingsScreen extends ConsumerWidget {
                     ? Icons.group_outlined
                     : Icons.lock_outline_rounded,
               ),
-              title: Text(l10n.playerPresets),
-              subtitle: Text(l10n.saveAndManageGroups),
+              title: Text(
+                l10n.playerPresets,
+                style: const TextStyle(color: ColorTokens.parchment),
+              ),
+              subtitle: Text(
+                l10n.saveAndManageGroups,
+                style: const TextStyle(color: ColorTokens.mutedText),
+              ),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => context.push('/settings/presets'),
             ),
@@ -259,8 +315,14 @@ class SettingsScreen extends ConsumerWidget {
             _SectionHeader(title: l10n.support),
             ListTile(
               leading: const Icon(Icons.star_outline_rounded),
-              title: Text(l10n.supporterPack),
-              subtitle: Text(l10n.premiumThemesAndExtras),
+              title: Text(
+                l10n.supporterPack,
+                style: const TextStyle(color: ColorTokens.parchment),
+              ),
+              subtitle: Text(
+                l10n.premiumThemesAndExtras,
+                style: const TextStyle(color: ColorTokens.mutedText),
+              ),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => context.push('/settings/premium'),
             ),
@@ -271,8 +333,14 @@ class SettingsScreen extends ConsumerWidget {
             _SectionHeader(title: l10n.about),
             ListTile(
               leading: const Icon(Icons.info_outline_rounded),
-              title: Text(l10n.appTitle),
-              subtitle: Text(l10n.version('1.0.0')),
+              title: Text(
+                l10n.appTitle,
+                style: const TextStyle(color: ColorTokens.parchment),
+              ),
+              subtitle: Text(
+                l10n.version('1.0.0'),
+                style: const TextStyle(color: ColorTokens.mutedText),
+              ),
             ),
           ],
         ),
@@ -323,9 +391,11 @@ class _SectionHeader extends StatelessWidget {
         SpacingTokens.xs,
       ),
       child: Text(
-        title,
+        title.toUpperCase(),
         style: Theme.of(context).textTheme.labelLarge?.copyWith(
-          color: Theme.of(context).colorScheme.primary,
+          color: ColorTokens.goldAccent,
+          letterSpacing: 1.5,
+          fontWeight: FontWeight.w700,
         ),
       ),
     );

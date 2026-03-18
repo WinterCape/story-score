@@ -50,29 +50,27 @@ class RoundRecapSheet extends StatelessWidget {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: context.colorScheme.onSurfaceVariant.withValues(
-                  alpha: 0.3,
-                ),
+                color: ColorTokens.mutedText.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
             const SizedBox(height: SpacingTokens.lg),
 
-            // Outcome header
+            // Outcome header — gold for good, rose for bad
             Icon(
               isGoodClue ? Icons.star : Icons.sentiment_dissatisfied,
               size: 40,
               color: isGoodClue
-                  ? context.storyTheme.goldAccent
-                  : ColorTokens.coral,
+                  ? ColorTokens.goldAccent
+                  : ColorTokens.dustyRose,
             ),
             const SizedBox(height: SpacingTokens.sm),
             Text(
               isGoodClue ? 'Good Clue!' : 'Bad Clue!',
               style: context.textTheme.headlineSmall?.copyWith(
                 color: isGoodClue
-                    ? context.storyTheme.goldAccent
-                    : ColorTokens.coral,
+                    ? ColorTokens.goldAccent
+                    : ColorTokens.dustyRose,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -81,12 +79,28 @@ class RoundRecapSheet extends StatelessWidget {
                   ? 'Some players guessed correctly'
                   : 'Everyone or nobody guessed correctly',
               style: context.textTheme.bodySmall?.copyWith(
-                color: context.colorScheme.onSurfaceVariant,
+                color: ColorTokens.mutedText,
               ),
             ),
             const SizedBox(height: SpacingTokens.lg),
 
-            // Per-player score changes
+            // Ornate gold divider
+            Container(
+              width: 120,
+              height: 1,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.transparent,
+                    ColorTokens.goldAccent,
+                    Colors.transparent,
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: SpacingTokens.lg),
+
+            // Per-player score changes in warm styled rows
             ...playerDeltas.entries.map((entry) {
               final player = players
                   .where((p) => p.id == entry.key)
@@ -107,19 +121,29 @@ class RoundRecapSheet extends StatelessWidget {
 
             const SizedBox(height: SpacingTokens.lg),
 
-            // Continue button
+            // Continue button with gradient
             SizedBox(
               width: double.infinity,
-              child: FilledButton(
-                onPressed: onContinue,
-                style: FilledButton.styleFrom(
-                  backgroundColor: context.storyTheme.goldAccent,
-                  foregroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(
-                    vertical: SpacingTokens.md,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [ColorTokens.burgundy, ColorTokens.goldAccent],
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
                   ),
+                  borderRadius: BorderRadius.circular(SpacingTokens.radiusMd),
                 ),
-                child: const Text('Continue'),
+                child: FilledButton(
+                  onPressed: onContinue,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      vertical: SpacingTokens.md,
+                    ),
+                  ),
+                  child: const Text('Continue'),
+                ),
               ),
             ),
           ],
@@ -149,26 +173,64 @@ class _PlayerRecapRow extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(SpacingTokens.md),
         decoration: BoxDecoration(
-          color: context.colorScheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(SpacingTokens.radiusMd),
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [ColorTokens.darkCard, ColorTokens.darkCardVariant],
+          ),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.04),
+          ),
         ),
         child: Row(
           children: [
-            // Color dot + name
+            // Gradient avatar circle
             Container(
-              width: 10,
-              height: 10,
+              width: 28,
+              height: 28,
               decoration: BoxDecoration(
-                color: playerColor,
                 shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  colors: [
+                    playerColor,
+                    playerColor.withValues(alpha: 0.7),
+                  ],
+                ),
+                border: Border.all(
+                  color: playerColor.withValues(alpha: 0.5),
+                  width: 2,
+                ),
               ),
+              alignment: Alignment.center,
+              child: player.avatarStyle != 'initials' &&
+                      player.avatarStyle.isNotEmpty
+                  ? Text(
+                      player.avatarStyle,
+                      style: const TextStyle(fontSize: 14),
+                    )
+                  : Text(
+                      player.name.isNotEmpty
+                          ? player.name[0].toUpperCase()
+                          : '?',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
             ),
             const SizedBox(width: SpacingTokens.sm),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(player.name, style: context.textTheme.titleSmall),
+                  Text(
+                    player.name,
+                    style: context.textTheme.titleSmall?.copyWith(
+                      color: ColorTokens.parchment,
+                    ),
+                  ),
                   // Reason labels
                   Wrap(
                     spacing: SpacingTokens.sm,
@@ -176,7 +238,7 @@ class _PlayerRecapRow extends StatelessWidget {
                       return Text(
                         '+${e.delta} ${e.reason.label}',
                         style: context.textTheme.labelSmall?.copyWith(
-                          color: context.colorScheme.onSurfaceVariant,
+                          color: ColorTokens.mutedText,
                         ),
                       );
                     }).toList(),
@@ -184,13 +246,13 @@ class _PlayerRecapRow extends StatelessWidget {
                 ],
               ),
             ),
-            // Total delta
+            // Total delta — gold for positive
             Text(
               '+$totalDelta',
               style: context.textTheme.titleLarge?.copyWith(
                 color: totalDelta > 0
-                    ? ColorTokens.teal
-                    : context.colorScheme.onSurface,
+                    ? ColorTokens.goldAccent
+                    : ColorTokens.parchment,
                 fontWeight: FontWeight.bold,
               ),
             ),

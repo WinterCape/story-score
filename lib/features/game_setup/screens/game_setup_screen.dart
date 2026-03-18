@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:story_score/app/providers.dart';
+import 'package:story_score/app/theme/color_tokens.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
 import 'package:story_score/app/theme/theme_extensions.dart';
 import 'package:story_score/core/constants/player_colors.dart';
@@ -203,9 +204,15 @@ class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.newGame),
+        title: Text(
+          l10n.newGame,
+          style: const TextStyle(color: ColorTokens.parchment),
+        ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded),
+          icon: const Icon(
+            Icons.arrow_back_rounded,
+            color: ColorTokens.goldAccent,
+          ),
           onPressed: () => context.pop(),
         ),
         actions: [
@@ -217,7 +224,19 @@ class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
             ),
         ],
       ),
-      body: Center(
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              ColorTokens.darkBackground,
+              ColorTokens.darkSurface,
+              ColorTokens.darkCard,
+            ],
+          ),
+        ),
+        child: Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(
             maxWidth: context.isTablet ? 600 : double.infinity,
@@ -234,9 +253,11 @@ class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
                   children: [
                     // ── Title field ──────────────────────────────────────────
                     Text(
-                      l10n.gameTitle,
+                      l10n.gameTitle.toUpperCase(),
                       style: textTheme.labelLarge?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
+                        color: ColorTokens.goldAccent,
+                        letterSpacing: 1.5,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                     const SizedBox(height: SpacingTokens.sm),
@@ -252,9 +273,11 @@ class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
 
                     // ── Target type selector ─────────────────────────────────
                     Text(
-                      l10n.winCondition,
+                      l10n.winCondition.toUpperCase(),
                       style: textTheme.labelLarge?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
+                        color: ColorTokens.goldAccent,
+                        letterSpacing: 1.5,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                     const SizedBox(height: SpacingTokens.sm),
@@ -406,7 +429,14 @@ class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
                     // ── Players section ──────────────────────────────────────
                     Row(
                       children: [
-                        Text(l10n.players, style: textTheme.titleLarge),
+                        Text(
+                          l10n.players.toUpperCase(),
+                          style: textTheme.titleLarge?.copyWith(
+                            color: ColorTokens.goldAccent,
+                            letterSpacing: 1.5,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
                         const SizedBox(width: SpacingTokens.sm),
                         Container(
                           padding: const EdgeInsets.symmetric(
@@ -482,7 +512,7 @@ class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
 
                     const SizedBox(height: SpacingTokens.sm),
 
-                    // Add player button.
+                    // Add player button — gold outlined.
                     OutlinedButton.icon(
                       onPressed: state.isPlayerLimitReached
                           ? null
@@ -491,10 +521,11 @@ class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
                       label: Text(l10n.addPlayer),
                       style: OutlinedButton.styleFrom(
                         minimumSize: const Size(double.infinity, 48),
+                        foregroundColor: ColorTokens.goldAccent,
                         side: BorderSide(
                           color: state.isPlayerLimitReached
                               ? colorScheme.outline.withValues(alpha: 0.3)
-                              : storyTheme.teal,
+                              : ColorTokens.goldAccent,
                         ),
                       ),
                     ),
@@ -534,35 +565,49 @@ class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
                     SpacingTokens.lg,
                     SpacingTokens.md,
                   ),
-                  child: FilledButton(
-                    onPressed: state.canStart && !_isCreating
-                        ? _startGame
-                        : null,
-                    style: FilledButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 56),
-                      backgroundColor: storyTheme.goldAccent,
-                      foregroundColor: Colors.black,
-                      disabledBackgroundColor: storyTheme.goldAccent.withValues(
-                        alpha: 0.3,
-                      ),
-                      disabledForegroundColor: Colors.black45,
-                    ),
-                    child: _isCreating
-                        ? const SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2.5,
-                              color: Colors.black54,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: state.canStart && !_isCreating
+                          ? storyTheme.accentGradient
+                          : LinearGradient(
+                              colors: [
+                                ColorTokens.burgundy.withValues(alpha: 0.3),
+                                ColorTokens.goldAccent.withValues(alpha: 0.3),
+                              ],
                             ),
-                          )
-                        : Text(l10n.startGame),
+                      borderRadius: BorderRadius.circular(
+                        SpacingTokens.radiusMd,
+                      ),
+                    ),
+                    child: FilledButton(
+                      onPressed: state.canStart && !_isCreating
+                          ? _startGame
+                          : null,
+                      style: FilledButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 56),
+                        backgroundColor: Colors.transparent,
+                        foregroundColor: Colors.white,
+                        disabledBackgroundColor: Colors.transparent,
+                        disabledForegroundColor: Colors.white54,
+                      ),
+                      child: _isCreating
+                          ? const SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.5,
+                                color: Colors.white54,
+                              ),
+                            )
+                          : Text(l10n.startGame),
+                    ),
                   ),
                 ),
               ),
             ],
           ),
         ),
+      ),
       ),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:story_score/app/theme/color_tokens.dart';
 import 'package:story_score/shared/extensions/context_extensions.dart';
 
 /// Shell widget providing bottom navigation for in-game screens
@@ -16,6 +17,8 @@ class GameShell extends StatelessWidget {
     return Scaffold(
       body: navigationShell,
       bottomNavigationBar: NavigationBar(
+        backgroundColor: ColorTokens.darkSurface,
+        indicatorColor: ColorTokens.goldAccent.withValues(alpha: 0.15),
         selectedIndex: navigationShell.currentIndex,
         onDestinationSelected: (index) {
           navigationShell.goBranch(
@@ -25,18 +28,36 @@ class GameShell extends StatelessWidget {
         },
         destinations: [
           NavigationDestination(
-            icon: const Icon(Icons.leaderboard_outlined),
-            selectedIcon: const Icon(Icons.leaderboard),
+            icon: Icon(
+              Icons.leaderboard_outlined,
+              color: ColorTokens.mutedText,
+            ),
+            selectedIcon: const Icon(
+              Icons.leaderboard,
+              color: ColorTokens.goldAccent,
+            ),
             label: l10n.scoreboard,
           ),
           NavigationDestination(
-            icon: const Icon(Icons.play_circle_outline),
-            selectedIcon: const Icon(Icons.play_circle),
+            icon: Icon(
+              Icons.play_circle_outline,
+              color: ColorTokens.mutedText,
+            ),
+            selectedIcon: const Icon(
+              Icons.play_circle,
+              color: ColorTokens.goldAccent,
+            ),
             label: l10n.roundTab,
           ),
           NavigationDestination(
-            icon: const Icon(Icons.history_outlined),
-            selectedIcon: const Icon(Icons.history),
+            icon: Icon(
+              Icons.history_outlined,
+              color: ColorTokens.mutedText,
+            ),
+            selectedIcon: const Icon(
+              Icons.history,
+              color: ColorTokens.goldAccent,
+            ),
             label: l10n.history,
           ),
         ],

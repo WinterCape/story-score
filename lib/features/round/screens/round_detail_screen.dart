@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:story_score/app/providers.dart';
+import 'package:story_score/app/theme/color_tokens.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
 import 'package:story_score/core/constants/player_colors.dart';
 import 'package:story_score/core/utils/haptics.dart';
@@ -54,193 +55,237 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
     final l10n = context.l10n;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.roundDetail),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () => context.pop(),
-        ),
-      ),
-      body: detailsAsync.when(
-        data: (details) {
-          if (details == null) {
-            return Center(child: Text(l10n.roundNotFound));
-          }
-
-          final players = switch (playersAsync) {
-            AsyncData(:final value) => value,
-            _ => <Player>[],
-          };
-          final playerMap = {for (final p in players) p.id: p};
-          final storyteller = playerMap[details.round.storytellerPlayerId];
-          final hasGoodClue = details.scoreChanges.any(
-            (sc) => sc.reasonCode == 'storytellerGoodClue',
-          );
-
-          return ListView(
-            padding: const EdgeInsets.all(SpacingTokens.md),
-            children: [
-              // Round header
-              _RoundHeader(
-                roundNumber: details.round.roundNumber,
-                storytellerName: storyteller?.name ?? l10n.unknown,
-                storytellerColor: storyteller != null
-                    ? PlayerColors.colorFor(storyteller.colorKey)
-                    : colors.primary,
-                hasGoodClue: hasGoodClue,
-                note: details.round.note,
-                editedAt: details.round.editedAt,
-              ),
-              const SizedBox(height: SpacingTokens.lg),
-
-              // Votes section
-              _SectionTitle(title: l10n.votes),
-              const SizedBox(height: SpacingTokens.sm),
-              ...details.votes.map((vote) {
-                final voter = playerMap[vote.voterPlayerId];
-                final votedFor = playerMap[vote.votedForPlayerId];
-                final votedForStoryteller =
-                    vote.votedForPlayerId == details.round.storytellerPlayerId;
-                return _VoteTile(
-                  voterName: voter?.name ?? l10n.unknown,
-                  voterColor: voter != null
-                      ? PlayerColors.colorFor(voter.colorKey)
-                      : colors.primary,
-                  votedForName: votedFor?.name ?? l10n.unknown,
-                  isCorrect: votedForStoryteller,
-                );
-              }),
-              const SizedBox(height: SpacingTokens.lg),
-
-              // Score changes section
-              _SectionTitle(title: l10n.scoreChanges),
-              const SizedBox(height: SpacingTokens.sm),
-              ..._groupScoreChangesByPlayer(
-                details.scoreChanges,
-                playerMap,
-              ).entries.map((entry) {
-                final player = playerMap[entry.key];
-                return _ScoreChangeTile(
-                  playerName: player?.name ?? l10n.unknown,
-                  playerColor: player != null
-                      ? PlayerColors.colorFor(player.colorKey)
-                      : colors.primary,
-                  changes: entry.value,
-                );
-              }),
-              const SizedBox(height: SpacingTokens.xl),
-
-              // Edit mode: vote editing UI
-              if (_isEditing) ...[
-                _SectionTitle(title: l10n.editVotes),
-                const SizedBox(height: SpacingTokens.sm),
-                ..._buildEditVoteRows(players, details),
-                const SizedBox(height: SpacingTokens.md),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: _isSavingEdit
-                            ? null
-                            : () => setState(() => _isEditing = false),
-                        child: Text(l10n.cancel),
-                      ),
-                    ),
-                    const SizedBox(width: SpacingTokens.md),
-                    Expanded(
-                      child: FilledButton.icon(
-                        onPressed: _isSavingEdit
-                            ? null
-                            : () => _saveEdit(context, players, details),
-                        icon: _isSavingEdit
-                            ? const SizedBox(
-                                width: 18,
-                                height: 18,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : const Icon(Icons.check_rounded, size: 18),
-                        label: Text(l10n.saveChanges),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: SpacingTokens.xl),
-              ] else ...[
-                // Action buttons (view mode)
-                Row(
-                  children: [
-                    // Edit button
-                    Expanded(
-                      child: FilledButton.icon(
-                        onPressed: () => _startEditing(details),
-                        icon: const Icon(Icons.edit_rounded, size: 18),
-                        label: Text(l10n.editRound),
-                      ),
-                    ),
-                    const SizedBox(width: SpacingTokens.md),
-                    // Delete button
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: _isDeleting
-                            ? null
-                            : () => _confirmDelete(context),
-                        icon: _isDeleting
-                            ? SizedBox(
-                                width: 18,
-                                height: 18,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: colors.error,
-                                ),
-                              )
-                            : const Icon(
-                                Icons.delete_outline_rounded,
-                                size: 18,
-                              ),
-                        label: Text(l10n.deleteRound),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: colors.error,
-                          side: BorderSide(
-                            color: colors.error.withValues(alpha: 0.5),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: SpacingTokens.xl),
-              ],
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              ColorTokens.darkBackground,
+              ColorTokens.darkSurface,
+              ColorTokens.darkCard,
             ],
-          );
-        },
-        loading: () => _buildLoadingSkeleton(context),
-        error: (error, _) => Center(
-          child: Padding(
-            padding: const EdgeInsets.all(SpacingTokens.xl),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.error_outline_rounded,
-                  size: 64,
-                  color: colors.error,
-                ),
-                const SizedBox(height: SpacingTokens.md),
-                Text(l10n.failedToLoadRound, style: text.titleMedium),
-                const SizedBox(height: SpacingTokens.sm),
-                Text(
-                  error.toString(),
-                  style: text.bodySmall?.copyWith(
-                    color: colors.onSurfaceVariant,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
           ),
+        ),
+        child: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              pinned: true,
+              backgroundColor: Colors.transparent,
+              title: Text(
+                l10n.roundDetail,
+                style: const TextStyle(color: ColorTokens.parchment),
+              ),
+              leading: IconButton(
+                icon: const Icon(
+                  Icons.arrow_back_rounded,
+                  color: ColorTokens.goldAccent,
+                ),
+                onPressed: () => context.pop(),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: detailsAsync.when(
+                data: (details) {
+                  if (details == null) {
+                    return Center(child: Text(l10n.roundNotFound));
+                  }
+
+                  final players = switch (playersAsync) {
+                    AsyncData(:final value) => value,
+                    _ => <Player>[],
+                  };
+                  final playerMap = {for (final p in players) p.id: p};
+                  final storyteller =
+                      playerMap[details.round.storytellerPlayerId];
+                  final hasGoodClue = details.scoreChanges.any(
+                    (sc) => sc.reasonCode == 'storytellerGoodClue',
+                  );
+
+                  return Padding(
+                    padding: const EdgeInsets.all(SpacingTokens.md),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Round header with cardGradient
+                        _RoundHeader(
+                          roundNumber: details.round.roundNumber,
+                          storytellerName:
+                              storyteller?.name ?? l10n.unknown,
+                          storytellerColor: storyteller != null
+                              ? PlayerColors.colorFor(storyteller.colorKey)
+                              : colors.primary,
+                          hasGoodClue: hasGoodClue,
+                          note: details.round.note,
+                          editedAt: details.round.editedAt,
+                        ),
+                        const SizedBox(height: SpacingTokens.lg),
+
+                        // Votes section
+                        _SectionTitle(title: l10n.votes),
+                        const SizedBox(height: SpacingTokens.sm),
+                        ...details.votes.map((vote) {
+                          final voter = playerMap[vote.voterPlayerId];
+                          final votedFor = playerMap[vote.votedForPlayerId];
+                          final votedForStoryteller = vote.votedForPlayerId ==
+                              details.round.storytellerPlayerId;
+                          return _VoteTile(
+                            voterName: voter?.name ?? l10n.unknown,
+                            voterColor: voter != null
+                                ? PlayerColors.colorFor(voter.colorKey)
+                                : colors.primary,
+                            votedForName: votedFor?.name ?? l10n.unknown,
+                            isCorrect: votedForStoryteller,
+                          );
+                        }),
+                        const SizedBox(height: SpacingTokens.lg),
+
+                        // Score changes section
+                        _SectionTitle(title: l10n.scoreChanges),
+                        const SizedBox(height: SpacingTokens.sm),
+                        ..._groupScoreChangesByPlayer(
+                          details.scoreChanges,
+                          playerMap,
+                        ).entries.map((entry) {
+                          final player = playerMap[entry.key];
+                          return _ScoreChangeTile(
+                            playerName: player?.name ?? l10n.unknown,
+                            playerColor: player != null
+                                ? PlayerColors.colorFor(player.colorKey)
+                                : colors.primary,
+                            changes: entry.value,
+                          );
+                        }),
+                        const SizedBox(height: SpacingTokens.xl),
+
+                        // Edit mode: vote editing UI
+                        if (_isEditing) ...[
+                          _SectionTitle(title: l10n.editVotes),
+                          const SizedBox(height: SpacingTokens.sm),
+                          ..._buildEditVoteRows(players, details),
+                          const SizedBox(height: SpacingTokens.md),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: OutlinedButton(
+                                  onPressed: _isSavingEdit
+                                      ? null
+                                      : () =>
+                                          setState(() => _isEditing = false),
+                                  style: OutlinedButton.styleFrom(
+                                    foregroundColor: ColorTokens.parchment,
+                                    side: BorderSide(
+                                      color: ColorTokens.parchment
+                                          .withValues(alpha: 0.3),
+                                    ),
+                                  ),
+                                  child: Text(l10n.cancel),
+                                ),
+                              ),
+                              const SizedBox(width: SpacingTokens.md),
+                              Expanded(
+                                child: FilledButton.icon(
+                                  onPressed: _isSavingEdit
+                                      ? null
+                                      : () => _saveEdit(
+                                          context, players, details),
+                                  icon: _isSavingEdit
+                                      ? const SizedBox(
+                                          width: 18,
+                                          height: 18,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: Colors.white,
+                                          ),
+                                        )
+                                      : const Icon(Icons.check_rounded,
+                                          size: 18),
+                                  label: Text(l10n.saveChanges),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: SpacingTokens.xl),
+                        ] else ...[
+                          // Action buttons (view mode)
+                          Row(
+                            children: [
+                              // Edit button
+                              Expanded(
+                                child: FilledButton.icon(
+                                  onPressed: () => _startEditing(details),
+                                  icon: const Icon(Icons.edit_rounded,
+                                      size: 18),
+                                  label: Text(l10n.editRound),
+                                ),
+                              ),
+                              const SizedBox(width: SpacingTokens.md),
+                              // Delete button
+                              Expanded(
+                                child: OutlinedButton.icon(
+                                  onPressed: _isDeleting
+                                      ? null
+                                      : () => _confirmDelete(context),
+                                  icon: _isDeleting
+                                      ? SizedBox(
+                                          width: 18,
+                                          height: 18,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: colors.error,
+                                          ),
+                                        )
+                                      : const Icon(
+                                          Icons.delete_outline_rounded,
+                                          size: 18,
+                                        ),
+                                  label: Text(l10n.deleteRound),
+                                  style: OutlinedButton.styleFrom(
+                                    foregroundColor: colors.error,
+                                    side: BorderSide(
+                                      color:
+                                          colors.error.withValues(alpha: 0.5),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: SpacingTokens.xl),
+                        ],
+                      ],
+                    ),
+                  );
+                },
+                loading: () => _buildLoadingSkeleton(context),
+                error: (error, _) => Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(SpacingTokens.xl),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.error_outline_rounded,
+                          size: 64,
+                          color: colors.error,
+                        ),
+                        const SizedBox(height: SpacingTokens.md),
+                        Text(l10n.failedToLoadRound, style: text.titleMedium),
+                        const SizedBox(height: SpacingTokens.sm),
+                        Text(
+                          error.toString(),
+                          style: text.bodySmall?.copyWith(
+                            color: colors.onSurfaceVariant,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -272,7 +317,19 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
       final currentVote = _editVotes[voter.id];
       final targets = players.where((p) => p.id != voter.id).toList();
 
-      return Card(
+      return Container(
+        margin: const EdgeInsets.only(bottom: SpacingTokens.sm),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [ColorTokens.darkCard, ColorTokens.darkCardVariant],
+          ),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.04),
+          ),
+        ),
         child: Padding(
           padding: const EdgeInsets.all(SpacingTokens.sm),
           child: Column(
@@ -291,7 +348,9 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
                     ),
                     alignment: Alignment.center,
                     child: Text(
-                      voter.name.isNotEmpty ? voter.name[0].toUpperCase() : '?',
+                      voter.name.isNotEmpty
+                          ? voter.name[0].toUpperCase()
+                          : '?',
                       style: text.labelSmall?.copyWith(
                         color: PlayerColors.colorFor(voter.colorKey),
                         fontWeight: FontWeight.w700,
@@ -301,7 +360,9 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
                   const SizedBox(width: SpacingTokens.sm),
                   Text(
                     voter.name,
-                    style: text.titleSmall?.copyWith(color: colors.onSurface),
+                    style: text.titleSmall?.copyWith(
+                      color: ColorTokens.parchment,
+                    ),
                   ),
                 ],
               ),
@@ -311,10 +372,12 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
                 child: Row(
                   children: targets.map((target) {
                     final isSelected = currentVote == target.id;
-                    final targetColor = PlayerColors.colorFor(target.colorKey);
+                    final targetColor =
+                        PlayerColors.colorFor(target.colorKey);
 
                     return Padding(
-                      padding: const EdgeInsets.only(right: SpacingTokens.xs),
+                      padding:
+                          const EdgeInsets.only(right: SpacingTokens.xs),
                       child: ActionChip(
                         avatar: Container(
                           width: 20,
@@ -347,7 +410,8 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
                           ),
                         ),
                         backgroundColor: isSelected
-                            ? storyTheme.goldAccent.withValues(alpha: 0.15)
+                            ? storyTheme.goldAccent
+                                .withValues(alpha: 0.15)
                             : null,
                         side: isSelected
                             ? BorderSide(color: storyTheme.goldAccent)
@@ -496,18 +560,22 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
   }
 
   Widget _buildLoadingSkeleton(BuildContext context) {
-    final colors = context.colorScheme;
-    return ListView(
+    return Padding(
       padding: const EdgeInsets.all(SpacingTokens.md),
-      children: List.generate(
-        4,
-        (_) => Padding(
-          padding: const EdgeInsets.only(bottom: SpacingTokens.sm),
-          child: Container(
-            height: 64,
-            decoration: BoxDecoration(
-              color: colors.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(SpacingTokens.radiusLg),
+      child: Column(
+        children: List.generate(
+          4,
+          (_) => Padding(
+            padding: const EdgeInsets.only(bottom: SpacingTokens.sm),
+            child: Container(
+              height: 64,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [ColorTokens.darkCard, ColorTokens.darkCardVariant],
+                ),
+                borderRadius:
+                    BorderRadius.circular(SpacingTokens.radiusLg),
+              ),
             ),
           ),
         ),
@@ -541,10 +609,27 @@ class _RoundHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colorScheme;
     final text = context.textTheme;
-    final storyTheme = context.storyTheme;
     final l10n = context.l10n;
 
-    return Card(
+    return Container(
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [ColorTokens.darkCard, ColorTokens.darkCardVariant],
+        ),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: ColorTokens.goldAccent.withValues(alpha: 0.15),
+        ),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x4D000000),
+            blurRadius: 15,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
       child: Padding(
         padding: const EdgeInsets.all(SpacingTokens.md),
         child: Column(
@@ -558,13 +643,21 @@ class _RoundHeader extends StatelessWidget {
                   height: 48,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: colors.primaryContainer,
+                    gradient: LinearGradient(
+                      colors: [
+                        ColorTokens.goldAccent.withValues(alpha: 0.2),
+                        ColorTokens.goldAccent.withValues(alpha: 0.1),
+                      ],
+                    ),
+                    border: Border.all(
+                      color: ColorTokens.goldAccent.withValues(alpha: 0.3),
+                    ),
                   ),
                   alignment: Alignment.center,
                   child: Text(
                     '$roundNumber',
                     style: text.titleLarge?.copyWith(
-                      color: colors.onPrimaryContainer,
+                      color: ColorTokens.goldAccent,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -577,7 +670,7 @@ class _RoundHeader extends StatelessWidget {
                       Text(
                         l10n.round(roundNumber),
                         style: text.titleMedium?.copyWith(
-                          color: colors.onSurface,
+                          color: ColorTokens.parchment,
                         ),
                       ),
                       Row(
@@ -588,16 +681,16 @@ class _RoundHeader extends StatelessWidget {
                                 : Icons.lightbulb_outline_rounded,
                             size: 16,
                             color: hasGoodClue
-                                ? storyTheme.goldAccent
-                                : colors.onSurfaceVariant,
+                                ? ColorTokens.goldAccent
+                                : ColorTokens.dustyRose,
                           ),
                           const SizedBox(width: 4),
                           Text(
                             hasGoodClue ? l10n.goodClue : l10n.badClue,
                             style: text.bodySmall?.copyWith(
                               color: hasGoodClue
-                                  ? storyTheme.goldAccent
-                                  : colors.onSurfaceVariant,
+                                  ? ColorTokens.goldAccent
+                                  : ColorTokens.dustyRose,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -627,7 +720,16 @@ class _RoundHeader extends StatelessWidget {
                   height: 28,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: storytellerColor.withValues(alpha: 0.2),
+                    gradient: LinearGradient(
+                      colors: [
+                        storytellerColor,
+                        storytellerColor.withValues(alpha: 0.7),
+                      ],
+                    ),
+                    border: Border.all(
+                      color: storytellerColor.withValues(alpha: 0.5),
+                      width: 2,
+                    ),
                   ),
                   alignment: Alignment.center,
                   child: Text(
@@ -635,7 +737,7 @@ class _RoundHeader extends StatelessWidget {
                         ? storytellerName[0].toUpperCase()
                         : '?',
                     style: text.labelSmall?.copyWith(
-                      color: storytellerColor,
+                      color: Colors.white,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -643,7 +745,9 @@ class _RoundHeader extends StatelessWidget {
                 const SizedBox(width: SpacingTokens.sm),
                 Text(
                   l10n.storytellerLabel(storytellerName),
-                  style: text.bodyMedium?.copyWith(color: colors.onSurface),
+                  style: text.bodyMedium?.copyWith(
+                    color: ColorTokens.parchment,
+                  ),
                 ),
               ],
             ),
@@ -655,8 +759,9 @@ class _RoundHeader extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.all(SpacingTokens.sm),
                 decoration: BoxDecoration(
-                  color: colors.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(SpacingTokens.radiusSm),
+                  color: ColorTokens.darkBackground.withValues(alpha: 0.5),
+                  borderRadius:
+                      BorderRadius.circular(SpacingTokens.radiusSm),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -664,14 +769,14 @@ class _RoundHeader extends StatelessWidget {
                     Icon(
                       Icons.format_quote_rounded,
                       size: 16,
-                      color: colors.onSurfaceVariant,
+                      color: ColorTokens.mutedText,
                     ),
                     const SizedBox(width: SpacingTokens.sm),
                     Expanded(
                       child: Text(
                         note,
                         style: text.bodySmall?.copyWith(
-                          color: colors.onSurfaceVariant,
+                          color: ColorTokens.mutedText,
                           fontStyle: FontStyle.italic,
                         ),
                       ),
@@ -697,10 +802,11 @@ class _SectionTitle extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(left: SpacingTokens.xs),
       child: Text(
-        title,
-        style: context.textTheme.titleSmall?.copyWith(
-          color: context.colorScheme.onSurfaceVariant,
-          letterSpacing: 0.5,
+        title.toUpperCase(),
+        style: context.textTheme.labelLarge?.copyWith(
+          color: ColorTokens.goldAccent,
+          letterSpacing: 1.5,
+          fontWeight: FontWeight.w700,
         ),
       ),
     );
@@ -722,12 +828,23 @@ class _VoteTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colorScheme;
     final text = context.textTheme;
     final storyTheme = context.storyTheme;
     final l10n = context.l10n;
 
-    return Card(
+    return Container(
+      margin: const EdgeInsets.only(bottom: SpacingTokens.xs),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [ColorTokens.darkCard, ColorTokens.darkCardVariant],
+        ),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.04),
+        ),
+      ),
       child: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: SpacingTokens.md,
@@ -740,13 +857,22 @@ class _VoteTile extends StatelessWidget {
               height: 28,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: voterColor.withValues(alpha: 0.2),
+                gradient: LinearGradient(
+                  colors: [
+                    voterColor,
+                    voterColor.withValues(alpha: 0.7),
+                  ],
+                ),
+                border: Border.all(
+                  color: voterColor.withValues(alpha: 0.5),
+                  width: 2,
+                ),
               ),
               alignment: Alignment.center,
               child: Text(
                 voterName.isNotEmpty ? voterName[0].toUpperCase() : '?',
                 style: text.labelSmall?.copyWith(
-                  color: voterColor,
+                  color: Colors.white,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -755,12 +881,14 @@ class _VoteTile extends StatelessWidget {
             Expanded(
               child: RichText(
                 text: TextSpan(
-                  style: text.bodyMedium?.copyWith(color: colors.onSurface),
+                  style: text.bodyMedium?.copyWith(
+                    color: ColorTokens.parchment,
+                  ),
                   children: [
                     TextSpan(text: voterName),
                     TextSpan(
                       text: ' ${l10n.votedFor} ',
-                      style: TextStyle(color: colors.onSurfaceVariant),
+                      style: const TextStyle(color: ColorTokens.mutedText),
                     ),
                     TextSpan(
                       text: votedForName,
@@ -780,7 +908,7 @@ class _VoteTile extends StatelessWidget {
               Icon(
                 Icons.cancel_outlined,
                 size: 18,
-                color: colors.onSurfaceVariant.withValues(alpha: 0.4),
+                color: ColorTokens.mutedText.withValues(alpha: 0.4),
               ),
           ],
         ),
@@ -802,13 +930,23 @@ class _ScoreChangeTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colorScheme;
     final text = context.textTheme;
-    final storyTheme = context.storyTheme;
 
     final totalDelta = changes.fold<int>(0, (sum, c) => sum + c.delta);
 
-    return Card(
+    return Container(
+      margin: const EdgeInsets.only(bottom: SpacingTokens.xs),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [ColorTokens.darkCard, ColorTokens.darkCardVariant],
+        ),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.04),
+        ),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(SpacingTokens.md),
         child: Row(
@@ -818,13 +956,22 @@ class _ScoreChangeTile extends StatelessWidget {
               height: 32,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: playerColor.withValues(alpha: 0.2),
+                gradient: LinearGradient(
+                  colors: [
+                    playerColor,
+                    playerColor.withValues(alpha: 0.7),
+                  ],
+                ),
+                border: Border.all(
+                  color: playerColor.withValues(alpha: 0.5),
+                  width: 2,
+                ),
               ),
               alignment: Alignment.center,
               child: Text(
                 playerName.isNotEmpty ? playerName[0].toUpperCase() : '?',
                 style: text.labelMedium?.copyWith(
-                  color: playerColor,
+                  color: Colors.white,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -836,7 +983,9 @@ class _ScoreChangeTile extends StatelessWidget {
                 children: [
                   Text(
                     playerName,
-                    style: text.titleSmall?.copyWith(color: colors.onSurface),
+                    style: text.titleSmall?.copyWith(
+                      color: ColorTokens.parchment,
+                    ),
                   ),
                   const SizedBox(height: 2),
                   Wrap(
@@ -845,7 +994,7 @@ class _ScoreChangeTile extends StatelessWidget {
                       return Text(
                         '+${c.delta} ${c.reasonLabel}',
                         style: text.bodySmall?.copyWith(
-                          color: colors.onSurfaceVariant,
+                          color: ColorTokens.mutedText,
                         ),
                       );
                     }).toList(),
@@ -856,7 +1005,9 @@ class _ScoreChangeTile extends StatelessWidget {
             Text(
               '+$totalDelta',
               style: text.titleMedium?.copyWith(
-                color: storyTheme.goldAccent,
+                color: totalDelta > 0
+                    ? ColorTokens.goldAccent
+                    : ColorTokens.parchment,
                 fontWeight: FontWeight.w700,
               ),
             ),

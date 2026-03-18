@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:story_score/app/theme/color_tokens.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
 import 'package:story_score/app/theme/theme_extensions.dart';
 import 'package:story_score/features/premium/providers/premium_providers.dart';
@@ -21,56 +22,83 @@ class PremiumScreen extends ConsumerWidget {
     final isSupporter = ref.watch(isSupporterProvider);
 
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          // ---- App bar ----
-          SliverAppBar(
-            pinned: true,
-            title: Text(context.l10n.supporterPack),
-            centerTitle: true,
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              ColorTokens.darkBackground,
+              ColorTokens.darkSurface,
+              ColorTokens.darkCard,
+            ],
           ),
-
-          // ---- Body ----
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: SpacingTokens.lg),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                const SizedBox(height: SpacingTokens.lg),
-
-                // ---- Hero header ----
-                _HeroHeader(ext: ext, isSupporter: isSupporter),
-
-                const SizedBox(height: SpacingTokens.xxl),
-
-                // ---- Feature list ----
-                Text(
-                  context.l10n.whatsIncluded,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    color: theme.colorScheme.onSurface,
-                  ),
+        ),
+        child: CustomScrollView(
+          slivers: [
+            // ---- App bar ----
+            SliverAppBar(
+              pinned: true,
+              backgroundColor: Colors.transparent,
+              title: Text(
+                context.l10n.supporterPack,
+                style: const TextStyle(color: ColorTokens.parchment),
+              ),
+              centerTitle: true,
+              leading: IconButton(
+                icon: const Icon(
+                  Icons.arrow_back_rounded,
+                  color: ColorTokens.goldAccent,
                 ),
-                const SizedBox(height: SpacingTokens.md),
-                const FeaturePreviewList(),
-
-                const SizedBox(height: SpacingTokens.xxl),
-
-                // ---- Purchase / status section ----
-                if (isSupporter)
-                  _AlreadySupporterBanner(ext: ext)
-                else
-                  const _PurchaseSection(),
-
-                // ---- Debug clear button (when supporter, debug only) ----
-                if (isSupporter && kDebugMode) ...[
-                  const SizedBox(height: SpacingTokens.md),
-                  _DebugClearButton(),
-                ],
-
-                const SizedBox(height: SpacingTokens.xxl),
-              ]),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
             ),
-          ),
-        ],
+
+            // ---- Body ----
+            SliverPadding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: SpacingTokens.lg),
+              sliver: SliverList(
+                delegate: SliverChildListDelegate([
+                  const SizedBox(height: SpacingTokens.lg),
+
+                  // ---- Hero header with warm gradient ----
+                  _HeroHeader(ext: ext, isSupporter: isSupporter),
+
+                  const SizedBox(height: SpacingTokens.xxl),
+
+                  // ---- Feature list ----
+                  Text(
+                    context.l10n.whatsIncluded.toUpperCase(),
+                    style: theme.textTheme.labelLarge?.copyWith(
+                      color: ColorTokens.goldAccent,
+                      letterSpacing: 1.5,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: SpacingTokens.md),
+                  const FeaturePreviewList(),
+
+                  const SizedBox(height: SpacingTokens.xxl),
+
+                  // ---- Purchase / status section ----
+                  if (isSupporter)
+                    _AlreadySupporterBanner(ext: ext)
+                  else
+                    const _PurchaseSection(),
+
+                  // ---- Debug clear button (when supporter, debug only) ----
+                  if (isSupporter && kDebugMode) ...[
+                    const SizedBox(height: SpacingTokens.md),
+                    _DebugClearButton(),
+                  ],
+
+                  const SizedBox(height: SpacingTokens.xxl),
+                ]),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -90,57 +118,74 @@ class _HeroHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Column(
-      children: [
-        // Star icon with gradient background
-        Container(
-          width: 80,
-          height: 80,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                ext.goldAccent.withValues(alpha: 0.25),
-                ext.violet.withValues(alpha: 0.20),
-              ],
+    return Container(
+      padding: const EdgeInsets.all(SpacingTokens.xl),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            ColorTokens.darkCard,
+            ColorTokens.darkCardVariant,
+            ColorTokens.burgundy.withValues(alpha: 0.3),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: ColorTokens.goldAccent.withValues(alpha: 0.15),
+        ),
+      ),
+      child: Column(
+        children: [
+          // Star icon with gradient background
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              gradient: RadialGradient(
+                colors: [
+                  ext.goldAccent.withValues(alpha: 0.3),
+                  ext.goldAccent.withValues(alpha: 0.1),
+                  Colors.transparent,
+                ],
+              ),
+              shape: BoxShape.circle,
             ),
-            shape: BoxShape.circle,
+            child: Icon(Icons.star_rounded, size: 44, color: ext.goldAccent),
           ),
-          child: Icon(Icons.star_rounded, size: 44, color: ext.goldAccent),
-        ),
-        const SizedBox(height: SpacingTokens.lg),
+          const SizedBox(height: SpacingTokens.lg),
 
-        Builder(
-          builder: (context) {
-            final l10n = context.l10n;
-            return Text(
-              isSupporter ? l10n.thankYouForSupport : l10n.supporterPack,
-              style: theme.textTheme.headlineSmall?.copyWith(
-                color: theme.colorScheme.onSurface,
-                fontWeight: FontWeight.w600,
-              ),
-              textAlign: TextAlign.center,
-            );
-          },
-        ),
-        const SizedBox(height: SpacingTokens.sm),
+          Builder(
+            builder: (context) {
+              final l10n = context.l10n;
+              return Text(
+                isSupporter ? l10n.thankYouForSupport : l10n.supporterPack,
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  color: ColorTokens.goldAccent,
+                  fontWeight: FontWeight.w800,
+                ),
+                textAlign: TextAlign.center,
+              );
+            },
+          ),
+          const SizedBox(height: SpacingTokens.sm),
 
-        Builder(
-          builder: (context) {
-            final l10n = context.l10n;
-            return Text(
-              isSupporter
-                  ? l10n.supporterThankYouDescription
-                  : l10n.supporterPackDescription,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-              textAlign: TextAlign.center,
-            );
-          },
-        ),
-      ],
+          Builder(
+            builder: (context) {
+              final l10n = context.l10n;
+              return Text(
+                isSupporter
+                    ? l10n.supporterThankYouDescription
+                    : l10n.supporterPackDescription,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: ColorTokens.dustyRose,
+                ),
+                textAlign: TextAlign.center,
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 }
@@ -166,7 +211,6 @@ class _PurchaseSectionState extends ConsumerState<_PurchaseSection> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final ext = theme.storyScore;
 
     final priceAsync = ref.watch(supporterPackPriceProvider);
     final priceString = priceAsync.when(
@@ -185,12 +229,12 @@ class _PurchaseSectionState extends ConsumerState<_PurchaseSection> {
 
     return Column(
       children: [
-        // Price tag (or loading indicator)
+        // Price tag in parchment
         if (priceLabel != null)
           Text(
             priceLabel,
             style: theme.textTheme.titleSmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
+              color: ColorTokens.parchment,
             ),
             textAlign: TextAlign.center,
           )
@@ -200,40 +244,52 @@ class _PurchaseSectionState extends ConsumerState<_PurchaseSection> {
             width: 20,
             child: CircularProgressIndicator(
               strokeWidth: 2,
-              color: theme.colorScheme.onSurfaceVariant,
+              color: ColorTokens.mutedText,
             ),
           ),
         const SizedBox(height: SpacingTokens.md),
 
-        // Purchase button
+        // Purchase button with gold gradient
         SizedBox(
           width: double.infinity,
           height: 52,
-          child: FilledButton.icon(
-            style: FilledButton.styleFrom(
-              backgroundColor: ext.goldAccent,
-              foregroundColor: Colors.black,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(SpacingTokens.radiusMd),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [ColorTokens.burgundy, ColorTokens.goldAccent],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
               ),
+              borderRadius:
+                  BorderRadius.circular(SpacingTokens.radiusMd),
             ),
-            icon: _isPurchasing
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.black,
-                    ),
-                  )
-                : const Icon(Icons.star_rounded, size: 20),
-            label: Text(
-              buttonLabel ?? l10n.loading,
-              style: const TextStyle(fontWeight: FontWeight.w600),
+            child: FilledButton.icon(
+              style: FilledButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius:
+                      BorderRadius.circular(SpacingTokens.radiusMd),
+                ),
+              ),
+              icon: _isPurchasing
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Icon(Icons.star_rounded, size: 20),
+              label: Text(
+                buttonLabel ?? l10n.loading,
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+              onPressed: (_isPurchasing || priceString == null)
+                  ? null
+                  : () => _handlePurchase(context, ref),
             ),
-            onPressed: (_isPurchasing || priceString == null)
-                ? null
-                : () => _handlePurchase(context, ref),
           ),
         ),
         const SizedBox(height: SpacingTokens.md),
@@ -249,7 +305,7 @@ class _PurchaseSectionState extends ConsumerState<_PurchaseSection> {
                 onPressed: () => _handleRestore(context, ref),
                 child: Text(
                   l10n.restorePurchases,
-                  style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
+                  style: const TextStyle(color: ColorTokens.mutedText),
                 ),
               ),
       ],
@@ -329,7 +385,7 @@ class _AlreadySupporterBanner extends StatelessWidget {
                 Text(
                   context.l10n.allPremiumUnlocked,
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
+                    color: ColorTokens.mutedText,
                   ),
                 ),
               ],
@@ -342,7 +398,7 @@ class _AlreadySupporterBanner extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// Debug clear button — allows toggling back to free state during development
+// Debug clear button
 // ---------------------------------------------------------------------------
 
 class _DebugClearButton extends ConsumerWidget {
