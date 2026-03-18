@@ -205,6 +205,22 @@ class SettingsScreen extends ConsumerWidget {
 
             const Divider(),
 
+            // Presets section
+            _SectionHeader(title: 'Player Presets'),
+            ListTile(
+              leading: Icon(
+                ref.watch(isSupporterProvider)
+                    ? Icons.group_outlined
+                    : Icons.lock_outline_rounded,
+              ),
+              title: const Text('Player Presets'),
+              subtitle: const Text('Save and manage player groups'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.go('/settings/presets'),
+            ),
+
+            const Divider(),
+
             // Premium section
             _SectionHeader(title: 'Support'),
             ListTile(

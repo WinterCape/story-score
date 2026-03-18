@@ -7,6 +7,7 @@ import 'package:story_score/core/constants/player_colors.dart';
 import 'package:story_score/core/utils/haptics.dart';
 import 'package:story_score/data/database/app_database.dart';
 import 'package:story_score/domain/celebrations/celebration_engine.dart';
+import 'package:story_score/domain/scoring/score_reason.dart';
 import 'package:story_score/domain/scoring/scoring_engine.dart';
 import 'package:story_score/domain/stats/milestone_detector.dart';
 import 'package:story_score/domain/stats/stats_models.dart';

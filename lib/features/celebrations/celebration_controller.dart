@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:story_score/core/utils/haptics.dart';
 import 'package:story_score/domain/celebrations/celebration_models.dart';
+import 'package:story_score/domain/stats/milestone_detector.dart';
 import 'package:story_score/features/celebrations/widgets/confetti_overlay.dart';
 import 'package:story_score/features/celebrations/widgets/milestone_toast.dart';
 

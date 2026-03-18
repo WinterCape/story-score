@@ -117,7 +117,7 @@ class HomeScreen extends ConsumerWidget {
       children: [
         // Quick Start chip (premium-gated, shown when presets exist)
         if (ref.watch(isSupporterProvider))
-          _QuickStartSection(ref: ref),
+          const _QuickStartSection(),
 
         // Active Games section
         if (activeSessions.isNotEmpty) ...[
@@ -342,10 +342,7 @@ class _SectionHeader extends StatelessWidget {
 
 /// Quick Start section — shows an ActionChip when presets exist.
 class _QuickStartSection extends ConsumerWidget {
-  const _QuickStartSection({required this.ref});
-
-  // ignore: unused_field — ref is used in the build method via ConsumerWidget
-  final WidgetRef ref;
+  const _QuickStartSection();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

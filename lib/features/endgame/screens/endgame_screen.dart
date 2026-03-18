@@ -17,8 +17,11 @@ import 'package:story_score/data/database/app_database.dart';
 import 'package:story_score/data/database/tables/game_sessions.dart';
 import 'package:story_score/data/export/export_helper.dart';
 import 'package:story_score/data/export/session_exporter.dart';
+import 'package:story_score/domain/celebrations/celebration_engine.dart';
+import 'package:story_score/features/celebrations/celebration_controller.dart';
 import 'package:story_score/features/premium/providers/premium_providers.dart';
 import 'package:story_score/features/presets/providers/preset_providers.dart';
+import 'package:story_score/features/settings/providers/settings_providers.dart';
 import 'package:story_score/features/stats/providers/stats_providers.dart';
 import 'package:story_score/features/stats/widgets/score_progression_chart.dart';
 import 'package:story_score/features/stats/widgets/session_stats_section.dart';
@@ -56,9 +59,10 @@ class EndgameScreen extends ConsumerWidget {
           final hasTie = winners.length > 1;
           final winnerLabel = winners.map((w) => w.name).join(' & ');
 
-          // Fire haptic on winner reveal
+          // Fire haptic + confetti on winner reveal
           WidgetsBinding.instance.addPostFrameCallback((_) {
             Haptics.heavy();
+            _triggerWinnerConfetti(context, ref);
           });
 
           return SafeArea(
@@ -328,6 +332,29 @@ class EndgameScreen extends ConsumerWidget {
                             ),
                           ),
                         ),
+                        // Save as Preset (premium-gated)
+                        if (ref.watch(isSupporterProvider) &&
+                            players.length >= 3) ...[
+                          const SizedBox(height: SpacingTokens.sm),
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton.icon(
+                              onPressed: () => _saveAsPreset(
+                                context,
+                                ref,
+                                players,
+                              ),
+                              icon: const Icon(
+                                  Icons.bookmark_add_outlined),
+                              label: const Text('Save as Preset'),
+                              style: OutlinedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: SpacingTokens.md,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                         const SizedBox(height: SpacingTokens.sm),
                         SizedBox(
                           width: double.infinity,
@@ -363,6 +390,69 @@ class EndgameScreen extends ConsumerWidget {
         },
       ),
     );
+  }
+
+  Future<void> _saveAsPreset(
+    BuildContext context,
+    WidgetRef ref,
+    List<Player> players,
+  ) async {
+    final nameController = TextEditingController();
+    final name = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Save as Preset'),
+        content: TextField(
+          controller: nameController,
+          autofocus: true,
+          maxLength: 30,
+          textCapitalization: TextCapitalization.words,
+          decoration: const InputDecoration(
+            hintText: 'Preset name',
+            counterText: '',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () =>
+                Navigator.of(dialogContext).pop(nameController.text.trim()),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+    nameController.dispose();
+
+    if (name == null || name.isEmpty) return;
+
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final dao = ref.read(presetDaoProvider);
+      await savePreset(
+        dao: dao,
+        name: name,
+        players: players
+            .map((p) => (
+                  name: p.name,
+                  colorKey: p.colorKey,
+                  avatarStyle: p.avatarStyle,
+                  seatOrder: p.seatOrder,
+                ))
+            .toList(),
+      );
+      Haptics.selection();
+      messenger.showSnackBar(
+        SnackBar(content: Text('Saved preset "$name"')),
+      );
+    } catch (e) {
+      messenger.showSnackBar(
+        SnackBar(content: Text('Failed to save preset: $e')),
+      );
+    }
   }
 
   Future<void> _shareResults(BuildContext context, WidgetRef ref) async {
@@ -412,6 +502,37 @@ class EndgameScreen extends ConsumerWidget {
       3 => '${n}rd',
       _ => '${n}th',
     };
+  }
+
+  /// Triggers confetti overlay for supporters on winner reveal.
+  static void _triggerWinnerConfetti(BuildContext context, WidgetRef ref) {
+    final isSupporter = ref.read(isSupporterProvider);
+    if (!isSupporter) return;
+
+    final isReducedMotion = context.reduceMotion;
+    if (isReducedMotion) return;
+
+    final settings = ref.read(appSettingsProvider).value;
+    final selectedTheme = settings?.selectedTheme ?? 'celestial';
+    final soundEnabled =
+        isSupporter && (settings?.soundEffectsEnabled ?? false);
+
+    final result = CelebrationEngine.computeWinnerEffects(
+      isSupporter: true,
+      selectedTheme: selectedTheme,
+      isReducedMotion: false,
+    );
+
+    if (!result.hasEffects) return;
+
+    final overlay = Overlay.of(context);
+    final controller = CelebrationController(
+      overlayState: overlay,
+      isReducedMotion: false,
+      isSoundEnabled: soundEnabled,
+    );
+
+    controller.play(result);
   }
 }
 

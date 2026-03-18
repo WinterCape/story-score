@@ -243,6 +243,7 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
                       players: players,
                       storytellerId: storytellerId,
                       sessionId: sessionId,
+                      targetScore: session.targetScore,
                     ),
                   ),
                 ],
@@ -549,11 +550,13 @@ class _PlayerGrid extends ConsumerWidget {
     required this.players,
     required this.storytellerId,
     required this.sessionId,
+    this.targetScore,
   });
 
   final List<Player> players;
   final String? storytellerId;
   final String sessionId;
+  final int? targetScore;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -583,14 +586,26 @@ class _PlayerGrid extends ConsumerWidget {
       itemBuilder: (context, index) {
         final player = players[index];
         final isStoryteller = player.id == storytellerId;
+        final isSupporter = ref.watch(isSupporterProvider);
+        final hasReachedTarget = targetScore != null &&
+            targetScore! > 0 &&
+            player.currentScore >= targetScore!;
 
-        return PlayerScoreCard(
+        Widget card = PlayerScoreCard(
           player: player,
           isStoryteller: isStoryteller,
           rank: index + 1,
           onLongPress: () =>
               _showScoreAdjustDialog(context, ref, player),
         );
+
+        // Animated gold border glow for players who reached the target
+        // score — premium-gated.
+        if (hasReachedTarget && isSupporter) {
+          card = _WinnerGlow(child: card);
+        }
+
+        return card;
       },
     );
   }
@@ -671,6 +686,81 @@ class _PlayerGrid extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Wraps a child widget in an animated gold border glow effect.
+/// Pulses 2 times then holds steady.
+class _WinnerGlow extends StatefulWidget {
+  const _WinnerGlow({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_WinnerGlow> createState() => _WinnerGlowState();
+}
+
+class _WinnerGlowState extends State<_WinnerGlow>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _glowAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+
+    _glowAnimation = Tween<double>(begin: 0.3, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+
+    // Pulse 2 times then stop
+    var count = 0;
+    _controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        count++;
+        if (count < 2) {
+          _controller.reverse();
+        }
+      } else if (status == AnimationStatus.dismissed && count < 2) {
+        _controller.forward();
+      }
+    });
+
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _glowAnimation,
+      builder: (context, child) {
+        return Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(SpacingTokens.radiusLg),
+            boxShadow: [
+              BoxShadow(
+                color: ColorTokens.goldAccent
+                    .withValues(alpha: 0.4 * _glowAnimation.value),
+                blurRadius: 16 * _glowAnimation.value,
+                spreadRadius: 2 * _glowAnimation.value,
+              ),
+            ],
+          ),
+          child: child,
+        );
+      },
+      child: widget.child,
     );
   }
 }
