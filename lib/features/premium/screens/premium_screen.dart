@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
@@ -58,8 +59,8 @@ class PremiumScreen extends ConsumerWidget {
                 else
                   const _PurchaseSection(),
 
-                // ---- Debug clear button (when supporter) ----
-                if (isSupporter) ...[
+                // ---- Debug clear button (when supporter, debug only) ----
+                if (isSupporter && kDebugMode) ...[
                   const SizedBox(height: SpacingTokens.md),
                   const _DebugClearButton(),
                 ],
@@ -139,24 +140,59 @@ class _HeroHeader extends StatelessWidget {
 // Purchase button + restore link
 // ---------------------------------------------------------------------------
 
-class _PurchaseSection extends ConsumerWidget {
+class _PurchaseSection extends ConsumerStatefulWidget {
   const _PurchaseSection();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_PurchaseSection> createState() => _PurchaseSectionState();
+}
+
+class _PurchaseSectionState extends ConsumerState<_PurchaseSection> {
+  bool _isPurchasing = false;
+  bool _isRestoring = false;
+
+  /// Fallback price shown when the store is unreachable.
+  static const _fallbackPrice = r'$1.99';
+
+  @override
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final ext = theme.storyScore;
 
+    final priceAsync = ref.watch(supporterPackPriceProvider);
+    final priceString = priceAsync.when(
+      data: (price) => price ?? _fallbackPrice,
+      loading: () => null, // null signals "still loading"
+      error: (_, _) => _fallbackPrice,
+    );
+
+    final priceLabel = priceString != null
+        ? '$priceString \u2014 one-time purchase'
+        : null;
+    final buttonLabel = priceString != null
+        ? 'Get Supporter Pack \u2014 $priceString'
+        : null;
+
     return Column(
       children: [
-        // Price tag
-        Text(
-          '\$3.99 \u2014 one-time purchase',
-          style: theme.textTheme.titleSmall?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
+        // Price tag (or loading indicator)
+        if (priceLabel != null)
+          Text(
+            priceLabel,
+            style: theme.textTheme.titleSmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+            textAlign: TextAlign.center,
+          )
+        else
+          SizedBox(
+            height: 20,
+            width: 20,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           ),
-          textAlign: TextAlign.center,
-        ),
         const SizedBox(height: SpacingTokens.md),
 
         // Purchase button
@@ -171,48 +207,75 @@ class _PurchaseSection extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(SpacingTokens.radiusMd),
               ),
             ),
-            icon: const Icon(Icons.star_rounded, size: 20),
-            label: const Text(
-              'Get Supporter Pack \u2014 \$3.99',
-              style: TextStyle(fontWeight: FontWeight.w600),
+            icon: _isPurchasing
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.black,
+                    ),
+                  )
+                : const Icon(Icons.star_rounded, size: 20),
+            label: Text(
+              buttonLabel ?? 'Loading\u2026',
+              style: const TextStyle(fontWeight: FontWeight.w600),
             ),
-            onPressed: () => _handlePurchase(context, ref),
+            onPressed: (_isPurchasing || priceString == null)
+                ? null
+                : () => _handlePurchase(context, ref),
           ),
         ),
         const SizedBox(height: SpacingTokens.md),
 
         // Restore purchases
-        TextButton(
-          onPressed: () => _handleRestore(context, ref),
-          child: Text(
-            'Restore Purchases',
-            style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
-          ),
-        ),
+        _isRestoring
+            ? const SizedBox(
+                height: 20,
+                width: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : TextButton(
+                onPressed: () => _handleRestore(context, ref),
+                child: Text(
+                  'Restore Purchases',
+                  style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
+                ),
+              ),
       ],
     );
   }
 
   Future<void> _handlePurchase(BuildContext context, WidgetRef ref) async {
-    ref.invalidate(purchaseSupporterPackProvider);
-    final result = await ref.read(purchaseSupporterPackProvider.future);
-    // Invalidate the entitlement provider so isSupporterProvider updates
-    ref.invalidate(purchaseEntitlementProvider);
-    if (context.mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(result)));
+    setState(() => _isPurchasing = true);
+    try {
+      ref.invalidate(purchaseSupporterPackProvider);
+      final result = await ref.read(purchaseSupporterPackProvider.future);
+      // Invalidate the entitlement provider so isSupporterProvider updates
+      ref.invalidate(purchaseEntitlementProvider);
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(result)));
+      }
+    } finally {
+      if (mounted) setState(() => _isPurchasing = false);
     }
   }
 
   Future<void> _handleRestore(BuildContext context, WidgetRef ref) async {
-    ref.invalidate(restorePurchasesProvider);
-    final result = await ref.read(restorePurchasesProvider.future);
-    ref.invalidate(purchaseEntitlementProvider);
-    if (context.mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(result)));
+    setState(() => _isRestoring = true);
+    try {
+      ref.invalidate(restorePurchasesProvider);
+      final result = await ref.read(restorePurchasesProvider.future);
+      ref.invalidate(purchaseEntitlementProvider);
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(result)));
+      }
+    } finally {
+      if (mounted) setState(() => _isRestoring = false);
     }
   }
 }

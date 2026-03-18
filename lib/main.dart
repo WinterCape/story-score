@@ -5,11 +5,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:story_score/app/app.dart';
 import 'package:story_score/app/providers.dart';
 import 'package:story_score/data/database/app_database.dart';
+import 'package:story_score/data/purchases/revenuecat_service.dart';
 import 'package:story_score/data/settings/app_settings_repository.dart';
 import 'package:story_score/features/settings/providers/settings_providers.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize RevenueCat SDK for in-app purchases
+  await RevenueCatService.init();
 
   final prefs = await SharedPreferences.getInstance();
   final database = AppDatabase();

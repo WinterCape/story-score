@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:story_score/app/router/app_router.dart';
 import 'package:story_score/app/theme/premium_themes.dart';
 import 'package:story_score/app/theme/story_score_theme.dart';
+import 'package:story_score/features/premium/providers/premium_providers.dart';
 import 'package:story_score/features/settings/providers/settings_providers.dart';
 
 /// Root widget for StoryScore.
@@ -18,6 +19,10 @@ class StoryScoreApp extends ConsumerWidget {
     final router = ref.watch(routerProvider);
     final themeMode = ref.watch(themeModeProvider);
     final selectedTheme = ref.watch(selectedThemeProvider);
+
+    // Sync RevenueCat entitlement with local DB cache on app start.
+    // Fire-and-forget — the result is not needed here.
+    ref.watch(syncEntitlementProvider);
 
     // Resolve theme data based on selected theme
     final ThemeData lightTheme;
