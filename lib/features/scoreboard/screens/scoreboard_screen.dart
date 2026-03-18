@@ -7,6 +7,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:story_score/app/providers.dart';
 import 'package:story_score/app/theme/color_tokens.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
+import 'package:story_score/core/constants/app_assets.dart';
 import 'package:story_score/data/database/app_database.dart';
 import 'package:story_score/data/database/tables/game_sessions.dart';
 import 'package:story_score/data/export/export_helper.dart';
@@ -15,6 +16,7 @@ import 'package:story_score/features/premium/providers/premium_providers.dart';
 import 'package:story_score/features/scoreboard/providers/scoreboard_providers.dart';
 import 'package:story_score/features/scoreboard/widgets/player_score_card.dart';
 import 'package:story_score/shared/extensions/context_extensions.dart';
+import 'package:story_score/shared/widgets/custom_icon.dart';
 
 class ScoreboardScreen extends ConsumerStatefulWidget {
   const ScoreboardScreen({super.key, required this.sessionId});
@@ -191,7 +193,7 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
                     value: 'export_game',
                     child: Row(
                       children: [
-                        const Icon(Icons.share_outlined, size: 20),
+                        const CustomIcon('export', size: 20),
                         const SizedBox(width: SpacingTokens.sm),
                         Text(l10n.exportGame),
                       ],
@@ -201,7 +203,7 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
                     value: 'end_game',
                     child: Row(
                       children: [
-                        const Icon(Icons.flag_outlined, size: 20),
+                        const CustomIcon('target', size: 20),
                         const SizedBox(width: SpacingTokens.sm),
                         Text(l10n.endGame),
                       ],
@@ -565,40 +567,11 @@ class _RoundInfoHeader extends ConsumerWidget {
   }
 }
 
-/// Crown emoji in a mini parchment card icon.
+/// Crown badge icon for the round info header.
 class _CrownCardIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 36,
-      height: 44,
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            ColorTokens.lightBackground,
-            ColorTokens.lightSurface,
-            Color(0xFFE8D0A0),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(7),
-        border: Border.all(
-          color: ColorTokens.goldAccent,
-          width: 1.5,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: ColorTokens.goldAccent.withValues(alpha: 0.15),
-            blurRadius: 6,
-            spreadRadius: 1,
-          ),
-        ],
-      ),
-      child: const Center(
-        child: Text('\u{1F451}', style: TextStyle(fontSize: 18)),
-      ),
-    );
+    return Image.asset(AppAssets.crownBadge, width: 32);
   }
 }
 

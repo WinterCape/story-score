@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:story_score/app/theme/color_tokens.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
+import 'package:story_score/core/constants/app_assets.dart';
 import 'package:story_score/core/constants/player_colors.dart';
 import 'package:story_score/data/database/app_database.dart';
 import 'package:story_score/domain/scoring/score_reason.dart';
@@ -56,13 +57,10 @@ class RoundRecapSheet extends StatelessWidget {
             ),
             const SizedBox(height: SpacingTokens.lg),
 
-            // Outcome header — gold for good, rose for bad
-            Icon(
-              isGoodClue ? Icons.star : Icons.sentiment_dissatisfied,
-              size: 40,
-              color: isGoodClue
-                  ? ColorTokens.goldAccent
-                  : ColorTokens.dustyRose,
+            // Outcome header — good or bad clue image
+            Image.asset(
+              isGoodClue ? AppAssets.clueGood : AppAssets.clueBad,
+              width: 32,
             ),
             const SizedBox(height: SpacingTokens.sm),
             Text(
@@ -84,20 +82,8 @@ class RoundRecapSheet extends StatelessWidget {
             ),
             const SizedBox(height: SpacingTokens.lg),
 
-            // Ornate gold divider
-            Container(
-              width: 120,
-              height: 1,
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.transparent,
-                    ColorTokens.goldAccent,
-                    Colors.transparent,
-                  ],
-                ),
-              ),
-            ),
+            // Ornate divider
+            Image.asset(AppAssets.dividerOrnate, width: 200),
             const SizedBox(height: SpacingTokens.lg),
 
             // Per-player score changes in warm styled rows

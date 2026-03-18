@@ -13,6 +13,7 @@ import 'package:story_score/domain/scoring/scoring_engine.dart';
 import 'package:story_score/features/history/providers/history_providers.dart';
 import 'package:story_score/features/round/widgets/round_recap_sheet.dart';
 import 'package:story_score/shared/extensions/context_extensions.dart';
+import 'package:story_score/shared/widgets/custom_icon.dart';
 
 /// Provides the players list for a given session.
 final _playersForSessionProvider = StreamProvider.family<List<Player>, String>((
@@ -214,7 +215,7 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
                               Expanded(
                                 child: FilledButton.icon(
                                   onPressed: () => _startEditing(details),
-                                  icon: const Icon(Icons.edit_rounded,
+                                  icon: const CustomIcon('edit',
                                       size: 18),
                                   label: Text(l10n.editRound),
                                 ),
@@ -235,8 +236,8 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
                                             color: colors.error,
                                           ),
                                         )
-                                      : const Icon(
-                                          Icons.delete_outline_rounded,
+                                      : const CustomIcon(
+                                          'delete',
                                           size: 18,
                                         ),
                                   label: Text(l10n.deleteRound),

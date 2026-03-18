@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:story_score/app/providers.dart';
 import 'package:story_score/app/theme/color_tokens.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
+import 'package:story_score/core/constants/app_assets.dart';
 import 'package:story_score/data/database/app_database.dart';
 import 'package:story_score/features/history/providers/history_providers.dart';
 import 'package:story_score/shared/extensions/context_extensions.dart';
@@ -132,14 +133,11 @@ class RoundHistoryTile extends ConsumerWidget {
 
                         return Row(
                           children: [
-                            Icon(
+                            Image.asset(
                               hasGoodClue
-                                  ? Icons.lightbulb_rounded
-                                  : Icons.lightbulb_outline_rounded,
-                              size: 14,
-                              color: hasGoodClue
-                                  ? ColorTokens.goldAccent
-                                  : ColorTokens.dustyRose,
+                                  ? AppAssets.clueGood
+                                  : AppAssets.clueBad,
+                              width: 24,
                             ),
                             const SizedBox(width: 4),
                             Text(

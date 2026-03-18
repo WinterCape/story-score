@@ -81,6 +81,8 @@ flutter:
     - assets/fonts/
     - assets/icon/
     - assets/sounds/
+    - assets/images/icons/dark/
+    - assets/images/icons/light/
 
   fonts:
     - family: Nunito

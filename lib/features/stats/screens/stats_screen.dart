@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
+import 'package:story_score/core/constants/app_assets.dart';
 import 'package:story_score/core/constants/player_colors.dart';
 import 'package:story_score/domain/stats/stats_models.dart';
 import 'package:story_score/features/premium/providers/premium_providers.dart';
@@ -85,11 +86,7 @@ class _PremiumGateOverlay extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      Icons.lock_rounded,
-                      size: 48,
-                      color: storyTheme.goldAccent,
-                    ),
+                    Image.asset(AppAssets.lockBadge, width: 48),
                     const SizedBox(height: SpacingTokens.md),
                     Text(
                       l10n.advancedStats,
@@ -148,11 +145,7 @@ class _LeaderboardTab extends ConsumerWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    Icons.leaderboard_rounded,
-                    size: 64,
-                    color: colors.onSurfaceVariant.withValues(alpha: 0.5),
-                  ),
+                  Image.asset(AppAssets.emptyNoStats, width: 200, height: 200),
                   const SizedBox(height: SpacingTokens.md),
                   Text(l10n.noLeaderboardYet, style: textTheme.titleMedium),
                   const SizedBox(height: SpacingTokens.sm),
@@ -302,11 +295,7 @@ class _PlayersTab extends ConsumerWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    Icons.people_rounded,
-                    size: 64,
-                    color: colors.onSurfaceVariant.withValues(alpha: 0.5),
-                  ),
+                  Image.asset(AppAssets.emptyNoStats, width: 200, height: 200),
                   const SizedBox(height: SpacingTokens.md),
                   Text(l10n.noPlayersYet, style: textTheme.titleMedium),
                   const SizedBox(height: SpacingTokens.sm),

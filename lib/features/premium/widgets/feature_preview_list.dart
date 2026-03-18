@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:story_score/app/theme/color_tokens.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
+import 'package:story_score/core/constants/app_assets.dart';
 
 /// A single feature item in the supporter-pack feature list.
 @immutable
 class _FeatureItem {
   const _FeatureItem({
     required this.icon,
+    required this.assetPath,
     required this.title,
     required this.description,
   });
 
   final IconData icon;
+  final String assetPath;
   final String title;
   final String description;
 }
@@ -23,26 +26,31 @@ class FeaturePreviewList extends StatelessWidget {
   static const _features = [
     _FeatureItem(
       icon: Icons.palette_outlined,
+      assetPath: AppAssets.premiumThemes,
       title: '4 Premium Color Themes',
       description: 'Ocean Depths, Ember, Frost, and Enchanted Forest palettes.',
     ),
     _FeatureItem(
       icon: Icons.auto_awesome_outlined,
+      assetPath: AppAssets.premiumCelebrations,
       title: 'Premium Celebration Effects',
       description: 'Delightful animations when players hit milestones.',
     ),
     _FeatureItem(
       icon: Icons.group_outlined,
+      assetPath: AppAssets.premiumPresets,
       title: 'Player Presets & Saved Groups',
       description: 'Save your regular player groups for quick game setup.',
     ),
     _FeatureItem(
       icon: Icons.insights_outlined,
+      assetPath: AppAssets.premiumStats,
       title: 'Advanced Score Statistics',
       description: 'Deeper insights into scores, streaks, and trends.',
     ),
     _FeatureItem(
       icon: Icons.favorite_outline,
+      assetPath: AppAssets.premiumSupport,
       title: 'Support Independent Development',
       description: 'Help keep StoryScore ad-free and actively maintained.',
     ),
@@ -81,14 +89,10 @@ class _FeatureTile extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: checkColor.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(SpacingTokens.radiusSm),
-            ),
-            child: Icon(feature.icon, size: 18, color: checkColor),
+          Image.asset(
+            feature.assetPath,
+            width: 40,
+            height: 40,
           ),
           const SizedBox(width: SpacingTokens.md),
           Expanded(

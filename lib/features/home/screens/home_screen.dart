@@ -17,6 +17,7 @@ import 'package:story_score/features/home/widgets/session_card.dart';
 import 'package:story_score/features/premium/providers/premium_providers.dart';
 import 'package:story_score/features/presets/providers/preset_providers.dart';
 import 'package:story_score/shared/extensions/context_extensions.dart';
+import 'package:story_score/shared/widgets/custom_icon.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -49,17 +50,17 @@ class HomeScreen extends ConsumerWidget {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.insights_rounded),
+            icon: const CustomIcon('stats', size: 20),
             tooltip: l10n.stats,
             onPressed: () => context.push('/stats'),
           ),
           IconButton(
-            icon: const Icon(Icons.file_download_outlined),
+            icon: const CustomIcon('import', size: 20),
             tooltip: l10n.importGame,
             onPressed: () => _importGame(context, ref),
           ),
           IconButton(
-            icon: const Icon(Icons.settings_outlined),
+            icon: const CustomIcon('settings', size: 20),
             tooltip: l10n.settings,
             onPressed: () => context.push('/settings'),
           ),
@@ -468,7 +469,7 @@ class _GradientFAB extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.add_rounded, color: Colors.white),
+                const CustomIcon('new_game', size: 20, color: Colors.white),
                 const SizedBox(width: SpacingTokens.sm),
                 Text(
                   label,

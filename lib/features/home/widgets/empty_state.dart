@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:story_score/app/theme/color_tokens.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
+import 'package:story_score/core/constants/app_assets.dart';
 import 'package:story_score/shared/extensions/context_extensions.dart';
 
 /// Centered empty-state placeholder with an icon, message, and optional CTA.
@@ -31,23 +32,11 @@ class EmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Icon with gold glow
-            Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: ColorTokens.goldAccent.withValues(alpha: 0.2),
-                    blurRadius: 30,
-                    spreadRadius: 10,
-                  ),
-                ],
-              ),
-              child: Icon(
-                icon,
-                size: 80,
-                color: ColorTokens.goldAccent.withValues(alpha: 0.6),
-              ),
+            // Illustration
+            Image.asset(
+              AppAssets.emptyNoGames,
+              width: 200,
+              height: 200,
             ),
             const SizedBox(height: SpacingTokens.lg),
             Text(

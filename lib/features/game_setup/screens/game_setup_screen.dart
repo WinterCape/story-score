@@ -18,6 +18,7 @@ import 'package:story_score/features/presets/providers/preset_providers.dart';
 import 'package:story_score/features/presets/widgets/favorite_player_chips.dart';
 import 'package:story_score/features/presets/widgets/preset_list_tile.dart';
 import 'package:story_score/shared/extensions/context_extensions.dart';
+import 'package:story_score/shared/widgets/custom_icon.dart';
 
 class GameSetupScreen extends ConsumerStatefulWidget {
   const GameSetupScreen({super.key});
@@ -218,7 +219,7 @@ class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
         actions: [
           if (state.players.length >= 3 && ref.watch(isSupporterProvider))
             IconButton(
-              icon: const Icon(Icons.bookmark_add_outlined),
+              icon: const CustomIcon('save_preset', size: 20),
               tooltip: l10n.saveAsPreset,
               onPressed: () => _showSavePresetDialog(),
             ),
@@ -288,12 +289,12 @@ class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
                           ButtonSegment(
                             value: TargetType.score,
                             label: Text(l10n.scoreTarget),
-                            icon: const Icon(Icons.emoji_events_rounded),
+                            icon: const CustomIcon('target', size: 18),
                           ),
                           ButtonSegment(
                             value: TargetType.freeplay,
                             label: Text(l10n.infinite),
-                            icon: const Icon(Icons.all_inclusive_rounded),
+                            icon: const CustomIcon('infinite', size: 18),
                           ),
                         ],
                         selected: {state.targetType},
@@ -418,7 +419,7 @@ class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
                         ),
                         child: OutlinedButton.icon(
                           onPressed: () => _showLoadPresetSheet(),
-                          icon: const Icon(Icons.group_outlined),
+                          icon: const CustomIcon('load_preset', size: 20),
                           label: Text(l10n.loadPreset),
                           style: OutlinedButton.styleFrom(
                             minimumSize: const Size(double.infinity, 44),
@@ -517,7 +518,7 @@ class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
                       onPressed: state.isPlayerLimitReached
                           ? null
                           : _showAddPlayerSheet,
-                      icon: const Icon(Icons.person_add_rounded),
+                      icon: const CustomIcon('add_player', size: 20),
                       label: Text(l10n.addPlayer),
                       style: OutlinedButton.styleFrom(
                         minimumSize: const Size(double.infinity, 48),

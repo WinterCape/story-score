@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:story_score/app/theme/color_tokens.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
+import 'package:story_score/core/constants/app_assets.dart';
 import 'package:story_score/data/database/app_database.dart';
 import 'package:story_score/data/database/tables/game_sessions.dart';
 import 'package:story_score/features/home/providers/home_providers.dart';
@@ -55,8 +56,12 @@ class SessionCard extends ConsumerWidget {
       GameStatus.completed => 'completed',
     };
 
-    // Choose emoji for the mini card icon
-    final cardEmoji = isCompleted ? '\u{1F3C6}' : '\u{1F0CF}';
+    // Choose status asset
+    final stateAsset = isActive
+        ? AppAssets.stateActive
+        : isPaused
+            ? AppAssets.statePaused
+            : AppAssets.stateCompleted;
 
     return Semantics(
       label:
@@ -110,10 +115,26 @@ class SessionCard extends ConsumerWidget {
             padding: const EdgeInsets.all(SpacingTokens.md),
             child: Row(
               children: [
-                // Mini card-shaped icon
-                _MiniCardIcon(
-                  emoji: cardEmoji,
-                  isActive: isActive,
+                // Mini card-shaped icon with status overlay
+                SizedBox(
+                  width: 42,
+                  height: 56,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Image.asset(
+                        AppAssets.cardFrameSmall,
+                        width: 42,
+                        height: 56,
+                        fit: BoxFit.contain,
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Image.asset(stateAsset, width: 20),
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(width: SpacingTokens.md),
                 // Session info
@@ -239,55 +260,6 @@ class SessionCard extends ConsumerWidget {
     if (diff.inDays < 1) return '${diff.inHours}h ago';
     if (diff.inDays < 7) return '${diff.inDays}d ago';
     return '${date.month}/${date.day}/${date.year}';
-  }
-}
-
-/// Mini card-shaped icon with parchment gradient and gold border.
-class _MiniCardIcon extends StatelessWidget {
-  const _MiniCardIcon({required this.emoji, required this.isActive});
-
-  final String emoji;
-  final bool isActive;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 40,
-      height: 52,
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            ColorTokens.lightBackground,
-            ColorTokens.lightSurface,
-            Color(0xFFE8D0A0),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(7),
-        border: Border.all(
-          color: isActive
-              ? ColorTokens.goldAccent
-              : ColorTokens.goldAccent.withValues(alpha: 0.4),
-          width: 1.5,
-        ),
-        boxShadow: isActive
-            ? [
-                BoxShadow(
-                  color: ColorTokens.goldAccent.withValues(alpha: 0.2),
-                  blurRadius: 8,
-                  spreadRadius: 1,
-                ),
-              ]
-            : null,
-      ),
-      child: Center(
-        child: Text(
-          emoji,
-          style: const TextStyle(fontSize: 20),
-        ),
-      ),
-    );
   }
 }
 

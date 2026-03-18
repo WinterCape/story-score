@@ -10,6 +10,7 @@ import 'package:story_score/features/premium/providers/premium_providers.dart';
 import 'package:story_score/features/settings/providers/settings_providers.dart';
 import 'package:story_score/features/settings/widgets/theme_picker.dart';
 import 'package:story_score/shared/extensions/context_extensions.dart';
+import 'package:story_score/shared/widgets/custom_icon.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -49,7 +50,7 @@ class SettingsScreen extends ConsumerWidget {
             // Appearance section
             _SectionHeader(title: l10n.appearance),
             ListTile(
-              leading: const Icon(Icons.palette_outlined),
+              leading: const CustomIcon('theme', size: 24),
               title: Text(
                 l10n.theme,
                 style: const TextStyle(color: ColorTokens.parchment),
@@ -107,7 +108,7 @@ class SettingsScreen extends ConsumerWidget {
             // Language section
             _SectionHeader(title: l10n.language),
             ListTile(
-              leading: const Icon(Icons.language_outlined),
+              leading: const CustomIcon('language', size: 24),
               title: Text(
                 l10n.language,
                 style: const TextStyle(color: ColorTokens.parchment),
@@ -156,8 +157,8 @@ class SettingsScreen extends ConsumerWidget {
               },
             ),
             SwitchListTile(
-              secondary: Icon(
-                Icons.volume_up_outlined,
+              secondary: CustomIcon('sound',
+                size: 24,
                 color: isSupporter ? null : Theme.of(context).disabledColor,
               ),
               title: Row(

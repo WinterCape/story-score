@@ -8,6 +8,7 @@ import 'package:story_score/features/history/providers/history_providers.dart';
 import 'package:story_score/features/history/widgets/round_history_tile.dart';
 import 'package:story_score/features/home/widgets/empty_state.dart';
 import 'package:story_score/shared/extensions/context_extensions.dart';
+import 'package:story_score/shared/widgets/custom_icon.dart';
 
 class HistoryScreen extends ConsumerWidget {
   const HistoryScreen({super.key, required this.sessionId});
@@ -78,7 +79,7 @@ class HistoryScreen extends ConsumerWidget {
                               onPressed: () =>
                                   _confirmUndoLastRound(context, ref),
                               icon:
-                                  const Icon(Icons.undo_rounded, size: 18),
+                                  const CustomIcon('undo', size: 18),
                               label: Text(l10n.undoLastRound),
                               style: OutlinedButton.styleFrom(
                                 foregroundColor:

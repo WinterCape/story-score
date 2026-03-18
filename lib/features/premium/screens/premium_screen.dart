@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:story_score/app/theme/color_tokens.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
 import 'package:story_score/app/theme/theme_extensions.dart';
+import 'package:story_score/core/constants/app_assets.dart';
 import 'package:story_score/features/premium/providers/premium_providers.dart';
 import 'package:story_score/features/premium/widgets/feature_preview_list.dart';
 import 'package:story_score/shared/extensions/context_extensions.dart';
@@ -137,22 +138,11 @@ class _HeroHeader extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // Star icon with gradient background
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              gradient: RadialGradient(
-                colors: [
-                  ext.goldAccent.withValues(alpha: 0.3),
-                  ext.goldAccent.withValues(alpha: 0.1),
-                  Colors.transparent,
-                ],
-              ),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(Icons.star_rounded, size: 44, color: ext.goldAccent),
-          ),
+          // Hero image or supporter badge
+          if (isSupporter)
+            Image.asset(AppAssets.supporterBadge, width: 80)
+          else
+            Image.asset(AppAssets.premiumHero, width: 300),
           const SizedBox(height: SpacingTokens.lg),
 
           Builder(
@@ -368,7 +358,7 @@ class _AlreadySupporterBanner extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(Icons.verified_rounded, color: ext.teal, size: 28),
+          Image.asset(AppAssets.supporterBadge, width: 28),
           const SizedBox(width: SpacingTokens.md),
           Expanded(
             child: Column(

@@ -10,6 +10,7 @@ import 'package:share_plus/share_plus.dart';
 
 import 'package:story_score/app/providers.dart';
 import 'package:story_score/app/theme/color_tokens.dart';
+import 'package:story_score/core/constants/app_assets.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
 import 'package:story_score/core/constants/player_colors.dart';
 import 'package:story_score/core/utils/haptics.dart';
@@ -27,6 +28,7 @@ import 'package:story_score/features/stats/widgets/score_progression_chart.dart'
 import 'package:story_score/features/stats/widgets/session_stats_section.dart';
 import 'package:story_score/core/l10n/generated/app_localizations.dart';
 import 'package:story_score/shared/extensions/context_extensions.dart';
+import 'package:story_score/shared/widgets/custom_icon.dart';
 
 class EndgameScreen extends ConsumerStatefulWidget {
   final String sessionId;
@@ -99,59 +101,44 @@ class _EndgameScreenState extends ConsumerState<EndgameScreen> {
               child: Stack(
                 children: [
                   // Sparkle particles
-                  const Positioned(
+                  Positioned(
                     top: 60,
                     left: 30,
-                    child: Text(
-                      '\u2605',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Color(0x33E8A020),
-                      ),
+                    child: Opacity(
+                      opacity: 0.2,
+                      child: Image.asset(AppAssets.sparkle(1), width: 24),
                     ),
                   ),
-                  const Positioned(
+                  Positioned(
                     top: 120,
                     right: 40,
-                    child: Text(
-                      '\u2726',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Color(0x33D4758A),
-                      ),
+                    child: Opacity(
+                      opacity: 0.2,
+                      child: Image.asset(AppAssets.sparkle(2), width: 20),
                     ),
                   ),
-                  const Positioned(
+                  Positioned(
                     top: 200,
                     left: 60,
-                    child: Text(
-                      '\u2726',
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: Color(0x26E8A020),
-                      ),
+                    child: Opacity(
+                      opacity: 0.15,
+                      child: Image.asset(AppAssets.sparkle(3), width: 20),
                     ),
                   ),
-                  const Positioned(
+                  Positioned(
                     bottom: 200,
                     right: 50,
-                    child: Text(
-                      '\u2605',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Color(0x26D4758A),
-                      ),
+                    child: Opacity(
+                      opacity: 0.15,
+                      child: Image.asset(AppAssets.sparkle(1), width: 22),
                     ),
                   ),
-                  const Positioned(
+                  Positioned(
                     bottom: 300,
                     left: 40,
-                    child: Text(
-                      '\u2605',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Color(0x1AE8A020),
-                      ),
+                    child: Opacity(
+                      opacity: 0.1,
+                      child: Image.asset(AppAssets.sparkle(2), width: 20),
                     ),
                   ),
 
@@ -179,33 +166,15 @@ class _EndgameScreenState extends ConsumerState<EndgameScreen> {
                           child: Column(
                             children: [
                               const SizedBox(height: SpacingTokens.xxl),
-                              // Trophy icon with radial gold glow
+                              // Trophy badge
                               Semantics(
                                 label: 'Trophy',
                                 excludeSemantics: true,
                                 child: _maybeAnimate(
                                   skipAnimations: skipAnimations,
-                                  child: Container(
-                                    width: 100,
-                                    height: 100,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      gradient: RadialGradient(
-                                        colors: [
-                                          ColorTokens.goldAccent
-                                              .withValues(alpha: 0.4),
-                                          ColorTokens.goldAccent
-                                              .withValues(alpha: 0.1),
-                                          Colors.transparent,
-                                        ],
-                                        stops: const [0.0, 0.5, 1.0],
-                                      ),
-                                    ),
-                                    child: const Icon(
-                                      Icons.emoji_events_rounded,
-                                      size: 48,
-                                      color: ColorTokens.goldAccent,
-                                    ),
+                                  child: Image.asset(
+                                    AppAssets.trophyBadge,
+                                    width: 80,
                                   ),
                                   animate: (child) => child
                                       .animate()
@@ -319,19 +288,10 @@ class _EndgameScreenState extends ConsumerState<EndgameScreen> {
                               ),
                               const SizedBox(height: SpacingTokens.lg),
 
-                              // Ornate gold divider
-                              Container(
-                                width: 120,
-                                height: 1,
-                                decoration: const BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      Colors.transparent,
-                                      ColorTokens.goldAccent,
-                                      Colors.transparent,
-                                    ],
-                                  ),
-                                ),
+                              // Ornate divider
+                              Image.asset(
+                                AppAssets.dividerOrnate,
+                                width: 200,
                               ),
 
                               const SizedBox(height: SpacingTokens.lg),
@@ -543,7 +503,7 @@ class _EndgameScreenState extends ConsumerState<EndgameScreen> {
                                 child: OutlinedButton.icon(
                                   onPressed: () =>
                                       _shareResults(context, ref),
-                                  icon: const Icon(Icons.share_outlined),
+                                  icon: const CustomIcon('share', size: 20),
                                   label: Text(l10n.shareResults),
                                   style: OutlinedButton.styleFrom(
                                     foregroundColor: ColorTokens.goldAccent,
