@@ -48,7 +48,9 @@ class HistoryScreen extends ConsumerWidget {
                       style: OutlinedButton.styleFrom(
                         foregroundColor: context.colorScheme.error,
                         side: BorderSide(
-                          color: context.colorScheme.error.withValues(alpha: 0.5),
+                          color: context.colorScheme.error.withValues(
+                            alpha: 0.5,
+                          ),
                         ),
                       ),
                     ),
@@ -64,14 +66,12 @@ class HistoryScreen extends ConsumerWidget {
                     // Show in reverse chronological order (newest first)
                     final round = rounds[rounds.length - 1 - index];
                     return Padding(
-                      padding:
-                          const EdgeInsets.only(bottom: SpacingTokens.sm),
+                      padding: const EdgeInsets.only(bottom: SpacingTokens.sm),
                       child: RoundHistoryTile(
                         round: round,
                         sessionId: sessionId,
-                        onTap: () => context.push(
-                          '/game/$sessionId/round/${round.id}',
-                        ),
+                        onTap: () =>
+                            context.push('/game/$sessionId/round/${round.id}'),
                       ),
                     );
                   },
@@ -87,7 +87,9 @@ class HistoryScreen extends ConsumerWidget {
   }
 
   Future<void> _confirmUndoLastRound(
-      BuildContext context, WidgetRef ref) async {
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(

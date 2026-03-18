@@ -37,10 +37,7 @@ class PresetListTile extends StatelessWidget {
           color: colorScheme.error,
           borderRadius: BorderRadius.circular(SpacingTokens.radiusMd),
         ),
-        child: Icon(
-          Icons.delete_outline_rounded,
-          color: colorScheme.onError,
-        ),
+        child: Icon(Icons.delete_outline_rounded, color: colorScheme.onError),
       ),
       child: Semantics(
         label: '${preset.name}, ${players.length} players',

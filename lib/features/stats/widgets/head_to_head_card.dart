@@ -6,10 +6,7 @@ import 'package:story_score/shared/extensions/context_extensions.dart';
 
 /// Compact card showing the head-to-head record between two players.
 class HeadToHeadCard extends StatelessWidget {
-  const HeadToHeadCard({
-    super.key,
-    required this.record,
-  });
+  const HeadToHeadCard({super.key, required this.record});
 
   final HeadToHeadRecord record;
 

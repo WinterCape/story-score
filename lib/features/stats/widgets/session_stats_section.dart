@@ -9,10 +9,7 @@ import 'package:story_score/shared/extensions/context_extensions.dart';
 ///
 /// Free for all users (not premium-gated).
 class SessionStatsSection extends StatelessWidget {
-  const SessionStatsSection({
-    super.key,
-    required this.stats,
-  });
+  const SessionStatsSection({super.key, required this.stats});
 
   final SessionStats stats;
 
@@ -26,18 +23,13 @@ class SessionStatsSection extends StatelessWidget {
             left: SpacingTokens.xs,
             bottom: SpacingTokens.sm,
           ),
-          child: Text(
-            'Game Stats',
-            style: context.textTheme.titleMedium,
-          ),
+          child: Text('Game Stats', style: context.textTheme.titleMedium),
         ),
         StatCard(
           icon: Icons.emoji_events_rounded,
           label: 'MVP',
           value: stats.mvpName.isNotEmpty ? stats.mvpName : '--',
-          subtitle: stats.mvpScore > 0
-              ? '${stats.mvpScore} points'
-              : null,
+          subtitle: stats.mvpScore > 0 ? '${stats.mvpScore} points' : null,
           iconColor: ColorTokens.goldAccent,
         ),
         const SizedBox(height: SpacingTokens.xs),

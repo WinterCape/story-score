@@ -23,10 +23,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     redirect: _onboardingGuard,
     routes: [
       // ── Home ──────────────────────────────────────────────────────────────
-      GoRoute(
-        path: '/',
-        builder: (context, state) => const HomeScreen(),
-      ),
+      GoRoute(path: '/', builder: (context, state) => const HomeScreen()),
 
       // ── Onboarding ────────────────────────────────────────────────────────
       GoRoute(
@@ -51,10 +48,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
 
       // ── Stats ──────────────────────────────────────────────────────────────
-      GoRoute(
-        path: '/stats',
-        builder: (context, state) => const StatsScreen(),
-      ),
+      GoRoute(path: '/stats', builder: (context, state) => const StatsScreen()),
 
       // ── Game setup ────────────────────────────────────────────────────────
       GoRoute(
@@ -82,10 +76,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final sessionId = state.pathParameters['sessionId']!;
           final roundId = state.pathParameters['roundId']!;
-          return RoundDetailScreen(
-            sessionId: sessionId,
-            roundId: roundId,
-          );
+          return RoundDetailScreen(sessionId: sessionId, roundId: roundId);
         },
       ),
       GoRoute(

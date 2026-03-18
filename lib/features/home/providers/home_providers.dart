@@ -15,8 +15,10 @@ final completedSessionsProvider = StreamProvider<List<GameSession>>((ref) {
 });
 
 /// Watches the player count for a given session.
-final playerCountProvider =
-    StreamProvider.family<int, String>((ref, sessionId) {
+final playerCountProvider = StreamProvider.family<int, String>((
+  ref,
+  sessionId,
+) {
   return ref
       .watch(sessionDaoProvider)
       .watchPlayersForSession(sessionId)
@@ -24,8 +26,9 @@ final playerCountProvider =
 });
 
 /// Deletes a session by its ID (cascades to players, rounds, etc.).
-final deleteSessionProvider =
-    Provider<Future<void> Function(String sessionId)>((ref) {
-  final sessionDao = ref.watch(sessionDaoProvider);
-  return (String sessionId) => sessionDao.deleteSession(sessionId);
-});
+final deleteSessionProvider = Provider<Future<void> Function(String sessionId)>(
+  (ref) {
+    final sessionDao = ref.watch(sessionDaoProvider);
+    return (String sessionId) => sessionDao.deleteSession(sessionId);
+  },
+);

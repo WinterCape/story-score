@@ -113,17 +113,11 @@ class StorytellerSuccessLegend extends StatelessWidget {
       children: [
         _LegendDot(color: storyTheme.goldAccent),
         const SizedBox(width: SpacingTokens.xs),
-        Text(
-          'Good ($goodClueCount)',
-          style: textTheme.bodySmall,
-        ),
+        Text('Good ($goodClueCount)', style: textTheme.bodySmall),
         const SizedBox(width: SpacingTokens.md),
         _LegendDot(color: ColorTokens.coralAccent),
         const SizedBox(width: SpacingTokens.xs),
-        Text(
-          'Bad ($badClueCount)',
-          style: textTheme.bodySmall,
-        ),
+        Text('Bad ($badClueCount)', style: textTheme.bodySmall),
       ],
     );
   }
@@ -138,10 +132,7 @@ class _LegendDot extends StatelessWidget {
     return Container(
       width: 10,
       height: 10,
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-      ),
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
     );
   }
 }

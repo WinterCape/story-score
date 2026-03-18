@@ -16,9 +16,9 @@ class PresetDao extends DatabaseAccessor<AppDatabase> with _$PresetDaoMixin {
 
   /// Watches all presets ordered by most recently updated.
   Stream<List<PlayerPreset>> watchAllPresets() {
-    return (select(playerPresets)
-          ..orderBy([(t) => OrderingTerm.desc(t.updatedAt)]))
-        .watch();
+    return (select(
+      playerPresets,
+    )..orderBy([(t) => OrderingTerm.desc(t.updatedAt)])).watch();
   }
 
   /// Watches players for a specific preset, ordered by seat order.
@@ -31,9 +31,9 @@ class PresetDao extends DatabaseAccessor<AppDatabase> with _$PresetDaoMixin {
 
   /// Gets favorites deduplicated by normalized name, max 10.
   Future<List<PresetPlayer>> getFavorites() async {
-    final all = await (select(presetPlayers)
-          ..where((t) => t.isFavorite.equals(true)))
-        .get();
+    final all = await (select(
+      presetPlayers,
+    )..where((t) => t.isFavorite.equals(true))).get();
     // Deduplicate by normalized name (case-insensitive, trimmed)
     final seen = <String>{};
     final deduped = <PresetPlayer>[];
@@ -73,10 +73,9 @@ class PresetDao extends DatabaseAccessor<AppDatabase> with _$PresetDaoMixin {
       );
     }
     return transaction(() async {
-      await into(playerPresets).insert(PlayerPresetsCompanion.insert(
-        id: id,
-        name: name,
-      ));
+      await into(
+        playerPresets,
+      ).insert(PlayerPresetsCompanion.insert(id: id, name: name));
       for (final player in players) {
         await into(presetPlayers).insert(player);
       }

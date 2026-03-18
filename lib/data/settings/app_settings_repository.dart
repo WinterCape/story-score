@@ -105,9 +105,7 @@ class AppSettingsRepository {
 
   PlayerSortOrder _loadSortOrder() {
     final index = _prefs.getInt(_keyPreferredSortOrder);
-    if (index == null ||
-        index < 0 ||
-        index >= PlayerSortOrder.values.length) {
+    if (index == null || index < 0 || index >= PlayerSortOrder.values.length) {
       return PlayerSortOrder.seat;
     }
     return PlayerSortOrder.values[index];

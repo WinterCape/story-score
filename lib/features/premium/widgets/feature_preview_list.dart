@@ -24,8 +24,7 @@ class FeaturePreviewList extends StatelessWidget {
     _FeatureItem(
       icon: Icons.palette_outlined,
       title: '4 Premium Color Themes',
-      description:
-          'Ocean Depths, Ember, Frost, and Enchanted Forest palettes.',
+      description: 'Ocean Depths, Ember, Frost, and Enchanted Forest palettes.',
     ),
     _FeatureItem(
       icon: Icons.auto_awesome_outlined,
@@ -35,8 +34,7 @@ class FeaturePreviewList extends StatelessWidget {
     _FeatureItem(
       icon: Icons.group_outlined,
       title: 'Player Presets & Saved Groups',
-      description:
-          'Save your regular player groups for quick game setup.',
+      description: 'Save your regular player groups for quick game setup.',
     ),
     _FeatureItem(
       icon: Icons.insights_outlined,
@@ -46,8 +44,7 @@ class FeaturePreviewList extends StatelessWidget {
     _FeatureItem(
       icon: Icons.favorite_outline,
       title: 'Support Independent Development',
-      description:
-          'Help keep StoryScore ad-free and actively maintained.',
+      description: 'Help keep StoryScore ad-free and actively maintained.',
     ),
   ];
 
@@ -55,16 +52,12 @@ class FeaturePreviewList extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final checkColor =
-        isDark ? ColorTokens.auroraTeal : ColorTokens.auroraTeal;
+    final checkColor = isDark ? ColorTokens.auroraTeal : ColorTokens.auroraTeal;
 
     return Column(
       children: [
         for (int i = 0; i < _features.length; i++) ...[
-          _FeatureTile(
-            feature: _features[i],
-            checkColor: checkColor,
-          ),
+          _FeatureTile(feature: _features[i], checkColor: checkColor),
           if (i < _features.length - 1)
             const SizedBox(height: SpacingTokens.sm),
         ],
@@ -74,10 +67,7 @@ class FeaturePreviewList extends StatelessWidget {
 }
 
 class _FeatureTile extends StatelessWidget {
-  const _FeatureTile({
-    required this.feature,
-    required this.checkColor,
-  });
+  const _FeatureTile({required this.feature, required this.checkColor});
 
   final _FeatureItem feature;
   final Color checkColor;
@@ -87,9 +77,7 @@ class _FeatureTile extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        vertical: SpacingTokens.xs,
-      ),
+      padding: const EdgeInsets.symmetric(vertical: SpacingTokens.xs),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -100,11 +88,7 @@ class _FeatureTile extends StatelessWidget {
               color: checkColor.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(SpacingTokens.radiusSm),
             ),
-            child: Icon(
-              feature.icon,
-              size: 18,
-              color: checkColor,
-            ),
+            child: Icon(feature.icon, size: 18, color: checkColor),
           ),
           const SizedBox(width: SpacingTokens.md),
           Expanded(
@@ -128,11 +112,7 @@ class _FeatureTile extends StatelessWidget {
             ),
           ),
           const SizedBox(width: SpacingTokens.sm),
-          Icon(
-            Icons.check_circle,
-            size: 20,
-            color: checkColor,
-          ),
+          Icon(Icons.check_circle, size: 20, color: checkColor),
         ],
       ),
     );

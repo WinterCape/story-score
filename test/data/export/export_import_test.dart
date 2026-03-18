@@ -38,7 +38,8 @@ ExportedSession _validSession({
       updatedAt: now,
     ),
     players: players,
-    rounds: rounds ??
+    rounds:
+        rounds ??
         [
           ExportedRound(
             id: 'r1',
@@ -46,12 +47,9 @@ ExportedSession _validSession({
             storytellerPlayerId: 'p0',
             createdAt: now,
             votes: [
-              const ExportedVote(
-                  voterPlayerId: 'p1', votedForPlayerId: 'p0'),
-              const ExportedVote(
-                  voterPlayerId: 'p2', votedForPlayerId: 'p1'),
-              const ExportedVote(
-                  voterPlayerId: 'p3', votedForPlayerId: 'p0'),
+              const ExportedVote(voterPlayerId: 'p1', votedForPlayerId: 'p0'),
+              const ExportedVote(voterPlayerId: 'p2', votedForPlayerId: 'p1'),
+              const ExportedVote(voterPlayerId: 'p3', votedForPlayerId: 'p0'),
             ],
             scoreChanges: [
               const ExportedScoreChange(
@@ -97,18 +95,24 @@ void main() {
         expect(restored.players[i].seatOrder, original.players[i].seatOrder);
         expect(restored.players[i].colorKey, original.players[i].colorKey);
         expect(
-            restored.players[i].currentScore, original.players[i].currentScore);
+          restored.players[i].currentScore,
+          original.players[i].currentScore,
+        );
       }
 
       final restoredRound = restored.rounds.first;
       final originalRound = original.rounds.first;
       expect(restoredRound.id, originalRound.id);
       expect(restoredRound.roundNumber, originalRound.roundNumber);
-      expect(restoredRound.storytellerPlayerId,
-          originalRound.storytellerPlayerId);
+      expect(
+        restoredRound.storytellerPlayerId,
+        originalRound.storytellerPlayerId,
+      );
       expect(restoredRound.votes.length, originalRound.votes.length);
-      expect(restoredRound.scoreChanges.length,
-          originalRound.scoreChanges.length);
+      expect(
+        restoredRound.scoreChanges.length,
+        originalRound.scoreChanges.length,
+      );
     });
   });
 
@@ -117,13 +121,16 @@ void main() {
 
     test('rejects invalid schemaVersion', () {
       final session = _validSession(schemaVersion: 2);
-      final jsonStr = const JsonEncoder().convert(session.toJson()
-        ..['schemaVersion'] = 2);
+      final jsonStr = const JsonEncoder().convert(
+        session.toJson()..['schemaVersion'] = 2,
+      );
 
       final result = importer.fromJson(jsonStr);
       expect(result.isValid, isFalse);
-      expect(result.errors.any((e) => e.contains('Unsupported schema')),
-          isTrue);
+      expect(
+        result.errors.any((e) => e.contains('Unsupported schema')),
+        isTrue,
+      );
     });
 
     test('rejects too few players (<3)', () {
@@ -162,9 +169,9 @@ void main() {
       final result = importer.fromJson(jsonStr);
       expect(result.isValid, isFalse);
       expect(
-          result.errors
-              .any((e) => e.contains('not found in players')),
-          isTrue);
+        result.errors.any((e) => e.contains('not found in players')),
+        isTrue,
+      );
     });
 
     test('detects self-votes as warning', () {
@@ -186,8 +193,9 @@ void main() {
 
       final result = importer.fromJson(jsonStr);
       expect(
-          result.warnings.any((w) => w.contains('voted for themselves')),
-          isTrue);
+        result.warnings.any((w) => w.contains('voted for themselves')),
+        isTrue,
+      );
     });
 
     test('valid session passes import validation', () {
@@ -208,8 +216,10 @@ void main() {
       final csv = exporter.toCsv(session);
 
       final lines = csv.trim().split('\n');
-      expect(lines.first,
-          'Round,Storyteller,Player,Score Change,Reason,Running Total');
+      expect(
+        lines.first,
+        'Round,Storyteller,Player,Score Change,Reason,Running Total',
+      );
 
       // Should have header + score change rows
       expect(lines.length, greaterThan(1));

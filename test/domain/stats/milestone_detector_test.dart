@@ -29,11 +29,13 @@ void main() {
 
       expect(
         milestones,
-        contains(const MilestoneResult(
-          milestone: Milestone.firstCorrectGuess,
-          playerId: 'bob',
-          playerName: 'Bob',
-        )),
+        contains(
+          const MilestoneResult(
+            milestone: Milestone.firstCorrectGuess,
+            playerId: 'bob',
+            playerName: 'Bob',
+          ),
+        ),
       );
     });
 
@@ -120,7 +122,10 @@ void main() {
       final round2 = RoundData(
         roundNumber: 2,
         storytellerId: 'carol',
-        votes: {'alice': 'bob', 'bob': 'alice'}, // Bob guesses wrong (alice not storyteller)
+        votes: {
+          'alice': 'bob',
+          'bob': 'alice',
+        }, // Bob guesses wrong (alice not storyteller)
         scoreDeltas: {'carol': 0, 'alice': 0, 'bob': 0},
         hasGoodClue: false,
       );
@@ -206,27 +211,55 @@ void main() {
       // Alice is storyteller in rounds 1, 4, 7 (with good clues each time)
       // Other rounds have different storytellers
       final rounds = [
-        RoundData(roundNumber: 1, storytellerId: 'alice',
+        RoundData(
+          roundNumber: 1,
+          storytellerId: 'alice',
           votes: {'bob': 'alice', 'carol': 'bob'},
-          scoreDeltas: {'alice': 3, 'bob': 3, 'carol': 0}, hasGoodClue: true),
-        RoundData(roundNumber: 2, storytellerId: 'bob',
+          scoreDeltas: {'alice': 3, 'bob': 3, 'carol': 0},
+          hasGoodClue: true,
+        ),
+        RoundData(
+          roundNumber: 2,
+          storytellerId: 'bob',
           votes: {'alice': 'bob', 'carol': 'alice'},
-          scoreDeltas: {'bob': 3, 'alice': 3, 'carol': 0}, hasGoodClue: true),
-        RoundData(roundNumber: 3, storytellerId: 'carol',
+          scoreDeltas: {'bob': 3, 'alice': 3, 'carol': 0},
+          hasGoodClue: true,
+        ),
+        RoundData(
+          roundNumber: 3,
+          storytellerId: 'carol',
           votes: {'alice': 'carol', 'bob': 'alice'},
-          scoreDeltas: {'carol': 3, 'alice': 3, 'bob': 0}, hasGoodClue: true),
-        RoundData(roundNumber: 4, storytellerId: 'alice',
+          scoreDeltas: {'carol': 3, 'alice': 3, 'bob': 0},
+          hasGoodClue: true,
+        ),
+        RoundData(
+          roundNumber: 4,
+          storytellerId: 'alice',
           votes: {'bob': 'alice', 'carol': 'bob'},
-          scoreDeltas: {'alice': 3, 'bob': 3, 'carol': 0}, hasGoodClue: true),
-        RoundData(roundNumber: 5, storytellerId: 'bob',
+          scoreDeltas: {'alice': 3, 'bob': 3, 'carol': 0},
+          hasGoodClue: true,
+        ),
+        RoundData(
+          roundNumber: 5,
+          storytellerId: 'bob',
           votes: {'alice': 'carol', 'carol': 'alice'},
-          scoreDeltas: {'bob': 0, 'alice': 2, 'carol': 2}, hasGoodClue: false),
-        RoundData(roundNumber: 6, storytellerId: 'carol',
+          scoreDeltas: {'bob': 0, 'alice': 2, 'carol': 2},
+          hasGoodClue: false,
+        ),
+        RoundData(
+          roundNumber: 6,
+          storytellerId: 'carol',
           votes: {'alice': 'carol', 'bob': 'alice'},
-          scoreDeltas: {'carol': 3, 'alice': 3, 'bob': 0}, hasGoodClue: true),
-        RoundData(roundNumber: 7, storytellerId: 'alice',
+          scoreDeltas: {'carol': 3, 'alice': 3, 'bob': 0},
+          hasGoodClue: true,
+        ),
+        RoundData(
+          roundNumber: 7,
+          storytellerId: 'alice',
           votes: {'bob': 'alice', 'carol': 'bob'},
-          scoreDeltas: {'alice': 3, 'bob': 3, 'carol': 0}, hasGoodClue: true),
+          scoreDeltas: {'alice': 3, 'bob': 3, 'carol': 0},
+          hasGoodClue: true,
+        ),
       ];
 
       final milestones = MilestoneDetector.detectMilestones(
@@ -238,7 +271,9 @@ void main() {
       // Alice had good clues in rounds 1, 4, 7 — 3 consecutive (for her)
       expect(
         milestones.any(
-          (m) => m.milestone == Milestone.masterStoryteller && m.playerId == 'alice',
+          (m) =>
+              m.milestone == Milestone.masterStoryteller &&
+              m.playerId == 'alice',
         ),
         isTrue,
       );
@@ -246,14 +281,18 @@ void main() {
 
     test('not triggered if latest round is not a good clue', () {
       final round1 = RoundData(
-        roundNumber: 1, storytellerId: 'alice',
+        roundNumber: 1,
+        storytellerId: 'alice',
         votes: {'bob': 'alice', 'carol': 'bob'},
-        scoreDeltas: {'alice': 3, 'bob': 3, 'carol': 0}, hasGoodClue: true,
+        scoreDeltas: {'alice': 3, 'bob': 3, 'carol': 0},
+        hasGoodClue: true,
       );
       final round2 = RoundData(
-        roundNumber: 2, storytellerId: 'alice',
+        roundNumber: 2,
+        storytellerId: 'alice',
         votes: {'bob': 'alice', 'carol': 'alice'},
-        scoreDeltas: {'alice': 0, 'bob': 2, 'carol': 2}, hasGoodClue: false,
+        scoreDeltas: {'alice': 0, 'bob': 2, 'carol': 2},
+        hasGoodClue: false,
       );
 
       final milestones = MilestoneDetector.detectMilestones(
@@ -303,12 +342,7 @@ void main() {
       final round = RoundData(
         roundNumber: 1,
         storytellerId: 'alice',
-        votes: {
-          'bob': 'eve',
-          'carol': 'eve',
-          'dave': 'alice',
-          'eve': 'alice',
-        },
+        votes: {'bob': 'eve', 'carol': 'eve', 'dave': 'alice', 'eve': 'alice'},
         scoreDeltas: {'alice': 3, 'eve': 5, 'bob': 0, 'carol': 0, 'dave': 3},
         hasGoodClue: true,
       );
@@ -380,7 +414,8 @@ void main() {
       // Bob gets first correct guess
       expect(
         milestones.any(
-          (m) => m.milestone == Milestone.firstCorrectGuess && m.playerId == 'bob',
+          (m) =>
+              m.milestone == Milestone.firstCorrectGuess && m.playerId == 'bob',
         ),
         isTrue,
       );

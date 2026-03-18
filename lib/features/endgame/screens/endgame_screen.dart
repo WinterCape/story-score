@@ -54,8 +54,9 @@ class EndgameScreen extends ConsumerWidget {
           }
 
           final topScore = players.first.currentScore;
-          final winners =
-              players.where((p) => p.currentScore == topScore).toList();
+          final winners = players
+              .where((p) => p.currentScore == topScore)
+              .toList();
           final hasTie = winners.length > 1;
           final winnerLabel = winners.map((w) => w.name).join(' & ');
 
@@ -136,10 +137,7 @@ class EndgameScreen extends ConsumerWidget {
                           ),
                           animate: (child) => child
                               .animate()
-                              .fadeIn(
-                                delay: 300.ms,
-                                duration: 500.ms,
-                              )
+                              .fadeIn(delay: 300.ms, duration: 500.ms)
                               .slideY(begin: 0.3, end: 0),
                         ),
                         const SizedBox(height: SpacingTokens.sm),
@@ -157,10 +155,7 @@ class EndgameScreen extends ConsumerWidget {
                             ),
                             animate: (child) => child
                                 .animate()
-                                .fadeIn(
-                                  delay: 500.ms,
-                                  duration: 500.ms,
-                                )
+                                .fadeIn(delay: 500.ms, duration: 500.ms)
                                 .slideY(begin: 0.3, end: 0),
                           ),
                         ),
@@ -190,12 +185,10 @@ class EndgameScreen extends ConsumerWidget {
                               style: theme.textTheme.titleMedium,
                             ),
                           ),
-                          animate: (child) => child
-                              .animate()
-                              .fadeIn(
-                                delay: 700.ms,
-                                duration: 400.ms,
-                              ),
+                          animate: (child) => child.animate().fadeIn(
+                            delay: 700.ms,
+                            duration: 400.ms,
+                          ),
                         ),
                         const SizedBox(height: SpacingTokens.md),
                       ],
@@ -219,8 +212,7 @@ class EndgameScreen extends ConsumerWidget {
                         ),
                         child: Card(
                           color: isWinner
-                              ? ColorTokens.goldAccent
-                                  .withValues(alpha: 0.1)
+                              ? ColorTokens.goldAccent.withValues(alpha: 0.1)
                               : null,
                           child: ListTile(
                             leading: Row(
@@ -232,19 +224,21 @@ class EndgameScreen extends ConsumerWidget {
                                     '#${index + 1}',
                                     style: theme.textTheme.titleMedium
                                         ?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: isWinner
-                                          ? ColorTokens.goldAccent
-                                          : theme
-                                              .colorScheme.onSurfaceVariant,
-                                    ),
+                                          fontWeight: FontWeight.bold,
+                                          color: isWinner
+                                              ? ColorTokens.goldAccent
+                                              : theme
+                                                    .colorScheme
+                                                    .onSurfaceVariant,
+                                        ),
                                   ),
                                 ),
                                 const SizedBox(width: SpacingTokens.sm),
                                 CircleAvatar(
                                   radius: 16,
                                   backgroundColor: PlayerColors.colorFor(
-                                      player.colorKey),
+                                    player.colorKey,
+                                  ),
                                   child: Text(
                                     player.name.isNotEmpty
                                         ? player.name[0].toUpperCase()
@@ -270,8 +264,7 @@ class EndgameScreen extends ConsumerWidget {
                               '${player.currentScore}',
                               style: theme.textTheme.titleLarge?.copyWith(
                                 fontWeight: FontWeight.bold,
-                                color:
-                                    isWinner ? ColorTokens.goldAccent : null,
+                                color: isWinner ? ColorTokens.goldAccent : null,
                               ),
                             ),
                           ),
@@ -283,10 +276,7 @@ class EndgameScreen extends ConsumerWidget {
 
                     return card
                         .animate()
-                        .fadeIn(
-                          delay: (800 + index * 100).ms,
-                          duration: 400.ms,
-                        )
+                        .fadeIn(delay: (800 + index * 100).ms, duration: 400.ms)
                         .slideX(begin: 0.1, end: 0);
                   },
                 ),
@@ -339,13 +329,9 @@ class EndgameScreen extends ConsumerWidget {
                           SizedBox(
                             width: double.infinity,
                             child: OutlinedButton.icon(
-                              onPressed: () => _saveAsPreset(
-                                context,
-                                ref,
-                                players,
-                              ),
-                              icon: const Icon(
-                                  Icons.bookmark_add_outlined),
+                              onPressed: () =>
+                                  _saveAsPreset(context, ref, players),
+                              icon: const Icon(Icons.bookmark_add_outlined),
                               label: const Text('Save as Preset'),
                               style: OutlinedButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(
@@ -363,8 +349,7 @@ class EndgameScreen extends ConsumerWidget {
                               sessionDao.updateSession(
                                 sessionId,
                                 GameSessionsCompanion(
-                                  status:
-                                      Value(GameStatus.completed),
+                                  status: Value(GameStatus.completed),
                                   updatedAt: Value(DateTime.now()),
                                 ),
                               );
@@ -436,18 +421,18 @@ class EndgameScreen extends ConsumerWidget {
         dao: dao,
         name: name,
         players: players
-            .map((p) => (
-                  name: p.name,
-                  colorKey: p.colorKey,
-                  avatarStyle: p.avatarStyle,
-                  seatOrder: p.seatOrder,
-                ))
+            .map(
+              (p) => (
+                name: p.name,
+                colorKey: p.colorKey,
+                avatarStyle: p.avatarStyle,
+                seatOrder: p.seatOrder,
+              ),
+            )
             .toList(),
       );
       Haptics.selection();
-      messenger.showSnackBar(
-        SnackBar(content: Text('Saved preset "$name"')),
-      );
+      messenger.showSnackBar(SnackBar(content: Text('Saved preset "$name"')));
     } catch (e) {
       messenger.showSnackBar(
         SnackBar(content: Text('Failed to save preset: $e')),
@@ -472,15 +457,10 @@ class EndgameScreen extends ConsumerWidget {
       final fileName = 'storyscore_${sessionId.substring(0, 8)}.json';
 
       await SharePlus.instance.share(
-        ShareParams(
-          text: content,
-          title: fileName,
-        ),
+        ShareParams(text: content, title: fileName),
       );
     } catch (e) {
-      messenger.showSnackBar(
-        SnackBar(content: Text('Share failed: $e')),
-      );
+      messenger.showSnackBar(SnackBar(content: Text('Share failed: $e')));
     }
   }
 
@@ -561,10 +541,7 @@ class _SessionStatsBlock extends ConsumerWidget {
         ),
         const SizedBox(height: SpacingTokens.lg),
         // Score progression chart -- premium-gated
-        Text(
-          'Score Progression',
-          style: textTheme.titleMedium,
-        ),
+        Text('Score Progression', style: textTheme.titleMedium),
         const SizedBox(height: SpacingTokens.sm),
         if (isSupporter)
           progressionAsync.when(
@@ -621,10 +598,7 @@ class _SessionStatsBlock extends ConsumerWidget {
 
 /// Animates a score counter from 0 to [targetScore].
 class _AnimatedScoreCounter extends StatefulWidget {
-  const _AnimatedScoreCounter({
-    required this.targetScore,
-    this.style,
-  });
+  const _AnimatedScoreCounter({required this.targetScore, this.style});
 
   final int targetScore;
   final TextStyle? style;
@@ -645,9 +619,10 @@ class _AnimatedScoreCounterState extends State<_AnimatedScoreCounter>
       duration: const Duration(milliseconds: 1200),
       vsync: this,
     );
-    _animation = IntTween(begin: 0, end: widget.targetScore).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
+    _animation = IntTween(
+      begin: 0,
+      end: widget.targetScore,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
     // Start after a short delay to sync with other entrance animations
     Future.delayed(const Duration(milliseconds: 600), () {
       if (mounted) _controller.forward();
@@ -664,10 +639,8 @@ class _AnimatedScoreCounterState extends State<_AnimatedScoreCounter>
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _animation,
-      builder: (context, _) => Text(
-        '${_animation.value} points',
-        style: widget.style,
-      ),
+      builder: (context, _) =>
+          Text('${_animation.value} points', style: widget.style),
     );
   }
 }

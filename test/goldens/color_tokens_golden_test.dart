@@ -9,11 +9,7 @@ void main() {
     testWidgets('all 12 player colors rendered as a grid', (tester) async {
       await tester.pumpWidget(
         wrapInTheme(
-          SizedBox(
-            width: 300,
-            height: 200,
-            child: _PlayerColorGrid(),
-          ),
+          SizedBox(width: 300, height: 200, child: _PlayerColorGrid()),
         ),
       );
       await tester.pumpAndSettle();
@@ -27,11 +23,7 @@ void main() {
     testWidgets('all 12 player colors – dark theme', (tester) async {
       await tester.pumpWidget(
         wrapInTheme(
-          SizedBox(
-            width: 300,
-            height: 200,
-            child: _PlayerColorGrid(),
-          ),
+          SizedBox(width: 300, height: 200, child: _PlayerColorGrid()),
           isDark: true,
         ),
       );

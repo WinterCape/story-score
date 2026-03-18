@@ -14,54 +14,52 @@ Future<ExportedSession> buildExportedSession({
   required String appVersion,
 }) async {
   // 1. Load session
-  final session = await sessionDao
-      .watchSession(sessionId)
-      .first;
+  final session = await sessionDao.watchSession(sessionId).first;
 
   if (session == null) {
     throw StateError('Session $sessionId not found');
   }
 
   // 2. Load players
-  final players = await sessionDao
-      .watchPlayersForSession(sessionId)
-      .first;
+  final players = await sessionDao.watchPlayersForSession(sessionId).first;
 
   // 3. Load rounds
-  final rounds = await roundDao
-      .watchRoundsForSession(sessionId)
-      .first;
+  final rounds = await roundDao.watchRoundsForSession(sessionId).first;
 
   // 4. For each round, load votes and score changes via watchRoundWithDetails
   final exportedRounds = <ExportedRound>[];
   for (final round in rounds) {
-    final details = await roundDao
-        .watchRoundWithDetails(round.id)
-        .first;
+    final details = await roundDao.watchRoundWithDetails(round.id).first;
 
     if (details == null) continue;
 
-    exportedRounds.add(ExportedRound(
-      id: round.id,
-      roundNumber: round.roundNumber,
-      storytellerPlayerId: round.storytellerPlayerId,
-      note: round.note,
-      createdAt: round.createdAt,
-      votes: details.votes
-          .map((v) => ExportedVote(
+    exportedRounds.add(
+      ExportedRound(
+        id: round.id,
+        roundNumber: round.roundNumber,
+        storytellerPlayerId: round.storytellerPlayerId,
+        note: round.note,
+        createdAt: round.createdAt,
+        votes: details.votes
+            .map(
+              (v) => ExportedVote(
                 voterPlayerId: v.voterPlayerId,
                 votedForPlayerId: v.votedForPlayerId,
-              ))
-          .toList(),
-      scoreChanges: details.scoreChanges
-          .map((sc) => ExportedScoreChange(
+              ),
+            )
+            .toList(),
+        scoreChanges: details.scoreChanges
+            .map(
+              (sc) => ExportedScoreChange(
                 playerId: sc.playerId,
                 delta: sc.delta,
                 reasonCode: sc.reasonCode,
                 reasonLabel: sc.reasonLabel,
-              ))
-          .toList(),
-    ));
+              ),
+            )
+            .toList(),
+      ),
+    );
   }
 
   // 5. Map target type enum to string
@@ -92,14 +90,16 @@ Future<ExportedSession> buildExportedSession({
       updatedAt: session.updatedAt,
     ),
     players: players
-        .map((p) => ExportedPlayer(
-              id: p.id,
-              name: p.name,
-              seatOrder: p.seatOrder,
-              colorKey: p.colorKey,
-              avatarStyle: p.avatarStyle,
-              currentScore: p.currentScore,
-            ))
+        .map(
+          (p) => ExportedPlayer(
+            id: p.id,
+            name: p.name,
+            seatOrder: p.seatOrder,
+            colorKey: p.colorKey,
+            avatarStyle: p.avatarStyle,
+            currentScore: p.currentScore,
+          ),
+        )
         .toList(),
     rounds: exportedRounds,
   );

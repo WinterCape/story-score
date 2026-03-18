@@ -46,17 +46,18 @@ class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
 
     try {
       final dao = ref.read(sessionDaoProvider);
-      final sessionId =
-          await ref.read(gameSetupProvider.notifier).createGame(dao);
+      final sessionId = await ref
+          .read(gameSetupProvider.notifier)
+          .createGame(dao);
 
       if (mounted) {
         context.go('/game/$sessionId/scoreboard');
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to create game: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to create game: $e')));
       }
     } finally {
       if (mounted) setState(() => _isCreating = false);
@@ -105,25 +106,27 @@ class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
         dao: dao,
         name: name,
         players: state.players
-            .map((p) => (
-                  name: p.name,
-                  colorKey: p.colorKey,
-                  avatarStyle: p.avatarStyle,
-                  seatOrder: p.seatOrder,
-                ))
+            .map(
+              (p) => (
+                name: p.name,
+                colorKey: p.colorKey,
+                avatarStyle: p.avatarStyle,
+                seatOrder: p.seatOrder,
+              ),
+            )
             .toList(),
       );
       Haptics.selection();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Saved preset "$name"')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Saved preset "$name"')));
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to save preset: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to save preset: $e')));
       }
     }
   }
@@ -171,7 +174,9 @@ class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
         usedColorKeys: setupState.usedColorKeys,
         onConfirm: (name, colorKey, avatarStyle) {
           Haptics.selection();
-          ref.read(gameSetupProvider.notifier).addPlayer(
+          ref
+              .read(gameSetupProvider.notifier)
+              .addPlayer(
                 name: name,
                 colorKey: colorKey,
                 avatarStyle: avatarStyle,
@@ -216,340 +221,346 @@ class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
           ),
           child: Column(
             children: [
-          // Scrollable form content.
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(
-                horizontal: SpacingTokens.lg,
-                vertical: SpacingTokens.md,
-              ),
-              children: [
-                // ── Title field ──────────────────────────────────────────
-                Text(
-                  'Game Title',
-                  style: textTheme.labelLarge?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
+              // Scrollable form content.
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: SpacingTokens.lg,
+                    vertical: SpacingTokens.md,
                   ),
-                ),
-                const SizedBox(height: SpacingTokens.sm),
-                TextFormField(
-                  controller: _titleController,
-                  decoration: const InputDecoration(
-                    hintText: 'e.g. Friday Night Dixit',
-                  ),
-                  textCapitalization: TextCapitalization.words,
-                  onChanged: (v) =>
-                      ref.read(gameSetupProvider.notifier).setTitle(v),
-                ),
+                  children: [
+                    // ── Title field ──────────────────────────────────────────
+                    Text(
+                      'Game Title',
+                      style: textTheme.labelLarge?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(height: SpacingTokens.sm),
+                    TextFormField(
+                      controller: _titleController,
+                      decoration: const InputDecoration(
+                        hintText: 'e.g. Friday Night Dixit',
+                      ),
+                      textCapitalization: TextCapitalization.words,
+                      onChanged: (v) =>
+                          ref.read(gameSetupProvider.notifier).setTitle(v),
+                    ),
 
-                const SizedBox(height: SpacingTokens.lg),
+                    const SizedBox(height: SpacingTokens.lg),
 
-                // ── Target type selector ─────────────────────────────────
-                Text(
-                  'Win Condition',
-                  style: textTheme.labelLarge?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(height: SpacingTokens.sm),
-                SizedBox(
-                  width: double.infinity,
-                  child: SegmentedButton<TargetType>(
-                    segments: const [
-                      ButtonSegment(
-                        value: TargetType.score,
-                        label: Text('Score Target'),
-                        icon: Icon(Icons.emoji_events_rounded),
+                    // ── Target type selector ─────────────────────────────────
+                    Text(
+                      'Win Condition',
+                      style: textTheme.labelLarge?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
                       ),
-                      ButtonSegment(
-                        value: TargetType.freeplay,
-                        label: Text('Infinite'),
-                        icon: Icon(Icons.all_inclusive_rounded),
+                    ),
+                    const SizedBox(height: SpacingTokens.sm),
+                    SizedBox(
+                      width: double.infinity,
+                      child: SegmentedButton<TargetType>(
+                        segments: const [
+                          ButtonSegment(
+                            value: TargetType.score,
+                            label: Text('Score Target'),
+                            icon: Icon(Icons.emoji_events_rounded),
+                          ),
+                          ButtonSegment(
+                            value: TargetType.freeplay,
+                            label: Text('Infinite'),
+                            icon: Icon(Icons.all_inclusive_rounded),
+                          ),
+                        ],
+                        selected: {state.targetType},
+                        onSelectionChanged: (s) => ref
+                            .read(gameSetupProvider.notifier)
+                            .setTargetType(s.first),
+                        showSelectedIcon: false,
                       ),
-                    ],
-                    selected: {state.targetType},
-                    onSelectionChanged: (s) => ref
-                        .read(gameSetupProvider.notifier)
-                        .setTargetType(s.first),
-                    showSelectedIcon: false,
-                  ),
-                ),
+                    ),
 
-                // ── Target score input (conditional) ─────────────────────
-                if (state.targetType == TargetType.score) ...[
-                  const SizedBox(height: SpacingTokens.md),
-                  Row(
-                    children: [
-                      Text(
-                        'Target Score',
-                        style: textTheme.labelLarge?.copyWith(
-                          color: colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                      const Spacer(),
-                      // Stepper controls.
-                      _StepperButton(
-                        icon: Icons.remove_rounded,
-                        onPressed: state.targetScore > 10
-                            ? () {
-                                final newVal = state.targetScore - 5;
-                                ref
-                                    .read(gameSetupProvider.notifier)
-                                    .setTargetScore(newVal);
-                                _targetScoreController.text =
-                                    newVal.clamp(10, 200).toString();
-                              }
-                            : null,
-                      ),
-                      const SizedBox(width: SpacingTokens.sm),
-                      SizedBox(
-                        width: 64,
-                        child: TextFormField(
-                          controller: _targetScoreController,
-                          textAlign: TextAlign.center,
-                          keyboardType: TextInputType.number,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                            LengthLimitingTextInputFormatter(3),
-                          ],
-                          style: textTheme.titleMedium,
-                          decoration: const InputDecoration(
-                            contentPadding: EdgeInsets.symmetric(
-                              vertical: SpacingTokens.sm,
+                    // ── Target score input (conditional) ─────────────────────
+                    if (state.targetType == TargetType.score) ...[
+                      const SizedBox(height: SpacingTokens.md),
+                      Row(
+                        children: [
+                          Text(
+                            'Target Score',
+                            style: textTheme.labelLarge?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
                             ),
                           ),
-                          onChanged: (v) {
-                            final parsed = int.tryParse(v);
-                            if (parsed != null) {
-                              ref
-                                  .read(gameSetupProvider.notifier)
-                                  .setTargetScore(parsed);
-                            }
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: SpacingTokens.sm),
-                      _StepperButton(
-                        icon: Icons.add_rounded,
-                        onPressed: state.targetScore < 200
-                            ? () {
-                                final newVal = state.targetScore + 5;
-                                ref
-                                    .read(gameSetupProvider.notifier)
-                                    .setTargetScore(newVal);
-                                _targetScoreController.text =
-                                    newVal.clamp(10, 200).toString();
-                              }
-                            : null,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: SpacingTokens.md),
-
-                  // Continue past target toggle.
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Continue Past Target',
-                              style: textTheme.titleSmall,
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              'Keep playing after someone reaches the target',
-                              style: textTheme.bodySmall?.copyWith(
-                                color: colorScheme.onSurfaceVariant,
+                          const Spacer(),
+                          // Stepper controls.
+                          _StepperButton(
+                            icon: Icons.remove_rounded,
+                            onPressed: state.targetScore > 10
+                                ? () {
+                                    final newVal = state.targetScore - 5;
+                                    ref
+                                        .read(gameSetupProvider.notifier)
+                                        .setTargetScore(newVal);
+                                    _targetScoreController.text = newVal
+                                        .clamp(10, 200)
+                                        .toString();
+                                  }
+                                : null,
+                          ),
+                          const SizedBox(width: SpacingTokens.sm),
+                          SizedBox(
+                            width: 64,
+                            child: TextFormField(
+                              controller: _targetScoreController,
+                              textAlign: TextAlign.center,
+                              keyboardType: TextInputType.number,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                                LengthLimitingTextInputFormatter(3),
+                              ],
+                              style: textTheme.titleMedium,
+                              decoration: const InputDecoration(
+                                contentPadding: EdgeInsets.symmetric(
+                                  vertical: SpacingTokens.sm,
+                                ),
                               ),
+                              onChanged: (v) {
+                                final parsed = int.tryParse(v);
+                                if (parsed != null) {
+                                  ref
+                                      .read(gameSetupProvider.notifier)
+                                      .setTargetScore(parsed);
+                                }
+                              },
                             ),
-                          ],
-                        ),
+                          ),
+                          const SizedBox(width: SpacingTokens.sm),
+                          _StepperButton(
+                            icon: Icons.add_rounded,
+                            onPressed: state.targetScore < 200
+                                ? () {
+                                    final newVal = state.targetScore + 5;
+                                    ref
+                                        .read(gameSetupProvider.notifier)
+                                        .setTargetScore(newVal);
+                                    _targetScoreController.text = newVal
+                                        .clamp(10, 200)
+                                        .toString();
+                                  }
+                                : null,
+                          ),
+                        ],
                       ),
-                      Switch(
-                        value: state.continuePastTarget,
-                        onChanged: (v) => ref
-                            .read(gameSetupProvider.notifier)
-                            .setContinuePastTarget(v),
+                      const SizedBox(height: SpacingTokens.md),
+
+                      // Continue past target toggle.
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Continue Past Target',
+                                  style: textTheme.titleSmall,
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  'Keep playing after someone reaches the target',
+                                  style: textTheme.bodySmall?.copyWith(
+                                    color: colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Switch(
+                            value: state.continuePastTarget,
+                            onChanged: (v) => ref
+                                .read(gameSetupProvider.notifier)
+                                .setContinuePastTarget(v),
+                          ),
+                        ],
                       ),
                     ],
-                  ),
-                ],
 
-                const SizedBox(height: SpacingTokens.xl),
+                    const SizedBox(height: SpacingTokens.xl),
 
-                // ── Load Preset button (premium-gated) ──────────────────
-                if (ref.watch(isSupporterProvider))
-                  Padding(
-                    padding:
-                        const EdgeInsets.only(bottom: SpacingTokens.md),
-                    child: OutlinedButton.icon(
-                      onPressed: () => _showLoadPresetSheet(),
-                      icon: const Icon(Icons.group_outlined),
-                      label: const Text('Load Preset'),
+                    // ── Load Preset button (premium-gated) ──────────────────
+                    if (ref.watch(isSupporterProvider))
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          bottom: SpacingTokens.md,
+                        ),
+                        child: OutlinedButton.icon(
+                          onPressed: () => _showLoadPresetSheet(),
+                          icon: const Icon(Icons.group_outlined),
+                          label: const Text('Load Preset'),
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size(double.infinity, 44),
+                          ),
+                        ),
+                      ),
+
+                    // ── Players section ──────────────────────────────────────
+                    Row(
+                      children: [
+                        Text('Players', style: textTheme.titleLarge),
+                        const SizedBox(width: SpacingTokens.sm),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: SpacingTokens.sm,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colorScheme.primaryContainer,
+                            borderRadius: BorderRadius.circular(
+                              SpacingTokens.radiusSm,
+                            ),
+                          ),
+                          child: Text(
+                            '${state.players.length}/10',
+                            style: textTheme.labelSmall?.copyWith(
+                              color: colorScheme.onPrimaryContainer,
+                            ),
+                          ),
+                        ),
+                        const Spacer(),
+                        if (state.players.length < 3)
+                          Text(
+                            'Min 3 required',
+                            style: textTheme.bodySmall?.copyWith(
+                              color: colorScheme.error,
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: SpacingTokens.sm),
+
+                    // Player list (non-scrollable inside the parent ListView).
+                    if (state.players.isNotEmpty)
+                      ReorderableListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        buildDefaultDragHandles: false,
+                        proxyDecorator: (child, index, animation) {
+                          return AnimatedBuilder(
+                            animation: animation,
+                            builder: (context, child) => Material(
+                              color: Colors.transparent,
+                              elevation: 4,
+                              borderRadius: BorderRadius.circular(
+                                SpacingTokens.radiusMd,
+                              ),
+                              child: child,
+                            ),
+                            child: child,
+                          );
+                        },
+                        itemCount: state.players.length,
+                        onReorder: (oldIndex, newIndex) => ref
+                            .read(gameSetupProvider.notifier)
+                            .reorderPlayers(oldIndex, newIndex),
+                        itemBuilder: (context, index) {
+                          final player = state.players[index];
+                          return ReorderableDragStartListener(
+                            key: ValueKey('player_$index'),
+                            index: index,
+                            child: PlayerTile(
+                              name: player.name,
+                              colorKey: player.colorKey,
+                              seatNumber: player.seatOrder,
+                              avatarStyle: player.avatarStyle,
+                              onRemove: () => ref
+                                  .read(gameSetupProvider.notifier)
+                                  .removePlayer(index),
+                            ),
+                          );
+                        },
+                      ),
+
+                    const SizedBox(height: SpacingTokens.sm),
+
+                    // Add player button.
+                    OutlinedButton.icon(
+                      onPressed: state.isPlayerLimitReached
+                          ? null
+                          : _showAddPlayerSheet,
+                      icon: const Icon(Icons.person_add_rounded),
+                      label: const Text('Add Player'),
                       style: OutlinedButton.styleFrom(
-                        minimumSize: const Size(double.infinity, 44),
+                        minimumSize: const Size(double.infinity, 48),
+                        side: BorderSide(
+                          color: state.isPlayerLimitReached
+                              ? colorScheme.outline.withValues(alpha: 0.3)
+                              : storyTheme.auroraTeal,
+                        ),
                       ),
                     ),
-                  ),
 
-                // ── Players section ──────────────────────────────────────
-                Row(
-                  children: [
-                    Text(
-                      'Players',
-                      style: textTheme.titleLarge,
-                    ),
-                    const SizedBox(width: SpacingTokens.sm),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: SpacingTokens.sm,
-                        vertical: 2,
+                    // Favorite player chips (premium-gated).
+                    if (ref.watch(isSupporterProvider))
+                      _FavoriteChipsSection(
+                        usedColorKeys: state.usedColorKeys,
+                        existingNames: state.players
+                            .map((p) => p.name.trim().toLowerCase())
+                            .toSet(),
+                        onSelect: (name, colorKey, avatarStyle) {
+                          Haptics.selection();
+                          ref
+                              .read(gameSetupProvider.notifier)
+                              .addPlayer(
+                                name: name,
+                                colorKey: colorKey,
+                                avatarStyle: avatarStyle,
+                              );
+                        },
                       ),
-                      decoration: BoxDecoration(
-                        color: colorScheme.primaryContainer,
-                        borderRadius: BorderRadius.circular(
-                          SpacingTokens.radiusSm,
-                        ),
-                      ),
-                      child: Text(
-                        '${state.players.length}/10',
-                        style: textTheme.labelSmall?.copyWith(
-                          color: colorScheme.onPrimaryContainer,
-                        ),
-                      ),
-                    ),
-                    const Spacer(),
-                    if (state.players.length < 3)
-                      Text(
-                        'Min 3 required',
-                        style: textTheme.bodySmall?.copyWith(
-                          color: colorScheme.error,
-                        ),
-                      ),
+
+                    // Bottom padding for scroll clearance.
+                    const SizedBox(height: SpacingTokens.xxl),
                   ],
                 ),
-                const SizedBox(height: SpacingTokens.sm),
+              ),
 
-                // Player list (non-scrollable inside the parent ListView).
-                if (state.players.isNotEmpty)
-                  ReorderableListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    buildDefaultDragHandles: false,
-                    proxyDecorator: (child, index, animation) {
-                      return AnimatedBuilder(
-                        animation: animation,
-                        builder: (context, child) => Material(
-                          color: Colors.transparent,
-                          elevation: 4,
-                          borderRadius: BorderRadius.circular(
-                            SpacingTokens.radiusMd,
-                          ),
-                          child: child,
-                        ),
-                        child: child,
-                      );
-                    },
-                    itemCount: state.players.length,
-                    onReorder: (oldIndex, newIndex) => ref
-                        .read(gameSetupProvider.notifier)
-                        .reorderPlayers(oldIndex, newIndex),
-                    itemBuilder: (context, index) {
-                      final player = state.players[index];
-                      return ReorderableDragStartListener(
-                        key: ValueKey('player_$index'),
-                        index: index,
-                        child: PlayerTile(
-                          name: player.name,
-                          colorKey: player.colorKey,
-                          seatNumber: player.seatOrder,
-                          avatarStyle: player.avatarStyle,
-                          onRemove: () => ref
-                              .read(gameSetupProvider.notifier)
-                              .removePlayer(index),
-                        ),
-                      );
-                    },
+              // ── Start Game button (pinned at bottom) ───────────────────────
+              SafeArea(
+                top: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    SpacingTokens.lg,
+                    SpacingTokens.sm,
+                    SpacingTokens.lg,
+                    SpacingTokens.md,
                   ),
-
-                const SizedBox(height: SpacingTokens.sm),
-
-                // Add player button.
-                OutlinedButton.icon(
-                  onPressed:
-                      state.isPlayerLimitReached ? null : _showAddPlayerSheet,
-                  icon: const Icon(Icons.person_add_rounded),
-                  label: const Text('Add Player'),
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 48),
-                    side: BorderSide(
-                      color: state.isPlayerLimitReached
-                          ? colorScheme.outline.withValues(alpha: 0.3)
-                          : storyTheme.auroraTeal,
+                  child: FilledButton(
+                    onPressed: state.canStart && !_isCreating
+                        ? _startGame
+                        : null,
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 56),
+                      backgroundColor: storyTheme.goldAccent,
+                      foregroundColor: Colors.black,
+                      disabledBackgroundColor: storyTheme.goldAccent.withValues(
+                        alpha: 0.3,
+                      ),
+                      disabledForegroundColor: Colors.black45,
                     ),
+                    child: _isCreating
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.5,
+                              color: Colors.black54,
+                            ),
+                          )
+                        : const Text('Start Game'),
                   ),
                 ),
-
-                // Favorite player chips (premium-gated).
-                if (ref.watch(isSupporterProvider))
-                  _FavoriteChipsSection(
-                    usedColorKeys: state.usedColorKeys,
-                    existingNames: state.players
-                        .map((p) => p.name.trim().toLowerCase())
-                        .toSet(),
-                    onSelect: (name, colorKey, avatarStyle) {
-                      Haptics.selection();
-                      ref.read(gameSetupProvider.notifier).addPlayer(
-                            name: name,
-                            colorKey: colorKey,
-                            avatarStyle: avatarStyle,
-                          );
-                    },
-                  ),
-
-                // Bottom padding for scroll clearance.
-                const SizedBox(height: SpacingTokens.xxl),
-              ],
-            ),
-          ),
-
-          // ── Start Game button (pinned at bottom) ───────────────────────
-          SafeArea(
-            top: false,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                SpacingTokens.lg,
-                SpacingTokens.sm,
-                SpacingTokens.lg,
-                SpacingTokens.md,
               ),
-              child: FilledButton(
-                onPressed: state.canStart && !_isCreating ? _startGame : null,
-                style: FilledButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 56),
-                  backgroundColor: storyTheme.goldAccent,
-                  foregroundColor: Colors.black,
-                  disabledBackgroundColor:
-                      storyTheme.goldAccent.withValues(alpha: 0.3),
-                  disabledForegroundColor: Colors.black45,
-                ),
-                child: _isCreating
-                    ? const SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2.5,
-                          color: Colors.black54,
-                        ),
-                      )
-                    : const Text('Start Game'),
-              ),
-            ),
+            ],
           ),
-        ],
-      ),
         ),
       ),
     );
@@ -561,10 +572,7 @@ class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
 // =============================================================================
 
 class _StepperButton extends StatelessWidget {
-  const _StepperButton({
-    required this.icon,
-    required this.onPressed,
-  });
+  const _StepperButton({required this.icon, required this.onPressed});
 
   final IconData icon;
   final VoidCallback? onPressed;
@@ -581,8 +589,8 @@ class _StepperButton extends StatelessWidget {
         style: IconButton.styleFrom(
           backgroundColor: colorScheme.surfaceContainerHighest,
           foregroundColor: colorScheme.onSurface,
-          disabledBackgroundColor:
-              colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+          disabledBackgroundColor: colorScheme.surfaceContainerHighest
+              .withValues(alpha: 0.4),
         ),
         padding: EdgeInsets.zero,
       ),
@@ -595,14 +603,11 @@ class _StepperButton extends StatelessWidget {
 // =============================================================================
 
 class _AddPlayerSheet extends ConsumerStatefulWidget {
-  const _AddPlayerSheet({
-    required this.usedColorKeys,
-    required this.onConfirm,
-  });
+  const _AddPlayerSheet({required this.usedColorKeys, required this.onConfirm});
 
   final Set<String> usedColorKeys;
   final void Function(String name, String colorKey, String avatarStyle)
-      onConfirm;
+  onConfirm;
 
   @override
   ConsumerState<_AddPlayerSheet> createState() => _AddPlayerSheetState();
@@ -627,18 +632,60 @@ class _AddPlayerSheetState extends ConsumerState<_AddPlayerSheet> {
 
   // ── Premium emoji packs (supporter only) ────────────────────────
   static const _premiumFamousPeople = [
-    '🎩', '🕵️', '🧛', '🧟', '🤖', '👽', '🧜', '🦹',
-    '🫅', '💂', '🧑‍🚀', '🧑‍🔬', '🧑‍🍳', '🧑‍✈️', '🧑‍🎤', '🧑‍🏫',
+    '🎩',
+    '🕵️',
+    '🧛',
+    '🧟',
+    '🤖',
+    '👽',
+    '🧜',
+    '🦹',
+    '🫅',
+    '💂',
+    '🧑‍🚀',
+    '🧑‍🔬',
+    '🧑‍🍳',
+    '🧑‍✈️',
+    '🧑‍🎤',
+    '🧑‍🏫',
   ];
 
   static const _premiumMythical = [
-    '🐲', '🦅', '🦇', '🕊️', '🐍', '🦂', '🦚', '🦩',
-    '🐋', '🦈', '🐊', '🐅', '🦏', '🐘', '🦬', '🐎',
+    '🐲',
+    '🦅',
+    '🦇',
+    '🕊️',
+    '🐍',
+    '🦂',
+    '🦚',
+    '🦩',
+    '🐋',
+    '🦈',
+    '🐊',
+    '🐅',
+    '🦏',
+    '🐘',
+    '🦬',
+    '🐎',
   ];
 
   static const _premiumFood = [
-    '🍕', '🍔', '🌮', '🍣', '🧁', '🍩', '🍪', '🎂',
-    '🍉', '🍑', '🍒', '🥑', '🌶️', '🍄', '☕', '🧋',
+    '🍕',
+    '🍔',
+    '🌮',
+    '🍣',
+    '🧁',
+    '🍩',
+    '🍪',
+    '🎂',
+    '🍉',
+    '🍑',
+    '🍒',
+    '🥑',
+    '🌶️',
+    '🍄',
+    '☕',
+    '🧋',
   ];
 
   @override
@@ -675,179 +722,181 @@ class _AddPlayerSheetState extends ConsumerState<_AddPlayerSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-          // Handle.
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
-          const SizedBox(height: SpacingTokens.lg),
-
-          Text('Add Player', style: textTheme.titleLarge),
-          const SizedBox(height: SpacingTokens.lg),
-
-          // Name field.
-          TextFormField(
-            controller: _nameController,
-            autofocus: true,
-            maxLength: 30,
-            textCapitalization: TextCapitalization.words,
-            decoration: const InputDecoration(
-              hintText: 'Player name',
-              counterText: '',
-            ),
-            onChanged: (_) => setState(() {}),
-          ),
-          const SizedBox(height: SpacingTokens.lg),
-
-          // Color picker.
-          Text(
-            'Choose Color',
-            style: textTheme.labelLarge?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: SpacingTokens.sm),
-          ColorPickerChips(
-            selectedKey: _selectedColorKey,
-            usedKeys: widget.usedColorKeys,
-            onSelected: (key) => setState(() => _selectedColorKey = key),
-          ),
-
-          const SizedBox(height: SpacingTokens.lg),
-
-          // Avatar style section.
-          Text(
-            'Avatar Style',
-            style: textTheme.labelLarge?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: SpacingTokens.sm),
-          SizedBox(
-            width: double.infinity,
-            child: SegmentedButton<bool>(
-              segments: const [
-                ButtonSegment(
-                  value: false,
-                  label: Text('Initials'),
-                  icon: Icon(Icons.text_fields_rounded, size: 18),
-                ),
-                ButtonSegment(
-                  value: true,
-                  label: Text('Emoji'),
-                  icon: Icon(Icons.emoji_emotions_rounded, size: 18),
-                ),
-              ],
-              selected: {_isEmojiMode},
-              onSelectionChanged: (s) {
-                setState(() {
-                  if (s.first) {
-                    // Switch to emoji — pick first one as default
-                    _avatarStyle = _emojiOptions.first;
-                  } else {
-                    _avatarStyle = 'initials';
-                  }
-                });
-              },
-              showSelectedIcon: false,
-            ),
-          ),
-
-          // Emoji grid (shown only when emoji mode is active).
-          if (_isEmojiMode) ...[
-            const SizedBox(height: SpacingTokens.sm),
-            _buildEmojiGrid(
-              'Free',
-              _freeEmoji,
-              storyTheme,
-              colorScheme,
-              false,
-            ),
-            if (ref.watch(isSupporterProvider)) ...[
-              const SizedBox(height: SpacingTokens.sm),
-              _buildEmojiGrid(
-                '👥 People Pack',
-                _premiumFamousPeople,
-                storyTheme,
-                colorScheme,
-                false,
-              ),
-              const SizedBox(height: SpacingTokens.sm),
-              _buildEmojiGrid(
-                '🐲 Mythical Pack',
-                _premiumMythical,
-                storyTheme,
-                colorScheme,
-                false,
-              ),
-              const SizedBox(height: SpacingTokens.sm),
-              _buildEmojiGrid(
-                '🍕 Food Pack',
-                _premiumFood,
-                storyTheme,
-                colorScheme,
-                false,
-              ),
-            ] else ...[
-              const SizedBox(height: SpacingTokens.md),
-              Container(
-                padding: const EdgeInsets.all(SpacingTokens.md),
+            // Handle.
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
                 decoration: BoxDecoration(
-                  color: colorScheme.surfaceContainerHighest,
-                  borderRadius:
-                      BorderRadius.circular(SpacingTokens.radiusMd),
-                  border: Border.all(
-                    color: storyTheme.goldAccent.withValues(alpha: 0.3),
-                  ),
+                  color: colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(2),
                 ),
-                child: Row(
-                  children: [
-                    Icon(Icons.lock_rounded,
+              ),
+            ),
+            const SizedBox(height: SpacingTokens.lg),
+
+            Text('Add Player', style: textTheme.titleLarge),
+            const SizedBox(height: SpacingTokens.lg),
+
+            // Name field.
+            TextFormField(
+              controller: _nameController,
+              autofocus: true,
+              maxLength: 30,
+              textCapitalization: TextCapitalization.words,
+              decoration: const InputDecoration(
+                hintText: 'Player name',
+                counterText: '',
+              ),
+              onChanged: (_) => setState(() {}),
+            ),
+            const SizedBox(height: SpacingTokens.lg),
+
+            // Color picker.
+            Text(
+              'Choose Color',
+              style: textTheme.labelLarge?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: SpacingTokens.sm),
+            ColorPickerChips(
+              selectedKey: _selectedColorKey,
+              usedKeys: widget.usedColorKeys,
+              onSelected: (key) => setState(() => _selectedColorKey = key),
+            ),
+
+            const SizedBox(height: SpacingTokens.lg),
+
+            // Avatar style section.
+            Text(
+              'Avatar Style',
+              style: textTheme.labelLarge?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: SpacingTokens.sm),
+            SizedBox(
+              width: double.infinity,
+              child: SegmentedButton<bool>(
+                segments: const [
+                  ButtonSegment(
+                    value: false,
+                    label: Text('Initials'),
+                    icon: Icon(Icons.text_fields_rounded, size: 18),
+                  ),
+                  ButtonSegment(
+                    value: true,
+                    label: Text('Emoji'),
+                    icon: Icon(Icons.emoji_emotions_rounded, size: 18),
+                  ),
+                ],
+                selected: {_isEmojiMode},
+                onSelectionChanged: (s) {
+                  setState(() {
+                    if (s.first) {
+                      // Switch to emoji — pick first one as default
+                      _avatarStyle = _emojiOptions.first;
+                    } else {
+                      _avatarStyle = 'initials';
+                    }
+                  });
+                },
+                showSelectedIcon: false,
+              ),
+            ),
+
+            // Emoji grid (shown only when emoji mode is active).
+            if (_isEmojiMode) ...[
+              const SizedBox(height: SpacingTokens.sm),
+              _buildEmojiGrid(
+                'Free',
+                _freeEmoji,
+                storyTheme,
+                colorScheme,
+                false,
+              ),
+              if (ref.watch(isSupporterProvider)) ...[
+                const SizedBox(height: SpacingTokens.sm),
+                _buildEmojiGrid(
+                  '👥 People Pack',
+                  _premiumFamousPeople,
+                  storyTheme,
+                  colorScheme,
+                  false,
+                ),
+                const SizedBox(height: SpacingTokens.sm),
+                _buildEmojiGrid(
+                  '🐲 Mythical Pack',
+                  _premiumMythical,
+                  storyTheme,
+                  colorScheme,
+                  false,
+                ),
+                const SizedBox(height: SpacingTokens.sm),
+                _buildEmojiGrid(
+                  '🍕 Food Pack',
+                  _premiumFood,
+                  storyTheme,
+                  colorScheme,
+                  false,
+                ),
+              ] else ...[
+                const SizedBox(height: SpacingTokens.md),
+                Container(
+                  padding: const EdgeInsets.all(SpacingTokens.md),
+                  decoration: BoxDecoration(
+                    color: colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(SpacingTokens.radiusMd),
+                    border: Border.all(
+                      color: storyTheme.goldAccent.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.lock_rounded,
                         size: 16,
-                        color: storyTheme.goldAccent),
-                    const SizedBox(width: SpacingTokens.sm),
-                    Expanded(
-                      child: Text(
-                        '3 bonus emoji packs with Supporter Pack',
-                        style: textTheme.labelMedium?.copyWith(
-                          color: storyTheme.goldAccent,
+                        color: storyTheme.goldAccent,
+                      ),
+                      const SizedBox(width: SpacingTokens.sm),
+                      Expanded(
+                        child: Text(
+                          '3 bonus emoji packs with Supporter Pack',
+                          style: textTheme.labelMedium?.copyWith(
+                            color: storyTheme.goldAccent,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
+              ],
             ],
-          ],
 
-          const SizedBox(height: SpacingTokens.lg),
+            const SizedBox(height: SpacingTokens.lg),
 
-          // Confirm button.
-          FilledButton(
-            onPressed: _isValid
-                ? () => widget.onConfirm(
+            // Confirm button.
+            FilledButton(
+              onPressed: _isValid
+                  ? () => widget.onConfirm(
                       _nameController.text.trim(),
                       _selectedColorKey,
                       _avatarStyle,
                     )
-                : null,
-            style: FilledButton.styleFrom(
-              minimumSize: const Size(double.infinity, 52),
-              backgroundColor: storyTheme.auroraTeal,
-              foregroundColor: Colors.black,
-              disabledBackgroundColor:
-                  storyTheme.auroraTeal.withValues(alpha: 0.3),
-              disabledForegroundColor: Colors.black45,
+                  : null,
+              style: FilledButton.styleFrom(
+                minimumSize: const Size(double.infinity, 52),
+                backgroundColor: storyTheme.auroraTeal,
+                foregroundColor: Colors.black,
+                disabledBackgroundColor: storyTheme.auroraTeal.withValues(
+                  alpha: 0.3,
+                ),
+                disabledForegroundColor: Colors.black45,
+              ),
+              child: const Text('Add'),
             ),
-            child: const Text('Add'),
-          ),
-        ],
+          ],
         ),
       ),
     );
@@ -890,8 +939,7 @@ class _AddPlayerSheetState extends ConsumerState<_AddPlayerSheet> {
                   color: isSelected
                       ? storyTheme.auroraTeal.withValues(alpha: 0.2)
                       : colorScheme.surfaceContainerHighest,
-                  borderRadius:
-                      BorderRadius.circular(SpacingTokens.radiusSm),
+                  borderRadius: BorderRadius.circular(SpacingTokens.radiusSm),
                   border: Border.all(
                     color: isSelected
                         ? storyTheme.auroraTeal
@@ -900,11 +948,13 @@ class _AddPlayerSheetState extends ConsumerState<_AddPlayerSheet> {
                   ),
                 ),
                 alignment: Alignment.center,
-                child: Text(emoji,
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: isLocked ? Colors.grey : null,
-                    )),
+                child: Text(
+                  emoji,
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: isLocked ? Colors.grey : null,
+                  ),
+                ),
               ),
             );
           }).toList(),
@@ -922,7 +972,7 @@ class _LoadPresetSheet extends ConsumerWidget {
   const _LoadPresetSheet({required this.onPresetSelected});
 
   final void Function(PlayerPreset preset, List<PresetPlayer> players)
-      onPresetSelected;
+  onPresetSelected;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -955,8 +1005,7 @@ class _LoadPresetSheet extends ConsumerWidget {
           Text('Load Preset', style: textTheme.titleLarge),
           const SizedBox(height: SpacingTokens.md),
           presetsAsync.when(
-            loading: () =>
-                const Center(child: CircularProgressIndicator()),
+            loading: () => const Center(child: CircularProgressIndicator()),
             error: (e, _) => Text('Error: $e'),
             data: (presets) {
               if (presets.isEmpty) {
@@ -983,8 +1032,7 @@ class _LoadPresetSheet extends ConsumerWidget {
                     final preset = presets[index];
                     return _LoadPresetTile(
                       preset: preset,
-                      onTap: (players) =>
-                          onPresetSelected(preset, players),
+                      onTap: (players) => onPresetSelected(preset, players),
                     );
                   },
                 ),
@@ -998,10 +1046,7 @@ class _LoadPresetSheet extends ConsumerWidget {
 }
 
 class _LoadPresetTile extends ConsumerWidget {
-  const _LoadPresetTile({
-    required this.preset,
-    required this.onTap,
-  });
+  const _LoadPresetTile({required this.preset, required this.onTap});
 
   final PlayerPreset preset;
   final void Function(List<PresetPlayer> players) onTap;
@@ -1037,7 +1082,7 @@ class _FavoriteChipsSection extends ConsumerWidget {
   final Set<String> usedColorKeys;
   final Set<String> existingNames;
   final void Function(String name, String colorKey, String avatarStyle)
-      onSelect;
+  onSelect;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

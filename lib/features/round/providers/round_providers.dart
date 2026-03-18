@@ -2,10 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// State for vote entry during a round.
 class VoteEntryState {
-  const VoteEntryState({
-    required this.voterIds,
-    required this.votes,
-  });
+  const VoteEntryState({required this.voterIds, required this.votes});
 
   /// IDs of all non-storyteller players (the voters).
   final List<String> voterIds;
@@ -15,14 +12,13 @@ class VoteEntryState {
 
   /// Whether every voter has cast a vote.
   bool get allVotesCast =>
-      voterIds.isNotEmpty &&
-      voterIds.every((id) => votes[id] != null);
+      voterIds.isNotEmpty && voterIds.every((id) => votes[id] != null);
 
   /// Returns a complete votes map (only non-null entries) for submission.
   Map<String, String> get completedVotes => {
-        for (final entry in votes.entries)
-          if (entry.value != null) entry.key: entry.value!,
-      };
+    for (final entry in votes.entries)
+      if (entry.value != null) entry.key: entry.value!,
+  };
 
   VoteEntryState copyWith({
     List<String>? voterIds,
@@ -66,14 +62,11 @@ class VoteEntryNotifier extends Notifier<VoteEntryState> {
 
   /// Reset all votes.
   void clearAll() {
-    state = state.copyWith(
-      votes: {for (final id in state.voterIds) id: null},
-    );
+    state = state.copyWith(votes: {for (final id in state.voterIds) id: null});
   }
 }
 
 /// Provider for the vote entry notifier.
-final voteEntryProvider =
-    NotifierProvider<VoteEntryNotifier, VoteEntryState>(
+final voteEntryProvider = NotifierProvider<VoteEntryNotifier, VoteEntryState>(
   VoteEntryNotifier.new,
 );

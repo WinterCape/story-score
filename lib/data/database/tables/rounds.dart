@@ -9,8 +9,7 @@ class Rounds extends Table {
   IntColumn get roundNumber => integer()();
   TextColumn get storytellerPlayerId => text().references(Players, #id)();
   TextColumn get note => text().withDefault(const Constant(''))();
-  DateTimeColumn get createdAt =>
-      dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get editedAt => dateTime().nullable()();
 
   @override

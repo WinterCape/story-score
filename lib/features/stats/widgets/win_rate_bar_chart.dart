@@ -7,11 +7,7 @@ import 'package:story_score/shared/extensions/context_extensions.dart';
 
 /// Horizontal bar chart showing win rates for leaderboard entries.
 class WinRateBarChart extends StatelessWidget {
-  const WinRateBarChart({
-    super.key,
-    required this.entries,
-    this.height,
-  });
+  const WinRateBarChart({super.key, required this.entries, this.height});
 
   final List<LeaderboardEntry> entries;
 
@@ -51,10 +47,7 @@ class WinRateBarChart extends StatelessWidget {
                     return BarTooltipItem(
                       '${entry.displayName}\n${(entry.winRate * 100).toStringAsFixed(0)}% '
                       '(${entry.wins}W / ${entry.gamesPlayed}G)',
-                      TextStyle(
-                        color: colors.onSurface,
-                        fontSize: 12,
-                      ),
+                      TextStyle(color: colors.onSurface, fontSize: 12),
                     );
                   },
                 ),

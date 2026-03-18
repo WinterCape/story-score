@@ -129,11 +129,13 @@ abstract final class MilestoneDetector {
     // Milestone: first correct guess ever in this session
     for (final playerId in correctGuessersThisRound) {
       if (!previousCorrectGuessers.contains(playerId)) {
-        results.add(MilestoneResult(
-          milestone: Milestone.firstCorrectGuess,
-          playerId: playerId,
-          playerName: playerNames[playerId] ?? playerId,
-        ));
+        results.add(
+          MilestoneResult(
+            milestone: Milestone.firstCorrectGuess,
+            playerId: playerId,
+            playerName: playerNames[playerId] ?? playerId,
+          ),
+        );
       }
     }
   }
@@ -169,11 +171,13 @@ abstract final class MilestoneDetector {
       }
 
       if (streak >= 3) {
-        results.add(MilestoneResult(
-          milestone: Milestone.onFire,
-          playerId: playerId,
-          playerName: playerNames[playerId] ?? playerId,
-        ));
+        results.add(
+          MilestoneResult(
+            milestone: Milestone.onFire,
+            playerId: playerId,
+            playerName: playerNames[playerId] ?? playerId,
+          ),
+        );
       }
     }
   }
@@ -206,11 +210,13 @@ abstract final class MilestoneDetector {
     }
 
     if (streak >= 3) {
-      results.add(MilestoneResult(
-        milestone: Milestone.masterStoryteller,
-        playerId: storytellerId,
-        playerName: playerNames[storytellerId] ?? storytellerId,
-      ));
+      results.add(
+        MilestoneResult(
+          milestone: Milestone.masterStoryteller,
+          playerId: storytellerId,
+          playerName: playerNames[storytellerId] ?? storytellerId,
+        ),
+      );
     }
   }
 
@@ -230,11 +236,13 @@ abstract final class MilestoneDetector {
 
     for (final entry in votesReceived.entries) {
       if (entry.value >= 3) {
-        results.add(MilestoneResult(
-          milestone: Milestone.trickster,
-          playerId: entry.key,
-          playerName: playerNames[entry.key] ?? entry.key,
-        ));
+        results.add(
+          MilestoneResult(
+            milestone: Milestone.trickster,
+            playerId: entry.key,
+            playerName: playerNames[entry.key] ?? entry.key,
+          ),
+        );
       }
     }
   }

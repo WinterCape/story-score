@@ -50,7 +50,9 @@ class RoundRecapSheet extends StatelessWidget {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: context.colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
+                color: context.colorScheme.onSurfaceVariant.withValues(
+                  alpha: 0.3,
+                ),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -166,10 +168,7 @@ class _PlayerRecapRow extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    player.name,
-                    style: context.textTheme.titleSmall,
-                  ),
+                  Text(player.name, style: context.textTheme.titleSmall),
                   // Reason labels
                   Wrap(
                     spacing: SpacingTokens.sm,

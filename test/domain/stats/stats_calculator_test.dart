@@ -146,9 +146,24 @@ void main() {
       // 3 players, 1 round. Both non-storytellers guess correctly.
       // This is a perfect fail (all guessed), so hasGoodClue = false.
       final players = [
-        const PlayerScore(name: 'A', normalizedName: 'a', finalScore: 0, isWinner: false),
-        const PlayerScore(name: 'B', normalizedName: 'b', finalScore: 2, isWinner: true),
-        const PlayerScore(name: 'C', normalizedName: 'c', finalScore: 2, isWinner: true),
+        const PlayerScore(
+          name: 'A',
+          normalizedName: 'a',
+          finalScore: 0,
+          isWinner: false,
+        ),
+        const PlayerScore(
+          name: 'B',
+          normalizedName: 'b',
+          finalScore: 2,
+          isWinner: true,
+        ),
+        const PlayerScore(
+          name: 'C',
+          normalizedName: 'c',
+          finalScore: 2,
+          isWinner: true,
+        ),
       ];
       final rounds = [
         const RoundData(
@@ -174,9 +189,24 @@ void main() {
       // If nobody votes for storyteller, that's a perfect fail (none guessed).
       // So hasGoodClue = false. All get +2.
       final players = [
-        const PlayerScore(name: 'A', normalizedName: 'a', finalScore: 0, isWinner: false),
-        const PlayerScore(name: 'B', normalizedName: 'b', finalScore: 2, isWinner: true),
-        const PlayerScore(name: 'C', normalizedName: 'c', finalScore: 2, isWinner: true),
+        const PlayerScore(
+          name: 'A',
+          normalizedName: 'a',
+          finalScore: 0,
+          isWinner: false,
+        ),
+        const PlayerScore(
+          name: 'B',
+          normalizedName: 'b',
+          finalScore: 2,
+          isWinner: true,
+        ),
+        const PlayerScore(
+          name: 'C',
+          normalizedName: 'c',
+          finalScore: 2,
+          isWinner: true,
+        ),
       ];
       final rounds = [
         const RoundData(
@@ -198,8 +228,18 @@ void main() {
 
     test('handles MVP tie (picks first with highest score)', () {
       final players = [
-        const PlayerScore(name: 'A', normalizedName: 'a', finalScore: 10, isWinner: true),
-        const PlayerScore(name: 'B', normalizedName: 'b', finalScore: 10, isWinner: true),
+        const PlayerScore(
+          name: 'A',
+          normalizedName: 'a',
+          finalScore: 10,
+          isWinner: true,
+        ),
+        const PlayerScore(
+          name: 'B',
+          normalizedName: 'b',
+          finalScore: 10,
+          isWinner: true,
+        ),
       ];
       final rounds = [
         const RoundData(
@@ -222,7 +262,12 @@ void main() {
 
     test('handles edge case: 0 rounds', () {
       final players = [
-        const PlayerScore(name: 'A', normalizedName: 'a', finalScore: 0, isWinner: false),
+        const PlayerScore(
+          name: 'A',
+          normalizedName: 'a',
+          finalScore: 0,
+          isWinner: false,
+        ),
       ];
 
       final stats = StatsCalculator.computeSessionStats(
@@ -239,9 +284,24 @@ void main() {
 
     test('handles single round game', () {
       final players = [
-        const PlayerScore(name: 'A', normalizedName: 'a', finalScore: 3, isWinner: true),
-        const PlayerScore(name: 'B', normalizedName: 'b', finalScore: 3, isWinner: true),
-        const PlayerScore(name: 'C', normalizedName: 'c', finalScore: 0, isWinner: false),
+        const PlayerScore(
+          name: 'A',
+          normalizedName: 'a',
+          finalScore: 3,
+          isWinner: true,
+        ),
+        const PlayerScore(
+          name: 'B',
+          normalizedName: 'b',
+          finalScore: 3,
+          isWinner: true,
+        ),
+        const PlayerScore(
+          name: 'C',
+          normalizedName: 'c',
+          finalScore: 0,
+          isWinner: false,
+        ),
       ];
       final rounds = [
         const RoundData(
@@ -269,8 +329,18 @@ void main() {
         CompletedGameData(
           sessionId: 'g1',
           players: [
-            const PlayerScore(name: 'Alice', normalizedName: 'alice', finalScore: 20, isWinner: true),
-            const PlayerScore(name: 'Bob', normalizedName: 'bob', finalScore: 15, isWinner: false),
+            const PlayerScore(
+              name: 'Alice',
+              normalizedName: 'alice',
+              finalScore: 20,
+              isWinner: true,
+            ),
+            const PlayerScore(
+              name: 'Bob',
+              normalizedName: 'bob',
+              finalScore: 15,
+              isWinner: false,
+            ),
           ],
           rounds: [],
           createdAt: DateTime(2024, 1, 1),
@@ -278,8 +348,18 @@ void main() {
         CompletedGameData(
           sessionId: 'g2',
           players: [
-            const PlayerScore(name: 'Alice', normalizedName: 'alice', finalScore: 10, isWinner: false),
-            const PlayerScore(name: 'Bob', normalizedName: 'bob', finalScore: 18, isWinner: true),
+            const PlayerScore(
+              name: 'Alice',
+              normalizedName: 'alice',
+              finalScore: 10,
+              isWinner: false,
+            ),
+            const PlayerScore(
+              name: 'Bob',
+              normalizedName: 'bob',
+              finalScore: 18,
+              isWinner: true,
+            ),
           ],
           rounds: [],
           createdAt: DateTime(2024, 1, 2),
@@ -287,8 +367,18 @@ void main() {
         CompletedGameData(
           sessionId: 'g3',
           players: [
-            const PlayerScore(name: 'Alice', normalizedName: 'alice', finalScore: 25, isWinner: true),
-            const PlayerScore(name: 'Bob', normalizedName: 'bob', finalScore: 12, isWinner: false),
+            const PlayerScore(
+              name: 'Alice',
+              normalizedName: 'alice',
+              finalScore: 25,
+              isWinner: true,
+            ),
+            const PlayerScore(
+              name: 'Bob',
+              normalizedName: 'bob',
+              finalScore: 12,
+              isWinner: false,
+            ),
           ],
           rounds: [],
           createdAt: DateTime(2024, 1, 3),
@@ -369,9 +459,7 @@ void main() {
     });
 
     test('handles player not in any game', () {
-      final games = [
-        _makeGame('g1', 'bob', 20, true, DateTime(2024, 1, 1)),
-      ];
+      final games = [_makeGame('g1', 'bob', 20, true, DateTime(2024, 1, 1))];
 
       final stats = StatsCalculator.computePlayerAllTimeStats(
         normalizedName: 'alice',
@@ -388,8 +476,18 @@ void main() {
         CompletedGameData(
           sessionId: 'g1',
           players: [
-            const PlayerScore(name: 'Alice', normalizedName: 'alice', finalScore: 20, isWinner: true),
-            const PlayerScore(name: 'Bob', normalizedName: 'bob', finalScore: 15, isWinner: false),
+            const PlayerScore(
+              name: 'Alice',
+              normalizedName: 'alice',
+              finalScore: 20,
+              isWinner: true,
+            ),
+            const PlayerScore(
+              name: 'Bob',
+              normalizedName: 'bob',
+              finalScore: 15,
+              isWinner: false,
+            ),
           ],
           rounds: [],
           createdAt: DateTime(2024, 1, 1),
@@ -397,8 +495,18 @@ void main() {
         CompletedGameData(
           sessionId: 'g2',
           players: [
-            const PlayerScore(name: 'Alice', normalizedName: 'alice', finalScore: 10, isWinner: false),
-            const PlayerScore(name: 'Bob', normalizedName: 'bob', finalScore: 18, isWinner: true),
+            const PlayerScore(
+              name: 'Alice',
+              normalizedName: 'alice',
+              finalScore: 10,
+              isWinner: false,
+            ),
+            const PlayerScore(
+              name: 'Bob',
+              normalizedName: 'bob',
+              finalScore: 18,
+              isWinner: true,
+            ),
           ],
           rounds: [],
           createdAt: DateTime(2024, 1, 2),
@@ -406,8 +514,18 @@ void main() {
         CompletedGameData(
           sessionId: 'g3',
           players: [
-            const PlayerScore(name: 'Alice', normalizedName: 'alice', finalScore: 15, isWinner: false),
-            const PlayerScore(name: 'Bob', normalizedName: 'bob', finalScore: 15, isWinner: false),
+            const PlayerScore(
+              name: 'Alice',
+              normalizedName: 'alice',
+              finalScore: 15,
+              isWinner: false,
+            ),
+            const PlayerScore(
+              name: 'Bob',
+              normalizedName: 'bob',
+              finalScore: 15,
+              isWinner: false,
+            ),
           ],
           rounds: [],
           createdAt: DateTime(2024, 1, 3),
@@ -415,8 +533,18 @@ void main() {
         CompletedGameData(
           sessionId: 'g4',
           players: [
-            const PlayerScore(name: 'Alice', normalizedName: 'alice', finalScore: 25, isWinner: true),
-            const PlayerScore(name: 'Bob', normalizedName: 'bob', finalScore: 12, isWinner: false),
+            const PlayerScore(
+              name: 'Alice',
+              normalizedName: 'alice',
+              finalScore: 25,
+              isWinner: true,
+            ),
+            const PlayerScore(
+              name: 'Bob',
+              normalizedName: 'bob',
+              finalScore: 12,
+              isWinner: false,
+            ),
           ],
           rounds: [],
           createdAt: DateTime(2024, 1, 4),
@@ -424,8 +552,18 @@ void main() {
         CompletedGameData(
           sessionId: 'g5',
           players: [
-            const PlayerScore(name: 'Alice', normalizedName: 'alice', finalScore: 22, isWinner: true),
-            const PlayerScore(name: 'Bob', normalizedName: 'bob', finalScore: 20, isWinner: false),
+            const PlayerScore(
+              name: 'Alice',
+              normalizedName: 'alice',
+              finalScore: 22,
+              isWinner: true,
+            ),
+            const PlayerScore(
+              name: 'Bob',
+              normalizedName: 'bob',
+              finalScore: 20,
+              isWinner: false,
+            ),
           ],
           rounds: [],
           createdAt: DateTime(2024, 1, 5),
@@ -462,8 +600,18 @@ void main() {
         CompletedGameData(
           sessionId: 'g1',
           players: [
-            const PlayerScore(name: 'Alice', normalizedName: 'alice', finalScore: 20, isWinner: true),
-            const PlayerScore(name: 'Carol', normalizedName: 'carol', finalScore: 15, isWinner: false),
+            const PlayerScore(
+              name: 'Alice',
+              normalizedName: 'alice',
+              finalScore: 20,
+              isWinner: true,
+            ),
+            const PlayerScore(
+              name: 'Carol',
+              normalizedName: 'carol',
+              finalScore: 15,
+              isWinner: false,
+            ),
           ],
           rounds: [],
           createdAt: DateTime(2024, 1, 1),
@@ -485,28 +633,93 @@ void main() {
       final games = [
         // Alice plays 3 games, wins 2
         _makeGameMulti('g1', [
-          const PlayerScore(name: 'Alice', normalizedName: 'alice', finalScore: 20, isWinner: true),
-          const PlayerScore(name: 'Bob', normalizedName: 'bob', finalScore: 15, isWinner: false),
-          const PlayerScore(name: 'Carol', normalizedName: 'carol', finalScore: 10, isWinner: false),
+          const PlayerScore(
+            name: 'Alice',
+            normalizedName: 'alice',
+            finalScore: 20,
+            isWinner: true,
+          ),
+          const PlayerScore(
+            name: 'Bob',
+            normalizedName: 'bob',
+            finalScore: 15,
+            isWinner: false,
+          ),
+          const PlayerScore(
+            name: 'Carol',
+            normalizedName: 'carol',
+            finalScore: 10,
+            isWinner: false,
+          ),
         ], DateTime(2024, 1, 1)),
         _makeGameMulti('g2', [
-          const PlayerScore(name: 'Alice', normalizedName: 'alice', finalScore: 18, isWinner: true),
-          const PlayerScore(name: 'Bob', normalizedName: 'bob', finalScore: 12, isWinner: false),
-          const PlayerScore(name: 'Carol', normalizedName: 'carol', finalScore: 22, isWinner: false),
+          const PlayerScore(
+            name: 'Alice',
+            normalizedName: 'alice',
+            finalScore: 18,
+            isWinner: true,
+          ),
+          const PlayerScore(
+            name: 'Bob',
+            normalizedName: 'bob',
+            finalScore: 12,
+            isWinner: false,
+          ),
+          const PlayerScore(
+            name: 'Carol',
+            normalizedName: 'carol',
+            finalScore: 22,
+            isWinner: false,
+          ),
         ], DateTime(2024, 1, 2)),
         _makeGameMulti('g3', [
-          const PlayerScore(name: 'Alice', normalizedName: 'alice', finalScore: 10, isWinner: false),
-          const PlayerScore(name: 'Bob', normalizedName: 'bob', finalScore: 25, isWinner: true),
-          const PlayerScore(name: 'Carol', normalizedName: 'carol', finalScore: 20, isWinner: false),
+          const PlayerScore(
+            name: 'Alice',
+            normalizedName: 'alice',
+            finalScore: 10,
+            isWinner: false,
+          ),
+          const PlayerScore(
+            name: 'Bob',
+            normalizedName: 'bob',
+            finalScore: 25,
+            isWinner: true,
+          ),
+          const PlayerScore(
+            name: 'Carol',
+            normalizedName: 'carol',
+            finalScore: 20,
+            isWinner: false,
+          ),
         ], DateTime(2024, 1, 3)),
         // Dave only plays 2 games (below minGames=3)
         _makeGameMulti('g4', [
-          const PlayerScore(name: 'Dave', normalizedName: 'dave', finalScore: 30, isWinner: true),
-          const PlayerScore(name: 'Bob', normalizedName: 'bob', finalScore: 10, isWinner: false),
+          const PlayerScore(
+            name: 'Dave',
+            normalizedName: 'dave',
+            finalScore: 30,
+            isWinner: true,
+          ),
+          const PlayerScore(
+            name: 'Bob',
+            normalizedName: 'bob',
+            finalScore: 10,
+            isWinner: false,
+          ),
         ], DateTime(2024, 1, 4)),
         _makeGameMulti('g5', [
-          const PlayerScore(name: 'Dave', normalizedName: 'dave', finalScore: 28, isWinner: true),
-          const PlayerScore(name: 'Carol', normalizedName: 'carol', finalScore: 12, isWinner: false),
+          const PlayerScore(
+            name: 'Dave',
+            normalizedName: 'dave',
+            finalScore: 28,
+            isWinner: true,
+          ),
+          const PlayerScore(
+            name: 'Carol',
+            normalizedName: 'carol',
+            finalScore: 12,
+            isWinner: false,
+          ),
         ], DateTime(2024, 1, 5)),
       ];
 
@@ -536,9 +749,7 @@ void main() {
     });
 
     test('returns empty list when no players meet min games', () {
-      final games = [
-        _makeGame('g1', 'alice', 20, true, DateTime(2024, 1, 1)),
-      ];
+      final games = [_makeGame('g1', 'alice', 20, true, DateTime(2024, 1, 1))];
 
       final leaderboard = StatsCalculator.computeLeaderboard(
         allGames: games,
@@ -549,9 +760,7 @@ void main() {
     });
 
     test('uses minGames=1 to include all players', () {
-      final games = [
-        _makeGame('g1', 'alice', 20, true, DateTime(2024, 1, 1)),
-      ];
+      final games = [_makeGame('g1', 'alice', 20, true, DateTime(2024, 1, 1))];
 
       final leaderboard = StatsCalculator.computeLeaderboard(
         allGames: games,
@@ -574,16 +783,46 @@ void main() {
     test('breaks win rate ties by total points', () {
       final games = [
         _makeGameMulti('g1', [
-          const PlayerScore(name: 'Alice', normalizedName: 'alice', finalScore: 30, isWinner: true),
-          const PlayerScore(name: 'Bob', normalizedName: 'bob', finalScore: 20, isWinner: false),
+          const PlayerScore(
+            name: 'Alice',
+            normalizedName: 'alice',
+            finalScore: 30,
+            isWinner: true,
+          ),
+          const PlayerScore(
+            name: 'Bob',
+            normalizedName: 'bob',
+            finalScore: 20,
+            isWinner: false,
+          ),
         ], DateTime(2024, 1, 1)),
         _makeGameMulti('g2', [
-          const PlayerScore(name: 'Alice', normalizedName: 'alice', finalScore: 10, isWinner: false),
-          const PlayerScore(name: 'Bob', normalizedName: 'bob', finalScore: 25, isWinner: true),
+          const PlayerScore(
+            name: 'Alice',
+            normalizedName: 'alice',
+            finalScore: 10,
+            isWinner: false,
+          ),
+          const PlayerScore(
+            name: 'Bob',
+            normalizedName: 'bob',
+            finalScore: 25,
+            isWinner: true,
+          ),
         ], DateTime(2024, 1, 2)),
         _makeGameMulti('g3', [
-          const PlayerScore(name: 'Alice', normalizedName: 'alice', finalScore: 20, isWinner: true),
-          const PlayerScore(name: 'Bob', normalizedName: 'bob', finalScore: 15, isWinner: false),
+          const PlayerScore(
+            name: 'Alice',
+            normalizedName: 'alice',
+            finalScore: 20,
+            isWinner: true,
+          ),
+          const PlayerScore(
+            name: 'Bob',
+            normalizedName: 'bob',
+            finalScore: 15,
+            isWinner: false,
+          ),
         ], DateTime(2024, 1, 3)),
       ];
 

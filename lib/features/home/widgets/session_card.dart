@@ -36,14 +36,13 @@ class SessionCard extends ConsumerWidget {
       _ => 0,
     };
 
-    final title =
-        session.title.isNotEmpty ? session.title : 'Untitled Game';
+    final title = session.title.isNotEmpty ? session.title : 'Untitled Game';
 
     final accentColor = isActive
         ? storyTheme.goldAccent
         : isPaused
-            ? ColorTokens.auroraTeal
-            : colors.onSurfaceVariant;
+        ? ColorTokens.auroraTeal
+        : colors.onSurfaceVariant;
 
     final statusLabel = switch (session.status) {
       GameStatus.active => 'active',
@@ -57,114 +56,116 @@ class SessionCard extends ConsumerWidget {
       button: true,
       excludeSemantics: true,
       child: Dismissible(
-      key: ValueKey(session.id),
-      direction: DismissDirection.endToStart,
-      onDismissed: (_) => onDismissed(),
-      confirmDismiss: (_) => _confirmDelete(context),
-      background: Container(
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: SpacingTokens.lg),
-        decoration: BoxDecoration(
-          color: colors.error,
-          borderRadius: BorderRadius.circular(SpacingTokens.radiusLg),
+        key: ValueKey(session.id),
+        direction: DismissDirection.endToStart,
+        onDismissed: (_) => onDismissed(),
+        confirmDismiss: (_) => _confirmDelete(context),
+        background: Container(
+          alignment: Alignment.centerRight,
+          padding: const EdgeInsets.only(right: SpacingTokens.lg),
+          decoration: BoxDecoration(
+            color: colors.error,
+            borderRadius: BorderRadius.circular(SpacingTokens.radiusLg),
+          ),
+          child: Icon(Icons.delete_outline_rounded, color: colors.onError),
         ),
-        child: Icon(Icons.delete_outline_rounded, color: colors.onError),
-      ),
-      child: Card(
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(SpacingTokens.radiusLg),
-          child: Container(
-            decoration: BoxDecoration(
-              border: isActive
-                  ? Border(
-                      left: BorderSide(
-                        color: storyTheme.goldAccent,
-                        width: 3,
-                      ),
-                    )
-                  : null,
-            ),
-            padding: const EdgeInsets.all(SpacingTokens.md),
-            child: Row(
-              children: [
-                // Left: session info
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Title row
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              title,
-                              style: text.titleMedium
-                                  ?.copyWith(color: colors.onSurface),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          const SizedBox(width: SpacingTokens.sm),
-                          _StatusBadge(
-                            status: session.status,
-                            accentColor: accentColor,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: SpacingTokens.xs),
-
-                      // Metadata row
-                      DefaultTextStyle(
-                        style: text.bodySmall!
-                            .copyWith(color: colors.onSurfaceVariant),
-                        child: Row(
+        child: Card(
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(SpacingTokens.radiusLg),
+            child: Container(
+              decoration: BoxDecoration(
+                border: isActive
+                    ? Border(
+                        left: BorderSide(
+                          color: storyTheme.goldAccent,
+                          width: 3,
+                        ),
+                      )
+                    : null,
+              ),
+              padding: const EdgeInsets.all(SpacingTokens.md),
+              child: Row(
+                children: [
+                  // Left: session info
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Title row
+                        Row(
                           children: [
-                            Icon(
-                              Icons.people_outline_rounded,
-                              size: 14,
-                              color: colors.onSurfaceVariant,
+                            Expanded(
+                              child: Text(
+                                title,
+                                style: text.titleMedium?.copyWith(
+                                  color: colors.onSurface,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
-                            const SizedBox(width: 4),
-                            Text('$playerCount'),
-                            const SizedBox(width: SpacingTokens.md),
-                            Icon(
-                              Icons.loop_rounded,
-                              size: 14,
-                              color: colors.onSurfaceVariant,
+                            const SizedBox(width: SpacingTokens.sm),
+                            _StatusBadge(
+                              status: session.status,
+                              accentColor: accentColor,
                             ),
-                            const SizedBox(width: 4),
-                            Text('Round ${session.roundCount}'),
-                            const SizedBox(width: SpacingTokens.md),
-                            Icon(
-                              Icons.calendar_today_outlined,
-                              size: 14,
-                              color: colors.onSurfaceVariant,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(_formatDate(session.updatedAt)),
                           ],
                         ),
-                      ),
-                    ],
-                  ),
-                ),
+                        const SizedBox(height: SpacingTokens.xs),
 
-                // Right chevron
-                if (!isCompleted)
-                  Padding(
-                    padding: const EdgeInsets.only(left: SpacingTokens.sm),
-                    child: Icon(
-                      Icons.chevron_right_rounded,
-                      color: colors.onSurfaceVariant,
+                        // Metadata row
+                        DefaultTextStyle(
+                          style: text.bodySmall!.copyWith(
+                            color: colors.onSurfaceVariant,
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.people_outline_rounded,
+                                size: 14,
+                                color: colors.onSurfaceVariant,
+                              ),
+                              const SizedBox(width: 4),
+                              Text('$playerCount'),
+                              const SizedBox(width: SpacingTokens.md),
+                              Icon(
+                                Icons.loop_rounded,
+                                size: 14,
+                                color: colors.onSurfaceVariant,
+                              ),
+                              const SizedBox(width: 4),
+                              Text('Round ${session.roundCount}'),
+                              const SizedBox(width: SpacingTokens.md),
+                              Icon(
+                                Icons.calendar_today_outlined,
+                                size: 14,
+                                color: colors.onSurfaceVariant,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(_formatDate(session.updatedAt)),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-              ],
+
+                  // Right chevron
+                  if (!isCompleted)
+                    Padding(
+                      padding: const EdgeInsets.only(left: SpacingTokens.sm),
+                      child: Icon(
+                        Icons.chevron_right_rounded,
+                        color: colors.onSurfaceVariant,
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
         ),
-      ),
       ),
     );
   }
@@ -208,10 +209,7 @@ class SessionCard extends ConsumerWidget {
 }
 
 class _StatusBadge extends StatelessWidget {
-  const _StatusBadge({
-    required this.status,
-    required this.accentColor,
-  });
+  const _StatusBadge({required this.status, required this.accentColor});
 
   final GameStatus status;
   final Color accentColor;
@@ -247,9 +245,9 @@ class _StatusBadge extends StatelessWidget {
           Text(
             label,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: accentColor,
-                  fontWeight: FontWeight.w600,
-                ),
+              color: accentColor,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
       ),

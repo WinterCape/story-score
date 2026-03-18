@@ -60,10 +60,7 @@ class PresetManagementScreen extends ConsumerWidget {
               color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
             ),
             const SizedBox(height: SpacingTokens.lg),
-            Text(
-              'Player Presets',
-              style: textTheme.titleLarge,
-            ),
+            Text('Player Presets', style: textTheme.titleLarge),
             const SizedBox(height: SpacingTokens.sm),
             Text(
               'Save your favorite player groups for quick game setup. '
@@ -130,10 +127,7 @@ class PresetManagementScreen extends ConsumerWidget {
               color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
             ),
             const SizedBox(height: SpacingTokens.lg),
-            Text(
-              'No presets yet',
-              style: textTheme.titleMedium,
-            ),
+            Text('No presets yet', style: textTheme.titleMedium),
             const SizedBox(height: SpacingTokens.sm),
             Text(
               'Create a preset to quickly start games with your usual group.',
@@ -199,17 +193,13 @@ class PresetManagementScreen extends ConsumerWidget {
           seatOrder: i,
         );
       });
-      await dao.createPreset(
-        id: presetId,
-        name: name,
-        players: defaultPlayers,
-      );
+      await dao.createPreset(id: presetId, name: name, players: defaultPlayers);
       Haptics.selection();
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to create preset: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to create preset: $e')));
       }
     }
   }
@@ -264,9 +254,9 @@ class PresetManagementScreen extends ConsumerWidget {
     await dao.deletePreset(preset.id);
 
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Deleted "${preset.name}"')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Deleted "${preset.name}"')));
     }
   }
 }

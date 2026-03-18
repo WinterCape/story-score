@@ -124,10 +124,6 @@ class SessionImporter {
       return ImportResult(errors: errors, warnings: warnings);
     }
 
-    return ImportResult(
-      session: session,
-      errors: errors,
-      warnings: warnings,
-    );
+    return ImportResult(session: session, errors: errors, warnings: warnings);
   }
 }

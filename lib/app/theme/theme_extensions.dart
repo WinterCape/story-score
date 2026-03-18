@@ -54,10 +54,7 @@ class StoryScoreThemeExtension
     cardGradient: LinearGradient(
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
-      colors: [
-        ColorTokens.darkSurface,
-        ColorTokens.darkSurfaceVariant,
-      ],
+      colors: [ColorTokens.darkSurface, ColorTokens.darkSurfaceVariant],
     ),
     playerColors: ColorTokens.playerColorsByName,
   );
@@ -78,10 +75,7 @@ class StoryScoreThemeExtension
     cardGradient: LinearGradient(
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
-      colors: [
-        ColorTokens.lightSurface,
-        ColorTokens.lightSurfaceVariant,
-      ],
+      colors: [ColorTokens.lightSurface, ColorTokens.lightSurfaceVariant],
     ),
     playerColors: ColorTokens.playerColorsByName,
   );
@@ -119,10 +113,12 @@ class StoryScoreThemeExtension
       goldAccent: Color.lerp(goldAccent, other.goldAccent, t)!,
       auroraTeal: Color.lerp(auroraTeal, other.auroraTeal, t)!,
       softViolet: Color.lerp(softViolet, other.softViolet, t)!,
-      auroraGradient:
-          LinearGradient.lerp(auroraGradient, other.auroraGradient, t)!,
-      cardGradient:
-          LinearGradient.lerp(cardGradient, other.cardGradient, t)!,
+      auroraGradient: LinearGradient.lerp(
+        auroraGradient,
+        other.auroraGradient,
+        t,
+      )!,
+      cardGradient: LinearGradient.lerp(cardGradient, other.cardGradient, t)!,
       // Colors are discrete — snap at the midpoint.
       playerColors: t < 0.5 ? playerColors : other.playerColors,
     );

@@ -45,8 +45,9 @@ class EmptyState extends StatelessWidget {
               const SizedBox(height: SpacingTokens.sm),
               Text(
                 subtitle!,
-                style:
-                    text.bodyMedium?.copyWith(color: colors.onSurfaceVariant),
+                style: text.bodyMedium?.copyWith(
+                  color: colors.onSurfaceVariant,
+                ),
                 textAlign: TextAlign.center,
               ),
             ],

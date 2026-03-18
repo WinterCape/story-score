@@ -38,10 +38,7 @@ class _ConfettiOverlayState extends State<ConfettiOverlay>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: widget.duration,
-    );
+    _controller = AnimationController(vsync: this, duration: widget.duration);
 
     _particles = _generateParticles();
 
@@ -65,7 +62,9 @@ class _ConfettiOverlayState extends State<ConfettiOverlay>
       return _Particle(
         // Start position: full width, start from top or bottom based on theme
         startX: _random.nextDouble(),
-        startY: config.risesUp ? 1.0 + _random.nextDouble() * 0.2 : -_random.nextDouble() * 0.2,
+        startY: config.risesUp
+            ? 1.0 + _random.nextDouble() * 0.2
+            : -_random.nextDouble() * 0.2,
         // Velocity
         velocityX: (_random.nextDouble() - 0.5) * config.horizontalDrift,
         velocityY: config.risesUp
@@ -74,7 +73,9 @@ class _ConfettiOverlayState extends State<ConfettiOverlay>
         // Visual
         rotation: _random.nextDouble() * 2 * pi,
         rotationSpeed: (_random.nextDouble() - 0.5) * 4.0,
-        size: config.minSize + _random.nextDouble() * (config.maxSize - config.minSize),
+        size:
+            config.minSize +
+            _random.nextDouble() * (config.maxSize - config.minSize),
         color: color,
         shape: shape,
         // Fade out in the last 30% of animation
@@ -136,72 +137,72 @@ class _ParticleConfig {
   factory _ParticleConfig.fromTheme(ParticleTheme theme) {
     return switch (theme) {
       ParticleTheme.celestialStars => const _ParticleConfig(
-          colors: [
-            Color(0xFFD4A742), // gold
-            Color(0xFFE8C876), // light gold
-            Color(0xFFFFFFFF), // white
-            Color(0xFFFFF8DC), // cornsilk
-          ],
-          shapes: [_ParticleShape.star, _ParticleShape.circle],
-          fallSpeed: 0.4,
-          horizontalDrift: 0.2,
-          minSize: 5.0,
-          maxSize: 12.0,
-        ),
+        colors: [
+          Color(0xFFD4A742), // gold
+          Color(0xFFE8C876), // light gold
+          Color(0xFFFFFFFF), // white
+          Color(0xFFFFF8DC), // cornsilk
+        ],
+        shapes: [_ParticleShape.star, _ParticleShape.circle],
+        fallSpeed: 0.4,
+        horizontalDrift: 0.2,
+        minSize: 5.0,
+        maxSize: 12.0,
+      ),
       ParticleTheme.oceanBubbles => const _ParticleConfig(
-          colors: [
-            Color(0xFF3B82F6), // ocean blue
-            Color(0xFF60A5FA), // light blue
-            Color(0xFF93C5FD), // lighter blue
-            Color(0xFFBFDBFE), // pale blue
-          ],
-          shapes: [_ParticleShape.circle],
-          risesUp: true,
-          fallSpeed: 0.3,
-          horizontalDrift: 0.15,
-          minSize: 4.0,
-          maxSize: 14.0,
-        ),
+        colors: [
+          Color(0xFF3B82F6), // ocean blue
+          Color(0xFF60A5FA), // light blue
+          Color(0xFF93C5FD), // lighter blue
+          Color(0xFFBFDBFE), // pale blue
+        ],
+        shapes: [_ParticleShape.circle],
+        risesUp: true,
+        fallSpeed: 0.3,
+        horizontalDrift: 0.15,
+        minSize: 4.0,
+        maxSize: 14.0,
+      ),
       ParticleTheme.emberSparks => const _ParticleConfig(
-          colors: [
-            Color(0xFFFB923C), // orange
-            Color(0xFFEF4444), // red
-            Color(0xFFF59E0B), // amber
-            Color(0xFFFF6B6B), // coral
-          ],
-          shapes: [_ParticleShape.circle, _ParticleShape.rect],
-          risesUp: true,
-          fallSpeed: 0.35,
-          horizontalDrift: 0.4,
-          minSize: 2.0,
-          maxSize: 6.0,
-        ),
+        colors: [
+          Color(0xFFFB923C), // orange
+          Color(0xFFEF4444), // red
+          Color(0xFFF59E0B), // amber
+          Color(0xFFFF6B6B), // coral
+        ],
+        shapes: [_ParticleShape.circle, _ParticleShape.rect],
+        risesUp: true,
+        fallSpeed: 0.35,
+        horizontalDrift: 0.4,
+        minSize: 2.0,
+        maxSize: 6.0,
+      ),
       ParticleTheme.frostSnowflakes => const _ParticleConfig(
-          colors: [
-            Color(0xFFFFFFFF), // white
-            Color(0xFFE0F2FE), // ice blue
-            Color(0xFFF0F9FF), // pale ice
-            Color(0xFFBAE6FD), // sky blue
-          ],
-          shapes: [_ParticleShape.hexagon, _ParticleShape.circle],
-          fallSpeed: 0.2,
-          horizontalDrift: 0.25,
-          minSize: 5.0,
-          maxSize: 12.0,
-        ),
+        colors: [
+          Color(0xFFFFFFFF), // white
+          Color(0xFFE0F2FE), // ice blue
+          Color(0xFFF0F9FF), // pale ice
+          Color(0xFFBAE6FD), // sky blue
+        ],
+        shapes: [_ParticleShape.hexagon, _ParticleShape.circle],
+        fallSpeed: 0.2,
+        horizontalDrift: 0.25,
+        minSize: 5.0,
+        maxSize: 12.0,
+      ),
       ParticleTheme.forestLeaves => const _ParticleConfig(
-          colors: [
-            Color(0xFF4ADE80), // green
-            Color(0xFFF59E0B), // amber
-            Color(0xFF86EFAC), // light green
-            Color(0xFFD97706), // dark amber
-          ],
-          shapes: [_ParticleShape.leaf, _ParticleShape.rect],
-          fallSpeed: 0.3,
-          horizontalDrift: 0.35,
-          minSize: 6.0,
-          maxSize: 14.0,
-        ),
+        colors: [
+          Color(0xFF4ADE80), // green
+          Color(0xFFF59E0B), // amber
+          Color(0xFF86EFAC), // light green
+          Color(0xFFD97706), // dark amber
+        ],
+        shapes: [_ParticleShape.leaf, _ParticleShape.rect],
+        fallSpeed: 0.3,
+        horizontalDrift: 0.35,
+        minSize: 6.0,
+        maxSize: 14.0,
+      ),
     };
   }
 }
@@ -254,10 +255,7 @@ class _ConfettiPainter extends CustomPainter {
   final List<_Particle> particles;
   final double progress;
 
-  _ConfettiPainter({
-    required this.particles,
-    required this.progress,
-  });
+  _ConfettiPainter({required this.particles, required this.progress});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -345,14 +343,20 @@ class _ConfettiPainter extends CustomPainter {
     // Simple leaf shape using cubic bezier curves
     path.moveTo(0, -radius);
     path.cubicTo(
-      radius * 0.8, -radius * 0.5,
-      radius * 0.8, radius * 0.5,
-      0, radius,
+      radius * 0.8,
+      -radius * 0.5,
+      radius * 0.8,
+      radius * 0.5,
+      0,
+      radius,
     );
     path.cubicTo(
-      -radius * 0.8, radius * 0.5,
-      -radius * 0.8, -radius * 0.5,
-      0, -radius,
+      -radius * 0.8,
+      radius * 0.5,
+      -radius * 0.8,
+      -radius * 0.5,
+      0,
+      -radius,
     );
     path.close();
     canvas.drawPath(path, paint);

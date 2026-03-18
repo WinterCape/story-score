@@ -44,17 +44,15 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
   Widget build(BuildContext context) {
     final sessionAsync = ref.watch(sessionProvider(widget.sessionId));
     final playersAsync = ref.watch(playersProvider(widget.sessionId));
-    final storytellerAsync =
-        ref.watch(currentStorytellerProvider(widget.sessionId));
+    final storytellerAsync = ref.watch(
+      currentStorytellerProvider(widget.sessionId),
+    );
     final voteState = ref.watch(voteEntryProvider);
 
     return sessionAsync.when(
-      loading: () => const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      ),
-      error: (e, st) => Scaffold(
-        body: Center(child: Text('Error: $e')),
-      ),
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
+      error: (e, st) => Scaffold(body: Center(child: Text('Error: $e'))),
       data: (session) {
         if (session == null) {
           return Scaffold(
@@ -68,12 +66,9 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
         }
 
         return playersAsync.when(
-          loading: () => const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          ),
-          error: (e, st) => Scaffold(
-            body: Center(child: Text('Error: $e')),
-          ),
+          loading: () =>
+              const Scaffold(body: Center(child: CircularProgressIndicator())),
+          error: (e, st) => Scaffold(body: Center(child: Text('Error: $e'))),
           data: (players) {
             final storyteller = storytellerAsync.value;
 
@@ -103,8 +98,9 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
               _initialized = true;
             }
 
-            final nonStorytellerPlayers =
-                players.where((p) => p.id != storyteller.id).toList();
+            final nonStorytellerPlayers = players
+                .where((p) => p.id != storyteller.id)
+                .toList();
 
             return Scaffold(
               body: Center(
@@ -113,103 +109,100 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
                     maxWidth: context.isTablet ? 600 : double.infinity,
                   ),
                   child: CustomScrollView(
-                slivers: [
-                  // Header
-                  SliverToBoxAdapter(
-                    child: _RoundHeader(
-                      session: session,
-                      storyteller: storyteller,
-                    ),
-                  ),
-
-                  // Optional note field
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: SpacingTokens.md,
-                        vertical: SpacingTokens.sm,
+                    slivers: [
+                      // Header
+                      SliverToBoxAdapter(
+                        child: _RoundHeader(
+                          session: session,
+                          storyteller: storyteller,
+                        ),
                       ),
-                      child: TextField(
-                        controller: _noteController,
-                        decoration: InputDecoration(
-                          hintText: 'Round note (optional)',
-                          prefixIcon: const Icon(Icons.note_alt_outlined,
-                              size: 20),
-                          isDense: true,
-                          contentPadding: const EdgeInsets.symmetric(
+
+                      // Optional note field
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
                             horizontal: SpacingTokens.md,
                             vertical: SpacingTokens.sm,
                           ),
+                          child: TextField(
+                            controller: _noteController,
+                            decoration: InputDecoration(
+                              hintText: 'Round note (optional)',
+                              prefixIcon: const Icon(
+                                Icons.note_alt_outlined,
+                                size: 20,
+                              ),
+                              isDense: true,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: SpacingTokens.md,
+                                vertical: SpacingTokens.sm,
+                              ),
+                            ),
+                            textInputAction: TextInputAction.done,
+                            maxLines: 1,
+                          ),
                         ),
-                        textInputAction: TextInputAction.done,
-                        maxLines: 1,
                       ),
-                    ),
-                  ),
 
-                  // Instruction
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: SpacingTokens.md,
-                        vertical: SpacingTokens.sm,
-                      ),
-                      child: Text(
-                        'Who did each player vote for?',
-                        style: context.textTheme.titleSmall?.copyWith(
-                          color: context.colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  // Voter rows
-                  SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        final voter = nonStorytellerPlayers[index];
-                        // Targets: all players except the voter themselves.
-                        // The storyteller IS a valid target (players vote
-                        // for the card they think is the storyteller's).
-                        // Players just cannot vote for their own card.
-                        final targets = players
-                            .where((p) => p.id != voter.id)
-                            .toList();
-
-                        return Padding(
+                      // Instruction
+                      SliverToBoxAdapter(
+                        child: Padding(
                           padding: const EdgeInsets.symmetric(
                             horizontal: SpacingTokens.md,
+                            vertical: SpacingTokens.sm,
                           ),
-                          child: VoterCardGrid(
-                            voter: voter,
-                            targets: targets,
-                            selectedTargetId: voteState.votes[voter.id],
-                            onTargetSelected: (targetId) {
-                              Haptics.selection();
-                              // Toggle: tap again to deselect
-                              if (voteState.votes[voter.id] == targetId) {
-                                ref
-                                    .read(voteEntryProvider.notifier)
-                                    .clearVote(voter.id);
-                              } else {
-                                ref
-                                    .read(voteEntryProvider.notifier)
-                                    .setVote(voter.id, targetId);
-                              }
-                            },
+                          child: Text(
+                            'Who did each player vote for?',
+                            style: context.textTheme.titleSmall?.copyWith(
+                              color: context.colorScheme.onSurfaceVariant,
+                            ),
                           ),
-                        );
-                      },
-                      childCount: nonStorytellerPlayers.length,
-                    ),
-                  ),
+                        ),
+                      ),
 
-                  // Bottom padding for the button
-                  const SliverToBoxAdapter(
-                    child: SizedBox(height: 100),
+                      // Voter rows
+                      SliverList(
+                        delegate: SliverChildBuilderDelegate((context, index) {
+                          final voter = nonStorytellerPlayers[index];
+                          // Targets: all players except the voter themselves.
+                          // The storyteller IS a valid target (players vote
+                          // for the card they think is the storyteller's).
+                          // Players just cannot vote for their own card.
+                          final targets = players
+                              .where((p) => p.id != voter.id)
+                              .toList();
+
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: SpacingTokens.md,
+                            ),
+                            child: VoterCardGrid(
+                              voter: voter,
+                              targets: targets,
+                              selectedTargetId: voteState.votes[voter.id],
+                              onTargetSelected: (targetId) {
+                                Haptics.selection();
+                                // Toggle: tap again to deselect
+                                if (voteState.votes[voter.id] == targetId) {
+                                  ref
+                                      .read(voteEntryProvider.notifier)
+                                      .clearVote(voter.id);
+                                } else {
+                                  ref
+                                      .read(voteEntryProvider.notifier)
+                                      .setVote(voter.id, targetId);
+                                }
+                              },
+                            ),
+                          );
+                        }, childCount: nonStorytellerPlayers.length),
+                      ),
+
+                      // Bottom padding for the button
+                      const SliverToBoxAdapter(child: SizedBox(height: 100)),
+                    ],
                   ),
-                ],
-              ),
                 ),
               ),
 
@@ -227,11 +220,11 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
                     child: FilledButton(
                       onPressed: voteState.allVotesCast && !_isSubmitting
                           ? () => _submitRound(
-                                session: session,
-                                storyteller: storyteller,
-                                players: players,
-                                votes: voteState.completedVotes,
-                              )
+                              session: session,
+                              storyteller: storyteller,
+                              players: players,
+                              votes: voteState.completedVotes,
+                            )
                           : null,
                       style: FilledButton.styleFrom(
                         backgroundColor: context.storyTheme.goldAccent,
@@ -246,9 +239,7 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
                           ? const SizedBox(
                               height: 20,
                               width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                              ),
+                              child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : Text(
                               voteState.allVotesCast
@@ -279,7 +270,9 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
     final ctx = context;
 
     try {
-      final result = await ref.read(roundProcessorProvider).submitRound(
+      final result = await ref
+          .read(roundProcessorProvider)
+          .submitRound(
             sessionId: widget.sessionId,
             storytellerPlayerId: storyteller.id,
             allPlayerIds: players.map((p) => p.id).toList(),
@@ -358,9 +351,7 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
     );
 
     // Build player names map
-    final playerNames = {
-      for (final p in players) p.id: p.name,
-    };
+    final playerNames = {for (final p in players) p.id: p.name};
 
     final milestones = MilestoneDetector.detectMilestones(
       sessionRounds: [latestRound], // simplified: only latest round
@@ -392,10 +383,7 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
 
 /// Round header showing storyteller name and round number.
 class _RoundHeader extends StatelessWidget {
-  const _RoundHeader({
-    required this.session,
-    required this.storyteller,
-  });
+  const _RoundHeader({required this.session, required this.storyteller});
 
   final GameSession session;
   final Player storyteller;
@@ -436,18 +424,12 @@ class _RoundHeader extends StatelessWidget {
               decoration: BoxDecoration(
                 color: goldAccent.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(SpacingTokens.radiusMd),
-                border: Border.all(
-                  color: goldAccent.withValues(alpha: 0.3),
-                ),
+                border: Border.all(color: goldAccent.withValues(alpha: 0.3)),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    Icons.auto_stories,
-                    size: 18,
-                    color: goldAccent,
-                  ),
+                  Icon(Icons.auto_stories, size: 18, color: goldAccent),
                   const SizedBox(width: SpacingTokens.sm),
                   Container(
                     width: 10,

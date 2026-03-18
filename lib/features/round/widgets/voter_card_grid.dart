@@ -33,9 +33,7 @@ class VoterCardGrid extends StatelessWidget {
     final voterColor = PlayerColors.colorFor(voter.colorKey);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        vertical: SpacingTokens.sm,
-      ),
+      padding: const EdgeInsets.symmetric(vertical: SpacingTokens.sm),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -60,11 +58,7 @@ class VoterCardGrid extends StatelessWidget {
               ),
               if (selectedTargetId != null) ...[
                 const SizedBox(width: SpacingTokens.sm),
-                Icon(
-                  Icons.check_circle,
-                  size: 16,
-                  color: voterColor,
-                ),
+                Icon(Icons.check_circle, size: 16, color: voterColor),
               ],
             ],
           ),

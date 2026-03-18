@@ -79,7 +79,9 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
           FilledButton(
             onPressed: () async {
               Navigator.of(dialogContext).pop();
-              await ref.read(sessionDaoProvider).updateSession(
+              await ref
+                  .read(sessionDaoProvider)
+                  .updateSession(
                     sessionId,
                     GameSessionsCompanion(
                       status: const Value(GameStatus.completed),
@@ -105,13 +107,11 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
     final playersAsync = sortByScore
         ? ref.watch(playersByScoreProvider(sessionId))
         : ref.watch(playersProvider(sessionId));
-    final storytellerAsync =
-        ref.watch(currentStorytellerProvider(sessionId));
+    final storytellerAsync = ref.watch(currentStorytellerProvider(sessionId));
 
     return sessionAsync.when(
-      loading: () => const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      ),
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (e, st) => Scaffold(
         body: Center(
           child: Padding(
@@ -119,8 +119,11 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.error_outline,
-                    size: 48, color: context.colorScheme.error),
+                Icon(
+                  Icons.error_outline,
+                  size: 48,
+                  color: context.colorScheme.error,
+                ),
                 const SizedBox(height: SpacingTokens.md),
                 Text(
                   'Failed to load session',
@@ -160,9 +163,7 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
               // Sort toggle
               IconButton(
                 icon: Icon(
-                  sortByScore
-                      ? Icons.sort_by_alpha
-                      : Icons.leaderboard,
+                  sortByScore ? Icons.sort_by_alpha : Icons.leaderboard,
                 ),
                 tooltip: sortByScore ? 'Sort by seat' : 'Sort by score',
                 onPressed: () {
@@ -205,11 +206,8 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
             ],
           ),
           body: playersAsync.when(
-            loading: () =>
-                const Center(child: CircularProgressIndicator()),
-            error: (e, st) => Center(
-              child: Text('Error loading players: $e'),
-            ),
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (e, st) => Center(child: Text('Error loading players: $e')),
             data: (players) {
               if (players.isEmpty) {
                 return Center(
@@ -283,10 +281,7 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
                 SpacingTokens.lg,
                 SpacingTokens.sm,
               ),
-              child: Text(
-                'Export Game',
-                style: context.textTheme.titleMedium,
-              ),
+              child: Text('Export Game', style: context.textTheme.titleMedium),
             ),
             ListTile(
               leading: const Icon(Icons.data_object),
@@ -340,15 +335,10 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
       }
 
       await SharePlus.instance.share(
-        ShareParams(
-          text: content,
-          title: fileName,
-        ),
+        ShareParams(text: content, title: fileName),
       );
     } catch (e) {
-      messenger.showSnackBar(
-        SnackBar(content: Text('Export failed: $e')),
-      );
+      messenger.showSnackBar(SnackBar(content: Text('Export failed: $e')));
     }
   }
 
@@ -373,7 +363,9 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
           FilledButton(
             onPressed: () async {
               Navigator.of(dialogContext).pop();
-              await ref.read(sessionDaoProvider).updateSession(
+              await ref
+                  .read(sessionDaoProvider)
+                  .updateSession(
                     sessionId,
                     GameSessionsCompanion(
                       status: const Value(GameStatus.completed),
@@ -443,8 +435,7 @@ class _RoundInfoHeader extends ConsumerWidget {
                 button: true,
                 excludeSemantics: true,
                 child: InkWell(
-                  borderRadius:
-                      BorderRadius.circular(SpacingTokens.radiusSm),
+                  borderRadius: BorderRadius.circular(SpacingTokens.radiusSm),
                   onTap: () => _showStorytellerPicker(context, ref),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
@@ -516,20 +507,18 @@ class _RoundInfoHeader extends ConsumerWidget {
                 ),
                 title: Text(player.name),
                 trailing: isCurrentStoryteller
-                    ? Icon(
-                        Icons.check,
-                        color: context.storyTheme.goldAccent,
-                      )
+                    ? Icon(Icons.check, color: context.storyTheme.goldAccent)
                     : null,
                 onTap: isCurrentStoryteller
                     ? null
                     : () async {
                         Navigator.of(sheetContext).pop();
-                        await ref.read(sessionDaoProvider).updateSession(
+                        await ref
+                            .read(sessionDaoProvider)
+                            .updateSession(
                               sessionId,
                               GameSessionsCompanion(
-                                currentStorytellerSeat:
-                                    Value(player.seatOrder),
+                                currentStorytellerSeat: Value(player.seatOrder),
                                 updatedAt: Value(DateTime.now()),
                               ),
                             );
@@ -587,7 +576,8 @@ class _PlayerGrid extends ConsumerWidget {
         final player = players[index];
         final isStoryteller = player.id == storytellerId;
         final isSupporter = ref.watch(isSupporterProvider);
-        final hasReachedTarget = targetScore != null &&
+        final hasReachedTarget =
+            targetScore != null &&
             targetScore! > 0 &&
             player.currentScore >= targetScore!;
 
@@ -595,8 +585,7 @@ class _PlayerGrid extends ConsumerWidget {
           player: player,
           isStoryteller: isStoryteller,
           rank: index + 1,
-          onLongPress: () =>
-              _showScoreAdjustDialog(context, ref, player),
+          onLongPress: () => _showScoreAdjustDialog(context, ref, player),
         );
 
         // Animated gold border glow for players who reached the target
@@ -639,15 +628,16 @@ class _PlayerGrid extends ConsumerWidget {
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: SpacingTokens.lg),
+                      horizontal: SpacingTokens.lg,
+                    ),
                     child: Text(
                       '${adjustment >= 0 ? '+' : ''}$adjustment',
                       style: context.textTheme.headlineMedium?.copyWith(
                         color: adjustment > 0
                             ? ColorTokens.auroraGreen
                             : adjustment < 0
-                                ? ColorTokens.coralAccent
-                                : context.colorScheme.onSurface,
+                            ? ColorTokens.coralAccent
+                            : context.colorScheme.onSurface,
                       ),
                     ),
                   ),
@@ -676,7 +666,9 @@ class _PlayerGrid extends ConsumerWidget {
                   ? null
                   : () async {
                       Navigator.of(dialogContext).pop();
-                      await ref.read(sessionDaoProvider).updatePlayerScore(
+                      await ref
+                          .read(sessionDaoProvider)
+                          .updatePlayerScore(
                             player.id,
                             player.currentScore + adjustment,
                           );
@@ -714,9 +706,10 @@ class _WinnerGlowState extends State<_WinnerGlow>
       duration: const Duration(milliseconds: 800),
     );
 
-    _glowAnimation = Tween<double>(begin: 0.3, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _glowAnimation = Tween<double>(
+      begin: 0.3,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
     // Pulse 2 times then stop
     var count = 0;
@@ -750,8 +743,9 @@ class _WinnerGlowState extends State<_WinnerGlow>
             borderRadius: BorderRadius.circular(SpacingTokens.radiusLg),
             boxShadow: [
               BoxShadow(
-                color: ColorTokens.goldAccent
-                    .withValues(alpha: 0.4 * _glowAnimation.value),
+                color: ColorTokens.goldAccent.withValues(
+                  alpha: 0.4 * _glowAnimation.value,
+                ),
                 blurRadius: 16 * _glowAnimation.value,
                 spreadRadius: 2 * _glowAnimation.value,
               ),

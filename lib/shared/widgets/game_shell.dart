@@ -4,10 +4,7 @@ import 'package:go_router/go_router.dart';
 /// Shell widget providing bottom navigation for in-game screens
 /// (Scoreboard, Round, History).
 class GameShell extends StatelessWidget {
-  const GameShell({
-    super.key,
-    required this.navigationShell,
-  });
+  const GameShell({super.key, required this.navigationShell});
 
   final StatefulNavigationShell navigationShell;
 

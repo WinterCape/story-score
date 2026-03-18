@@ -70,7 +70,8 @@ class HomeScreen extends ConsumerWidget {
     AsyncValue<List<GameSession>> completedAsync,
   ) {
     // Show loading skeleton while either list is loading for the first time
-    final isLoading = activeAsync.isLoading && !activeAsync.hasValue ||
+    final isLoading =
+        activeAsync.isLoading && !activeAsync.hasValue ||
         completedAsync.isLoading && !completedAsync.hasValue;
 
     if (isLoading) {
@@ -98,7 +99,8 @@ class HomeScreen extends ConsumerWidget {
       return EmptyState(
         icon: Icons.auto_stories_outlined,
         title: 'No games yet',
-        subtitle: 'Start your first game and begin tracking scores '
+        subtitle:
+            'Start your first game and begin tracking scores '
             'for your storytelling card game.',
         actionLabel: 'Start your first game',
         onAction: () => context.push('/game/new'),
@@ -116,8 +118,7 @@ class HomeScreen extends ConsumerWidget {
       ),
       children: [
         // Quick Start chip (premium-gated, shown when presets exist)
-        if (ref.watch(isSupporterProvider))
-          const _QuickStartSection(),
+        if (ref.watch(isSupporterProvider)) const _QuickStartSection(),
 
         // Active Games section
         if (activeSessions.isNotEmpty) ...[
@@ -126,10 +127,8 @@ class HomeScreen extends ConsumerWidget {
           if (isTablet)
             _SessionGrid(
               sessions: activeSessions,
-              onTap: (session) =>
-                  context.go('/game/${session.id}/scoreboard'),
-              onDismissed: (session) =>
-                  _deleteSession(ref, session.id),
+              onTap: (session) => context.go('/game/${session.id}/scoreboard'),
+              onDismissed: (session) => _deleteSession(ref, session.id),
             )
           else
             ...activeSessions.map(
@@ -137,9 +136,7 @@ class HomeScreen extends ConsumerWidget {
                 padding: const EdgeInsets.only(bottom: SpacingTokens.sm),
                 child: SessionCard(
                   session: session,
-                  onTap: () => context.go(
-                    '/game/${session.id}/scoreboard',
-                  ),
+                  onTap: () => context.go('/game/${session.id}/scoreboard'),
                   onDismissed: () => _deleteSession(ref, session.id),
                 ),
               ),
@@ -154,10 +151,8 @@ class HomeScreen extends ConsumerWidget {
           if (isTablet)
             _SessionGrid(
               sessions: completedSessions,
-              onTap: (session) =>
-                  context.go('/archive/${session.id}'),
-              onDismissed: (session) =>
-                  _deleteSession(ref, session.id),
+              onTap: (session) => context.go('/archive/${session.id}'),
+              onDismissed: (session) => _deleteSession(ref, session.id),
             )
           else
             ...completedSessions.map(
@@ -257,9 +252,7 @@ class HomeScreen extends ConsumerWidget {
         );
       }
     } catch (e) {
-      messenger.showSnackBar(
-        SnackBar(content: Text('Import failed: $e')),
-      );
+      messenger.showSnackBar(SnackBar(content: Text('Import failed: $e')));
     }
   }
 
@@ -301,10 +294,7 @@ class HomeScreen extends ConsumerWidget {
               color: context.colorScheme.error,
             ),
             const SizedBox(height: SpacingTokens.md),
-            Text(
-              'Something went wrong',
-              style: context.textTheme.titleMedium,
-            ),
+            Text('Something went wrong', style: context.textTheme.titleMedium),
             const SizedBox(height: SpacingTokens.sm),
             Text(
               error.toString(),
@@ -387,8 +377,9 @@ class _QuickStartSection extends ConsumerWidget {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: context.colorScheme.onSurfaceVariant
-                      .withValues(alpha: 0.3),
+                  color: context.colorScheme.onSurfaceVariant.withValues(
+                    alpha: 0.3,
+                  ),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -438,9 +429,9 @@ class _QuickStartSection extends ConsumerWidget {
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Quick Start failed: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Quick Start failed: $e')));
       }
     }
   }

@@ -5,18 +5,21 @@ import 'package:story_score/domain/stats/milestone_detector.dart';
 
 void main() {
   group('computeWinnerEffects', () {
-    test('supporter + winner reveal produces confetti, sparkle, glow, sound', () {
-      final result = CelebrationEngine.computeWinnerEffects(
-        isSupporter: true,
-        selectedTheme: 'celestial',
-        isReducedMotion: false,
-      );
+    test(
+      'supporter + winner reveal produces confetti, sparkle, glow, sound',
+      () {
+        final result = CelebrationEngine.computeWinnerEffects(
+          isSupporter: true,
+          selectedTheme: 'celestial',
+          isReducedMotion: false,
+        );
 
-      expect(result.effects, contains(CelebrationEffect.confettiRain));
-      expect(result.effects, contains(CelebrationEffect.sparkleBurst));
-      expect(result.effects, contains(CelebrationEffect.winnerGlow));
-      expect(result.effects, contains(CelebrationEffect.celebrationSound));
-    });
+        expect(result.effects, contains(CelebrationEffect.confettiRain));
+        expect(result.effects, contains(CelebrationEffect.sparkleBurst));
+        expect(result.effects, contains(CelebrationEffect.winnerGlow));
+        expect(result.effects, contains(CelebrationEffect.celebrationSound));
+      },
+    );
 
     test('free user + winner reveal produces no premium effects', () {
       final result = CelebrationEngine.computeWinnerEffects(
@@ -28,7 +31,10 @@ void main() {
       expect(result.effects, isNot(contains(CelebrationEffect.confettiRain)));
       expect(result.effects, isNot(contains(CelebrationEffect.sparkleBurst)));
       expect(result.effects, isNot(contains(CelebrationEffect.winnerGlow)));
-      expect(result.effects, isNot(contains(CelebrationEffect.celebrationSound)));
+      expect(
+        result.effects,
+        isNot(contains(CelebrationEffect.celebrationSound)),
+      );
     });
 
     test('supporter + milestone produces toast and chime', () {

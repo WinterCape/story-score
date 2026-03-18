@@ -32,10 +32,13 @@ class ScoreProgressionChart extends StatelessWidget {
     }
 
     final playerNames = progression.keys.toList();
-    final maxRounds = progression.values
-        .fold(0, (max, scores) => scores.length > max ? scores.length : max);
-    final maxScore = progression.values.expand((s) => s).fold(0,
-        (max, score) => score > max ? score : max);
+    final maxRounds = progression.values.fold(
+      0,
+      (max, scores) => scores.length > max ? scores.length : max,
+    );
+    final maxScore = progression.values
+        .expand((s) => s)
+        .fold(0, (max, score) => score > max ? score : max);
 
     return SizedBox(
       height: height,
@@ -116,10 +119,10 @@ class ScoreProgressionChart extends StatelessWidget {
                   show: scores.length <= 15,
                   getDotPainter: (spot, percent, barData, index) =>
                       FlDotCirclePainter(
-                    radius: 3,
-                    color: color,
-                    strokeWidth: 0,
-                  ),
+                        radius: 3,
+                        color: color,
+                        strokeWidth: 0,
+                      ),
                 ),
                 belowBarData: BarAreaData(show: false),
               );

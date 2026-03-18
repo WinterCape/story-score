@@ -26,16 +26,12 @@ abstract final class StoryScoreTheme {
   /// * [ThemeMode.dark]   -> always dark theme
   /// * [ThemeMode.light]  -> always light theme
   /// * [ThemeMode.system] -> follows [platformBrightness]
-  static ThemeData themeFor(
-    ThemeMode mode,
-    Brightness platformBrightness,
-  ) {
+  static ThemeData themeFor(ThemeMode mode, Brightness platformBrightness) {
     return switch (mode) {
       ThemeMode.dark => darkTheme,
       ThemeMode.light => lightTheme,
-      ThemeMode.system => platformBrightness == Brightness.dark
-          ? darkTheme
-          : lightTheme,
+      ThemeMode.system =>
+        platformBrightness == Brightness.dark ? darkTheme : lightTheme,
     };
   }
 

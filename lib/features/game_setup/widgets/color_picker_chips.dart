@@ -45,10 +45,7 @@ class ColorPickerChips extends StatelessWidget {
               color: isUsed ? color.withValues(alpha: 0.3) : color,
               shape: BoxShape.circle,
               border: isSelected
-                  ? Border.all(
-                      color: colorScheme.onSurface,
-                      width: 3,
-                    )
+                  ? Border.all(color: colorScheme.onSurface, width: 3)
                   : null,
               boxShadow: isSelected
                   ? [
@@ -67,12 +64,8 @@ class ColorPickerChips extends StatelessWidget {
                     color: colorScheme.onSurface.withValues(alpha: 0.5),
                   )
                 : isSelected
-                    ? const Icon(
-                        Icons.check_rounded,
-                        size: 22,
-                        color: Colors.white,
-                      )
-                    : null,
+                ? const Icon(Icons.check_rounded, size: 22, color: Colors.white)
+                : null,
           ),
         );
       }).toList(),

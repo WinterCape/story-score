@@ -174,7 +174,6 @@ class GameSetupNotifier extends Notifier<GameSetupState> {
 // Provider
 // ---------------------------------------------------------------------------
 
-final gameSetupProvider =
-    NotifierProvider<GameSetupNotifier, GameSetupState>(
+final gameSetupProvider = NotifierProvider<GameSetupNotifier, GameSetupState>(
   GameSetupNotifier.new,
 );

@@ -12,7 +12,9 @@ class SessionExporter {
     final buffer = StringBuffer();
 
     // Header
-    buffer.writeln('Round,Storyteller,Player,Score Change,Reason,Running Total');
+    buffer.writeln(
+      'Round,Storyteller,Player,Score Change,Reason,Running Total',
+    );
 
     // Build player ID → name lookup
     final playerNames = <String, String>{};

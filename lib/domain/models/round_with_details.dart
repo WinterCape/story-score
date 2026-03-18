@@ -33,8 +33,7 @@ class RoundWithDetails {
   }
 
   /// Total score delta for the round.
-  int get totalPoints =>
-      scoreChanges.fold(0, (sum, sc) => sum + sc.delta);
+  int get totalPoints => scoreChanges.fold(0, (sum, sc) => sum + sc.delta);
 }
 
 class VoteDetail {

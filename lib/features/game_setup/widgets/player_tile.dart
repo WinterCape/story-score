@@ -30,9 +30,7 @@ class PlayerTile extends StatelessWidget {
     final color = PlayerColors.colorFor(colorKey);
 
     return Card(
-      margin: const EdgeInsets.symmetric(
-        vertical: SpacingTokens.xs,
-      ),
+      margin: const EdgeInsets.symmetric(vertical: SpacingTokens.xs),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(SpacingTokens.radiusMd),
       ),
@@ -95,8 +93,7 @@ class PlayerTile extends StatelessWidget {
               ),
               decoration: BoxDecoration(
                 color: colorScheme.surfaceContainerHighest,
-                borderRadius:
-                    BorderRadius.circular(SpacingTokens.radiusSm),
+                borderRadius: BorderRadius.circular(SpacingTokens.radiusSm),
               ),
               child: Text(
                 '#${seatNumber + 1}',

@@ -12,10 +12,8 @@ class GameSessions extends Table {
   IntColumn get targetScore => integer().nullable()();
   BoolColumn get continuePastTargetEnabled =>
       boolean().withDefault(const Constant(false))();
-  DateTimeColumn get createdAt =>
-      dateTime().withDefault(currentDateAndTime)();
-  DateTimeColumn get updatedAt =>
-      dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
   IntColumn get currentStorytellerSeat =>
       integer().withDefault(const Constant(0))();
   IntColumn get roundCount => integer().withDefault(const Constant(0))();

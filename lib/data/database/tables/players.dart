@@ -11,8 +11,7 @@ class Players extends Table {
   TextColumn get avatarStyle =>
       text().withDefault(const Constant('initials'))();
   IntColumn get currentScore => integer().withDefault(const Constant(0))();
-  DateTimeColumn get createdAt =>
-      dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 
   @override
   Set<Column> get primaryKey => {id};

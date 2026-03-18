@@ -18,8 +18,8 @@ final appSettingsRepositoryProvider = Provider<AppSettingsRepository>((ref) {
 /// Async notifier that loads, caches, and updates [AppSettings].
 final appSettingsProvider =
     AsyncNotifierProvider<AppSettingsNotifier, AppSettings>(
-  AppSettingsNotifier.new,
-);
+      AppSettingsNotifier.new,
+    );
 
 class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
   @override

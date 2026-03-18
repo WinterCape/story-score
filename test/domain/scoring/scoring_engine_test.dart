@@ -49,9 +49,21 @@ void main() {
       expect(
         result.scoreEntries,
         containsAll([
-          const ScoreEntry(playerId: 'S', delta: 3, reason: ScoreReason.storytellerGoodClue),
-          const ScoreEntry(playerId: 'A', delta: 3, reason: ScoreReason.correctGuess),
-          const ScoreEntry(playerId: 'A', delta: 1, reason: ScoreReason.fooledBonus),
+          const ScoreEntry(
+            playerId: 'S',
+            delta: 3,
+            reason: ScoreReason.storytellerGoodClue,
+          ),
+          const ScoreEntry(
+            playerId: 'A',
+            delta: 3,
+            reason: ScoreReason.correctGuess,
+          ),
+          const ScoreEntry(
+            playerId: 'A',
+            delta: 1,
+            reason: ScoreReason.fooledBonus,
+          ),
         ]),
       );
     });
@@ -232,7 +244,10 @@ void main() {
 
       // Verify total points distributed:
       // S(3) + P1(5) + P2(4) + P3(2) = 14
-      final totalPoints = players.fold(0, (sum, p) => sum + result.totalDeltaFor(p));
+      final totalPoints = players.fold(
+        0,
+        (sum, p) => sum + result.totalDeltaFor(p),
+      );
       expect(totalPoints, 14);
     });
   });
@@ -292,31 +307,39 @@ void main() {
   // Edge cases
   // ─────────────────────────────────────────────────────────────
   group('edge cases', () {
-    test('storyteller gets 0 bonus even if storyteller card receives votes', () {
-      // In a good clue scenario, some vote for storyteller.
-      // The storyteller should NOT get a fooledBonus for those votes.
-      const players = ['S', 'A', 'B', 'C'];
-      // A→S (correct), B→S (correct), C→A (wrong).
-      final input = validInput(
-        storyteller: 'S',
-        players: players,
-        votes: {'A': 'S', 'B': 'S', 'C': 'A'},
-      );
-      final result = engine.computeRound(input);
+    test(
+      'storyteller gets 0 bonus even if storyteller card receives votes',
+      () {
+        // In a good clue scenario, some vote for storyteller.
+        // The storyteller should NOT get a fooledBonus for those votes.
+        const players = ['S', 'A', 'B', 'C'];
+        // A→S (correct), B→S (correct), C→A (wrong).
+        final input = validInput(
+          storyteller: 'S',
+          players: players,
+          votes: {'A': 'S', 'B': 'S', 'C': 'A'},
+        );
+        final result = engine.computeRound(input);
 
-      // S should only have the +3 storytellerGoodClue, NOT any fooledBonus.
-      final storytellerEntries =
-          result.scoreEntries.where((e) => e.playerId == 'S').toList();
-      expect(storytellerEntries.length, 1);
-      expect(storytellerEntries.first.reason, ScoreReason.storytellerGoodClue);
-      expect(storytellerEntries.first.delta, 3);
-      expect(result.totalDeltaFor('S'), 3);
+        // S should only have the +3 storytellerGoodClue, NOT any fooledBonus.
+        final storytellerEntries = result.scoreEntries
+            .where((e) => e.playerId == 'S')
+            .toList();
+        expect(storytellerEntries.length, 1);
+        expect(
+          storytellerEntries.first.reason,
+          ScoreReason.storytellerGoodClue,
+        );
+        expect(storytellerEntries.first.delta, 3);
+        expect(result.totalDeltaFor('S'), 3);
 
-      // Verify no fooledBonus entry exists for the storyteller.
-      final storytellerFooledEntries = result.scoreEntries
-          .where((e) => e.playerId == 'S' && e.reason == ScoreReason.fooledBonus);
-      expect(storytellerFooledEntries, isEmpty);
-    });
+        // Verify no fooledBonus entry exists for the storyteller.
+        final storytellerFooledEntries = result.scoreEntries.where(
+          (e) => e.playerId == 'S' && e.reason == ScoreReason.fooledBonus,
+        );
+        expect(storytellerFooledEntries, isEmpty);
+      },
+    );
 
     test('correct guesser also gets fooled bonus from other voters', () {
       // A votes for storyteller (correct) AND other players vote for A's card.
@@ -334,13 +357,23 @@ void main() {
       // A: +3 (correct guess) + 2 (fooled B and C) = 5
       expect(result.totalDeltaFor('A'), 5);
 
-      final aEntries = result.scoreEntries.where((e) => e.playerId == 'A').toList();
+      final aEntries = result.scoreEntries
+          .where((e) => e.playerId == 'A')
+          .toList();
       expect(aEntries.length, 2);
       expect(
         aEntries,
         containsAll([
-          const ScoreEntry(playerId: 'A', delta: 3, reason: ScoreReason.correctGuess),
-          const ScoreEntry(playerId: 'A', delta: 2, reason: ScoreReason.fooledBonus),
+          const ScoreEntry(
+            playerId: 'A',
+            delta: 3,
+            reason: ScoreReason.correctGuess,
+          ),
+          const ScoreEntry(
+            playerId: 'A',
+            delta: 2,
+            reason: ScoreReason.fooledBonus,
+          ),
         ]),
       );
     });
@@ -358,8 +391,9 @@ void main() {
       expect(result.totalDeltaFor('S'), 0);
 
       // No fooledBonus entries at all (all voted for storyteller).
-      final fooledEntries =
-          result.scoreEntries.where((e) => e.reason == ScoreReason.fooledBonus);
+      final fooledEntries = result.scoreEntries.where(
+        (e) => e.reason == ScoreReason.fooledBonus,
+      );
       expect(fooledEntries, isEmpty);
     });
   });
@@ -375,11 +409,13 @@ void main() {
           allPlayerIds: ['S', 'A', 'B'],
           votes: {'S': 'A', 'A': 'B', 'B': 'A'},
         ),
-        throwsA(isA<ArgumentError>().having(
-          (e) => e.message,
-          'message',
-          contains('Storyteller cannot vote'),
-        )),
+        throwsA(
+          isA<ArgumentError>().having(
+            (e) => e.message,
+            'message',
+            contains('Storyteller cannot vote'),
+          ),
+        ),
       );
     });
 
@@ -390,11 +426,13 @@ void main() {
           allPlayerIds: ['S', 'A', 'B'],
           votes: {'A': 'A', 'B': 'S'},
         ),
-        throwsA(isA<ArgumentError>().having(
-          (e) => e.message,
-          'message',
-          contains('cannot vote for themselves'),
-        )),
+        throwsA(
+          isA<ArgumentError>().having(
+            (e) => e.message,
+            'message',
+            contains('cannot vote for themselves'),
+          ),
+        ),
       );
     });
 
@@ -405,11 +443,13 @@ void main() {
           allPlayerIds: ['S', 'A', 'B'],
           votes: {'A': 'S'},
         ),
-        throwsA(isA<ArgumentError>().having(
-          (e) => e.message,
-          'message',
-          contains('did not vote'),
-        )),
+        throwsA(
+          isA<ArgumentError>().having(
+            (e) => e.message,
+            'message',
+            contains('did not vote'),
+          ),
+        ),
       );
     });
 
@@ -420,11 +460,13 @@ void main() {
           allPlayerIds: ['S', 'A', 'B'],
           votes: {'A': 'S', 'B': 'S', 'X': 'S'},
         ),
-        throwsA(isA<ArgumentError>().having(
-          (e) => e.message,
-          'message',
-          contains('not in allPlayerIds'),
-        )),
+        throwsA(
+          isA<ArgumentError>().having(
+            (e) => e.message,
+            'message',
+            contains('not in allPlayerIds'),
+          ),
+        ),
       );
     });
 
@@ -435,11 +477,13 @@ void main() {
           allPlayerIds: ['S', 'A', 'B'],
           votes: {'A': 'Z', 'B': 'S'},
         ),
-        throwsA(isA<ArgumentError>().having(
-          (e) => e.message,
-          'message',
-          contains('not in allPlayerIds'),
-        )),
+        throwsA(
+          isA<ArgumentError>().having(
+            (e) => e.message,
+            'message',
+            contains('not in allPlayerIds'),
+          ),
+        ),
       );
     });
 
@@ -447,16 +491,21 @@ void main() {
       // Construct input bypassing the factory to test validateInput directly.
       // We use a raw instance via the private constructor workaround:
       // Just call validateInput with a manually crafted scenario.
-      final errors = engine.validateInput(RoundInput.unvalidated(
-        storytellerPlayerId: 'S',
-        allPlayerIds: ['S', 'A', 'B'],
-        votes: {'S': 'A', 'A': 'A'},
-      ));
+      final errors = engine.validateInput(
+        RoundInput.unvalidated(
+          storytellerPlayerId: 'S',
+          allPlayerIds: ['S', 'A', 'B'],
+          votes: {'S': 'A', 'A': 'A'},
+        ),
+      );
 
       expect(errors, isNotEmpty);
       // Should report: storyteller voting, self-vote by A, missing voter B.
       expect(errors.any((e) => e.contains('Storyteller cannot vote')), isTrue);
-      expect(errors.any((e) => e.contains('cannot vote for themselves')), isTrue);
+      expect(
+        errors.any((e) => e.contains('cannot vote for themselves')),
+        isTrue,
+      );
       expect(errors.any((e) => e.contains('did not vote')), isTrue);
     });
   });
@@ -485,7 +534,10 @@ void main() {
         }
         // Also verify total deltas match.
         for (final player in ['S', 'A', 'B', 'C', 'D']) {
-          expect(result.totalDeltaFor(player), firstResult.totalDeltaFor(player));
+          expect(
+            result.totalDeltaFor(player),
+            firstResult.totalDeltaFor(player),
+          );
         }
       }
     });

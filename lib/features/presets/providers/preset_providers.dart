@@ -19,10 +19,11 @@ final presetsProvider = StreamProvider<List<PlayerPreset>>((ref) {
 });
 
 /// Watches players for a specific preset.
-final presetPlayersProvider =
-    StreamProvider.family<List<PresetPlayer>, String>((ref, presetId) {
-  return ref.watch(presetDaoProvider).watchPlayersForPreset(presetId);
-});
+final presetPlayersProvider = StreamProvider.family<List<PresetPlayer>, String>(
+  (ref, presetId) {
+    return ref.watch(presetDaoProvider).watchPlayersForPreset(presetId);
+  },
+);
 
 /// Fetches favorite players (deduplicated, max 10).
 final favoritePlayersProvider = FutureProvider<List<PresetPlayer>>((ref) {
@@ -39,8 +40,10 @@ final presetCountProvider = FutureProvider<int>((ref) {
 Future<String> savePreset({
   required PresetDao dao,
   required String name,
-  required List<({String name, String colorKey, String avatarStyle, int seatOrder})>
-      players,
+  required List<
+    ({String name, String colorKey, String avatarStyle, int seatOrder})
+  >
+  players,
 }) async {
   final presetId = IdGenerator.newId();
   final companions = players

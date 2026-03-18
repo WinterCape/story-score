@@ -14,8 +14,10 @@ import 'package:story_score/features/round/widgets/round_recap_sheet.dart';
 import 'package:story_score/shared/extensions/context_extensions.dart';
 
 /// Provides the players list for a given session.
-final _playersForSessionProvider =
-    StreamProvider.family<List<Player>, String>((ref, sessionId) {
+final _playersForSessionProvider = StreamProvider.family<List<Player>, String>((
+  ref,
+  sessionId,
+) {
   return ref.watch(sessionDaoProvider).watchPlayersForSession(sessionId);
 });
 
@@ -43,8 +45,9 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final detailsAsync = ref.watch(roundWithDetailsProvider(widget.roundId));
-    final playersAsync =
-        ref.watch(_playersForSessionProvider(widget.sessionId));
+    final playersAsync = ref.watch(
+      _playersForSessionProvider(widget.sessionId),
+    );
 
     final colors = context.colorScheme;
     final text = context.textTheme;
@@ -69,8 +72,9 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
           };
           final playerMap = {for (final p in players) p.id: p};
           final storyteller = playerMap[details.round.storytellerPlayerId];
-          final hasGoodClue = details.scoreChanges
-              .any((sc) => sc.reasonCode == 'storytellerGoodClue');
+          final hasGoodClue = details.scoreChanges.any(
+            (sc) => sc.reasonCode == 'storytellerGoodClue',
+          );
 
           return ListView(
             padding: const EdgeInsets.all(SpacingTokens.md),
@@ -110,9 +114,10 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
               // Score changes section
               _SectionTitle(title: 'Score Changes'),
               const SizedBox(height: SpacingTokens.sm),
-              ..._groupScoreChangesByPlayer(details.scoreChanges, playerMap)
-                  .entries
-                  .map((entry) {
+              ..._groupScoreChangesByPlayer(
+                details.scoreChanges,
+                playerMap,
+              ).entries.map((entry) {
                 final player = playerMap[entry.key];
                 return _ScoreChangeTile(
                   playerName: player?.name ?? 'Unknown',
@@ -190,8 +195,10 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
                                   color: colors.error,
                                 ),
                               )
-                            : const Icon(Icons.delete_outline_rounded,
-                                size: 18),
+                            : const Icon(
+                                Icons.delete_outline_rounded,
+                                size: 18,
+                              ),
                         label: const Text('Delete Round'),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: colors.error,
@@ -221,15 +228,13 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
                   color: colors.error,
                 ),
                 const SizedBox(height: SpacingTokens.md),
-                Text(
-                  'Failed to load round',
-                  style: text.titleMedium,
-                ),
+                Text('Failed to load round', style: text.titleMedium),
                 const SizedBox(height: SpacingTokens.sm),
                 Text(
                   error.toString(),
-                  style: text.bodySmall
-                      ?.copyWith(color: colors.onSurfaceVariant),
+                  style: text.bodySmall?.copyWith(
+                    color: colors.onSurfaceVariant,
+                  ),
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -252,7 +257,9 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
   }
 
   List<Widget> _buildEditVoteRows(
-      List<Player> players, RoundWithDetails details) {
+    List<Player> players,
+    RoundWithDetails details,
+  ) {
     final colors = context.colorScheme;
     final text = context.textTheme;
     final storyTheme = context.storyTheme;
@@ -278,14 +285,13 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
                     height: 24,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: PlayerColors.colorFor(voter.colorKey)
-                          .withValues(alpha: 0.2),
+                      color: PlayerColors.colorFor(
+                        voter.colorKey,
+                      ).withValues(alpha: 0.2),
                     ),
                     alignment: Alignment.center,
                     child: Text(
-                      voter.name.isNotEmpty
-                          ? voter.name[0].toUpperCase()
-                          : '?',
+                      voter.name.isNotEmpty ? voter.name[0].toUpperCase() : '?',
                       style: text.labelSmall?.copyWith(
                         color: PlayerColors.colorFor(voter.colorKey),
                         fontWeight: FontWeight.w700,
@@ -295,8 +301,7 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
                   const SizedBox(width: SpacingTokens.sm),
                   Text(
                     voter.name,
-                    style: text.titleSmall
-                        ?.copyWith(color: colors.onSurface),
+                    style: text.titleSmall?.copyWith(color: colors.onSurface),
                   ),
                 ],
               ),
@@ -306,12 +311,10 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
                 child: Row(
                   children: targets.map((target) {
                     final isSelected = currentVote == target.id;
-                    final targetColor =
-                        PlayerColors.colorFor(target.colorKey);
+                    final targetColor = PlayerColors.colorFor(target.colorKey);
 
                     return Padding(
-                      padding:
-                          const EdgeInsets.only(right: SpacingTokens.xs),
+                      padding: const EdgeInsets.only(right: SpacingTokens.xs),
                       child: ActionChip(
                         avatar: Container(
                           width: 20,
@@ -344,8 +347,7 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
                           ),
                         ),
                         backgroundColor: isSelected
-                            ? storyTheme.goldAccent
-                                .withValues(alpha: 0.15)
+                            ? storyTheme.goldAccent.withValues(alpha: 0.15)
                             : null,
                         side: isSelected
                             ? BorderSide(color: storyTheme.goldAccent)
@@ -481,10 +483,7 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
     setState(() => _isDeleting = true);
     try {
       final deleteRound = ref.read(deleteRoundProvider);
-      await deleteRound(
-        roundId: widget.roundId,
-        sessionId: widget.sessionId,
-      );
+      await deleteRound(roundId: widget.roundId, sessionId: widget.sessionId);
       if (!mounted) return;
       navigator.pop();
     } catch (e) {
@@ -576,8 +575,9 @@ class _RoundHeader extends StatelessWidget {
                     children: [
                       Text(
                         'Round $roundNumber',
-                        style: text.titleMedium
-                            ?.copyWith(color: colors.onSurface),
+                        style: text.titleMedium?.copyWith(
+                          color: colors.onSurface,
+                        ),
                       ),
                       Row(
                         children: [
@@ -642,9 +642,7 @@ class _RoundHeader extends StatelessWidget {
                 const SizedBox(width: SpacingTokens.sm),
                 Text(
                   'Storyteller: $storytellerName',
-                  style: text.bodyMedium?.copyWith(
-                    color: colors.onSurface,
-                  ),
+                  style: text.bodyMedium?.copyWith(color: colors.onSurface),
                 ),
               ],
             ),
@@ -657,8 +655,7 @@ class _RoundHeader extends StatelessWidget {
                 padding: const EdgeInsets.all(SpacingTokens.sm),
                 decoration: BoxDecoration(
                   color: colors.surfaceContainerHighest,
-                  borderRadius:
-                      BorderRadius.circular(SpacingTokens.radiusSm),
+                  borderRadius: BorderRadius.circular(SpacingTokens.radiusSm),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -845,9 +842,7 @@ class _ScoreChangeTile extends StatelessWidget {
                 children: [
                   Text(
                     playerName,
-                    style: text.titleSmall?.copyWith(
-                      color: colors.onSurface,
-                    ),
+                    style: text.titleSmall?.copyWith(color: colors.onSurface),
                   ),
                   const SizedBox(height: 2),
                   Wrap(

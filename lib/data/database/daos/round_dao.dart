@@ -29,25 +29,23 @@ class RoundDao extends DatabaseAccessor<AppDatabase> with _$RoundDaoMixin {
   Stream<List<Round>> watchRoundsForSession(String sessionId) {
     return (select(rounds)
           ..where((r) => r.sessionId.equals(sessionId))
-          ..orderBy([
-            (r) => OrderingTerm.asc(r.roundNumber),
-          ]))
+          ..orderBy([(r) => OrderingTerm.asc(r.roundNumber)]))
         .watch();
   }
 
   /// Watches a single round together with its votes and score changes.
   Stream<RoundWithDetails?> watchRoundWithDetails(String roundId) {
-    final roundStream = (select(rounds)
-          ..where((r) => r.id.equals(roundId)))
-        .watchSingleOrNull();
+    final roundStream = (select(
+      rounds,
+    )..where((r) => r.id.equals(roundId))).watchSingleOrNull();
 
-    final votesStream = (select(votes)
-          ..where((v) => v.roundId.equals(roundId)))
-        .watch();
+    final votesStream = (select(
+      votes,
+    )..where((v) => v.roundId.equals(roundId))).watch();
 
-    final changesStream = (select(scoreChanges)
-          ..where((sc) => sc.roundId.equals(roundId)))
-        .watch();
+    final changesStream = (select(
+      scoreChanges,
+    )..where((sc) => sc.roundId.equals(roundId))).watch();
 
     return roundStream.asyncExpand((round) {
       if (round == null) return Stream.value(null);
@@ -94,9 +92,9 @@ class RoundDao extends DatabaseAccessor<AppDatabase> with _$RoundDaoMixin {
     return transaction(() async {
       // Delete old data.
       await (delete(votes)..where((v) => v.roundId.equals(roundId))).go();
-      await (delete(scoreChanges)
-            ..where((sc) => sc.roundId.equals(roundId)))
-          .go();
+      await (delete(
+        scoreChanges,
+      )..where((sc) => sc.roundId.equals(roundId))).go();
 
       // Insert new data.
       for (final vote in newVotes) {
@@ -117,18 +115,18 @@ class RoundDao extends DatabaseAccessor<AppDatabase> with _$RoundDaoMixin {
   Future<void> deleteRound(String roundId) {
     return transaction(() async {
       await (delete(votes)..where((v) => v.roundId.equals(roundId))).go();
-      await (delete(scoreChanges)
-            ..where((sc) => sc.roundId.equals(roundId)))
-          .go();
+      await (delete(
+        scoreChanges,
+      )..where((sc) => sc.roundId.equals(roundId))).go();
       await (delete(rounds)..where((r) => r.id.equals(roundId))).go();
     });
   }
 
   /// Deletes all score changes for a given round.
   Future<void> deleteScoreChangesForRound(String roundId) async {
-    await (delete(scoreChanges)
-          ..where((sc) => sc.roundId.equals(roundId)))
-        .go();
+    await (delete(
+      scoreChanges,
+    )..where((sc) => sc.roundId.equals(roundId))).go();
   }
 
   /// Deletes all votes for a given round.
@@ -148,41 +146,47 @@ class RoundDao extends DatabaseAccessor<AppDatabase> with _$RoundDaoMixin {
   }) {
     return transaction(() async {
       // Get current round count for this session
-      final existingRounds = await (select(rounds)
-            ..where((r) => r.sessionId.equals(sessionId)))
-          .get();
+      final existingRounds = await (select(
+        rounds,
+      )..where((r) => r.sessionId.equals(sessionId))).get();
       final roundNumber = existingRounds.length + 1;
 
       // Insert round
-      await into(rounds).insert(RoundsCompanion.insert(
-        id: roundId,
-        sessionId: sessionId,
-        roundNumber: roundNumber,
-        storytellerPlayerId: storytellerPlayerId,
-        note: Value(note),
-      ));
+      await into(rounds).insert(
+        RoundsCompanion.insert(
+          id: roundId,
+          sessionId: sessionId,
+          roundNumber: roundNumber,
+          storytellerPlayerId: storytellerPlayerId,
+          note: Value(note),
+        ),
+      );
 
       // Insert votes
       for (final entry in votesMap.entries) {
-        await into(votes).insert(VotesCompanion.insert(
-          id: '${roundId}_${entry.key}',
-          roundId: roundId,
-          voterPlayerId: entry.key,
-          votedForPlayerId: entry.value,
-        ));
+        await into(votes).insert(
+          VotesCompanion.insert(
+            id: '${roundId}_${entry.key}',
+            roundId: roundId,
+            voterPlayerId: entry.key,
+            votedForPlayerId: entry.value,
+          ),
+        );
       }
 
       // Insert score changes
       var changeIdx = 0;
       for (final se in scoreEntries) {
-        await into(scoreChanges).insert(ScoreChangesCompanion.insert(
-          id: '${roundId}_sc_$changeIdx',
-          roundId: roundId,
-          playerId: se.playerId as String,
-          delta: se.delta as int,
-          reasonCode: (se.reason as Enum).name,
-          reasonLabel: _reasonLabel(se.reason as Enum),
-        ));
+        await into(scoreChanges).insert(
+          ScoreChangesCompanion.insert(
+            id: '${roundId}_sc_$changeIdx',
+            roundId: roundId,
+            playerId: se.playerId as String,
+            delta: se.delta as int,
+            reasonCode: (se.reason as Enum).name,
+            reasonLabel: _reasonLabel(se.reason as Enum),
+          ),
+        );
         changeIdx++;
       }
 
@@ -206,9 +210,9 @@ class RoundDao extends DatabaseAccessor<AppDatabase> with _$RoundDaoMixin {
     return transaction(() async {
       // Delete old votes and scores
       await (delete(votes)..where((v) => v.roundId.equals(roundId))).go();
-      await (delete(scoreChanges)
-            ..where((sc) => sc.roundId.equals(roundId)))
-          .go();
+      await (delete(
+        scoreChanges,
+      )..where((sc) => sc.roundId.equals(roundId))).go();
 
       // Update round metadata
       final companion = RoundsCompanion(
@@ -224,31 +228,36 @@ class RoundDao extends DatabaseAccessor<AppDatabase> with _$RoundDaoMixin {
           ),
         );
       } else {
-        await (update(rounds)..where((r) => r.id.equals(roundId)))
-            .write(companion);
+        await (update(
+          rounds,
+        )..where((r) => r.id.equals(roundId))).write(companion);
       }
 
       // Insert new votes
       for (final entry in votesMap.entries) {
-        await into(votes).insert(VotesCompanion.insert(
-          id: '${roundId}_${entry.key}',
-          roundId: roundId,
-          voterPlayerId: entry.key,
-          votedForPlayerId: entry.value,
-        ));
+        await into(votes).insert(
+          VotesCompanion.insert(
+            id: '${roundId}_${entry.key}',
+            roundId: roundId,
+            voterPlayerId: entry.key,
+            votedForPlayerId: entry.value,
+          ),
+        );
       }
 
       // Insert new score changes
       var changeIdx = 0;
       for (final se in scoreEntries) {
-        await into(scoreChanges).insert(ScoreChangesCompanion.insert(
-          id: '${roundId}_sc_$changeIdx',
-          roundId: roundId,
-          playerId: se.playerId as String,
-          delta: se.delta as int,
-          reasonCode: (se.reason as Enum).name,
-          reasonLabel: _reasonLabel(se.reason as Enum),
-        ));
+        await into(scoreChanges).insert(
+          ScoreChangesCompanion.insert(
+            id: '${roundId}_sc_$changeIdx',
+            roundId: roundId,
+            playerId: se.playerId as String,
+            delta: se.delta as int,
+            reasonCode: (se.reason as Enum).name,
+            reasonLabel: _reasonLabel(se.reason as Enum),
+          ),
+        );
         changeIdx++;
       }
     });
@@ -257,11 +266,12 @@ class RoundDao extends DatabaseAccessor<AppDatabase> with _$RoundDaoMixin {
   /// Deletes the last round in a session (by round number).
   Future<void> deleteLastRound(String sessionId) {
     return transaction(() async {
-      final sessionRounds = await (select(rounds)
-            ..where((r) => r.sessionId.equals(sessionId))
-            ..orderBy([(r) => OrderingTerm.desc(r.roundNumber)])
-            ..limit(1))
-          .get();
+      final sessionRounds =
+          await (select(rounds)
+                ..where((r) => r.sessionId.equals(sessionId))
+                ..orderBy([(r) => OrderingTerm.desc(r.roundNumber)])
+                ..limit(1))
+              .get();
 
       if (sessionRounds.isEmpty) return;
 
@@ -269,10 +279,10 @@ class RoundDao extends DatabaseAccessor<AppDatabase> with _$RoundDaoMixin {
       await deleteRound(lastRound.id);
 
       // Update session round count
-      final remainingCount = await (select(rounds)
-            ..where((r) => r.sessionId.equals(sessionId)))
-          .get()
-          .then((list) => list.length);
+      final remainingCount =
+          await (select(rounds)..where((r) => r.sessionId.equals(sessionId)))
+              .get()
+              .then((list) => list.length);
 
       await customStatement(
         'UPDATE game_sessions SET round_count = ?, updated_at = ? WHERE id = ?',

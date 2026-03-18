@@ -14,8 +14,8 @@ class StatsService {
   const StatsService({
     required SessionDao sessionDao,
     required RoundDao roundDao,
-  })  : _sessionDao = sessionDao,
-        _roundDao = roundDao;
+  }) : _sessionDao = sessionDao,
+       _roundDao = roundDao;
 
   /// Fetches all completed games and converts them to domain models.
   Future<List<CompletedGameData>> fetchAllCompletedGames() async {
@@ -26,9 +26,7 @@ class StatsService {
       final players = await _sessionDao
           .watchPlayersForSession(session.id)
           .first;
-      final rounds = await _roundDao
-          .watchRoundsForSession(session.id)
-          .first;
+      final rounds = await _roundDao.watchRoundsForSession(session.id).first;
 
       if (players.isEmpty) continue;
 
@@ -36,18 +34,20 @@ class StatsService {
           .map((p) => p.currentScore)
           .fold(0, (a, b) => a > b ? a : b);
 
-      final playerScores = players.map((p) => PlayerScore(
-        name: p.name,
-        normalizedName: normalizeName(p.name),
-        finalScore: p.currentScore,
-        isWinner: p.currentScore == maxScore && maxScore > 0,
-      )).toList();
+      final playerScores = players
+          .map(
+            (p) => PlayerScore(
+              name: p.name,
+              normalizedName: normalizeName(p.name),
+              finalScore: p.currentScore,
+              isWinner: p.currentScore == maxScore && maxScore > 0,
+            ),
+          )
+          .toList();
 
       final roundDataList = <RoundData>[];
       for (final round in rounds) {
-        final details = await _roundDao
-            .watchRoundWithDetails(round.id)
-            .first;
+        final details = await _roundDao.watchRoundWithDetails(round.id).first;
         if (details == null) continue;
 
         final votes = <String, String>{};
@@ -62,28 +62,34 @@ class StatsService {
         }
 
         // Determine if good clue: some (but not all) voted for storyteller
-        final votesForStoryteller =
-            votes.values.where((v) => v == round.storytellerPlayerId).length;
+        final votesForStoryteller = votes.values
+            .where((v) => v == round.storytellerPlayerId)
+            .length;
         final totalVoters = votes.length;
-        final hasGoodClue = totalVoters > 0 &&
+        final hasGoodClue =
+            totalVoters > 0 &&
             votesForStoryteller > 0 &&
             votesForStoryteller < totalVoters;
 
-        roundDataList.add(RoundData(
-          roundNumber: round.roundNumber,
-          storytellerId: round.storytellerPlayerId,
-          votes: votes,
-          scoreDeltas: scoreDeltas,
-          hasGoodClue: hasGoodClue,
-        ));
+        roundDataList.add(
+          RoundData(
+            roundNumber: round.roundNumber,
+            storytellerId: round.storytellerPlayerId,
+            votes: votes,
+            scoreDeltas: scoreDeltas,
+            hasGoodClue: hasGoodClue,
+          ),
+        );
       }
 
-      games.add(CompletedGameData(
-        sessionId: session.id,
-        players: playerScores,
-        rounds: roundDataList,
-        createdAt: session.createdAt,
-      ));
+      games.add(
+        CompletedGameData(
+          sessionId: session.id,
+          players: playerScores,
+          rounds: roundDataList,
+          createdAt: session.createdAt,
+        ),
+      );
     }
 
     // Sort chronologically (oldest first) for streak computation
@@ -93,12 +99,8 @@ class StatsService {
 
   /// Fetches data for a single session and computes session stats.
   Future<SessionStats> computeSessionStats(String sessionId) async {
-    final players = await _sessionDao
-        .watchPlayersForSession(sessionId)
-        .first;
-    final rounds = await _roundDao
-        .watchRoundsForSession(sessionId)
-        .first;
+    final players = await _sessionDao.watchPlayersForSession(sessionId).first;
+    final rounds = await _roundDao.watchRoundsForSession(sessionId).first;
 
     if (players.isEmpty) {
       return const SessionStats(
@@ -116,18 +118,20 @@ class StatsService {
         .map((p) => p.currentScore)
         .fold(0, (a, b) => a > b ? a : b);
 
-    final playerScores = players.map((p) => PlayerScore(
-      name: p.name,
-      normalizedName: normalizeName(p.name),
-      finalScore: p.currentScore,
-      isWinner: p.currentScore == maxScore && maxScore > 0,
-    )).toList();
+    final playerScores = players
+        .map(
+          (p) => PlayerScore(
+            name: p.name,
+            normalizedName: normalizeName(p.name),
+            finalScore: p.currentScore,
+            isWinner: p.currentScore == maxScore && maxScore > 0,
+          ),
+        )
+        .toList();
 
     final roundDataList = <RoundData>[];
     for (final round in rounds) {
-      final details = await _roundDao
-          .watchRoundWithDetails(round.id)
-          .first;
+      final details = await _roundDao.watchRoundWithDetails(round.id).first;
       if (details == null) continue;
 
       final votes = <String, String>{};
@@ -141,20 +145,24 @@ class StatsService {
             (scoreDeltas[change.playerId] ?? 0) + change.delta;
       }
 
-      final votesForStoryteller =
-          votes.values.where((v) => v == round.storytellerPlayerId).length;
+      final votesForStoryteller = votes.values
+          .where((v) => v == round.storytellerPlayerId)
+          .length;
       final totalVoters = votes.length;
-      final hasGoodClue = totalVoters > 0 &&
+      final hasGoodClue =
+          totalVoters > 0 &&
           votesForStoryteller > 0 &&
           votesForStoryteller < totalVoters;
 
-      roundDataList.add(RoundData(
-        roundNumber: round.roundNumber,
-        storytellerId: round.storytellerPlayerId,
-        votes: votes,
-        scoreDeltas: scoreDeltas,
-        hasGoodClue: hasGoodClue,
-      ));
+      roundDataList.add(
+        RoundData(
+          roundNumber: round.roundNumber,
+          storytellerId: round.storytellerPlayerId,
+          votes: votes,
+          scoreDeltas: scoreDeltas,
+          hasGoodClue: hasGoodClue,
+        ),
+      );
     }
 
     return StatsCalculator.computeSessionStats(
@@ -168,12 +176,8 @@ class StatsService {
   Future<Map<String, List<int>>> computeScoreProgression(
     String sessionId,
   ) async {
-    final players = await _sessionDao
-        .watchPlayersForSession(sessionId)
-        .first;
-    final rounds = await _roundDao
-        .watchRoundsForSession(sessionId)
-        .first;
+    final players = await _sessionDao.watchPlayersForSession(sessionId).first;
+    final rounds = await _roundDao.watchRoundsForSession(sessionId).first;
 
     // Initialize cumulative scores
     final progression = <String, List<int>>{};
@@ -188,9 +192,7 @@ class StatsService {
     }
 
     for (final round in rounds) {
-      final details = await _roundDao
-          .watchRoundWithDetails(round.id)
-          .first;
+      final details = await _roundDao.watchRoundWithDetails(round.id).first;
       if (details == null) continue;
 
       // Add deltas
@@ -218,14 +220,18 @@ final statsServiceProvider = Provider<StatsService>((ref) {
 });
 
 /// Computes session stats for a given session ID.
-final sessionStatsProvider =
-    FutureProvider.family<SessionStats, String>((ref, sessionId) {
+final sessionStatsProvider = FutureProvider.family<SessionStats, String>((
+  ref,
+  sessionId,
+) {
   return ref.watch(statsServiceProvider).computeSessionStats(sessionId);
 });
 
 /// Computes all-time stats for a given normalized player name.
-final allTimeStatsProvider =
-    FutureProvider.family<PlayerAllTimeStats, String>((ref, normalizedName) async {
+final allTimeStatsProvider = FutureProvider.family<PlayerAllTimeStats, String>((
+  ref,
+  normalizedName,
+) async {
   final service = ref.watch(statsServiceProvider);
   final allGames = await service.fetchAllCompletedGames();
   return StatsCalculator.computePlayerAllTimeStats(
@@ -235,8 +241,7 @@ final allTimeStatsProvider =
 });
 
 /// Computes the all-time leaderboard.
-final leaderboardProvider =
-    FutureProvider<List<LeaderboardEntry>>((ref) async {
+final leaderboardProvider = FutureProvider<List<LeaderboardEntry>>((ref) async {
   final service = ref.watch(statsServiceProvider);
   final allGames = await service.fetchAllCompletedGames();
   return StatsCalculator.computeLeaderboard(allGames: allGames);
@@ -245,5 +250,5 @@ final leaderboardProvider =
 /// Computes score progression for charting in a given session.
 final scoreProgressionProvider =
     FutureProvider.family<Map<String, List<int>>, String>((ref, sessionId) {
-  return ref.watch(statsServiceProvider).computeScoreProgression(sessionId);
-});
+      return ref.watch(statsServiceProvider).computeScoreProgression(sessionId);
+    });

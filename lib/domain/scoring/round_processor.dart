@@ -14,9 +14,9 @@ class RoundProcessor {
     required ScoringEngine engine,
     required RoundDao roundDao,
     required SessionDao sessionDao,
-  })  : _engine = engine,
-        _roundDao = roundDao,
-        _sessionDao = sessionDao;
+  }) : _engine = engine,
+       _roundDao = roundDao,
+       _sessionDao = sessionDao;
 
   /// Submit a new round: compute scores, persist everything atomically.
   Future<RoundResult> submitRound({

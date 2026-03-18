@@ -67,9 +67,7 @@ abstract final class CelebrationEngine {
       );
     }
 
-    final effects = <CelebrationEffect>[
-      CelebrationEffect.milestoneToast,
-    ];
+    final effects = <CelebrationEffect>[CelebrationEffect.milestoneToast];
 
     if (isSupporter) {
       effects.add(CelebrationEffect.milestoneChime);

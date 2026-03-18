@@ -19,7 +19,7 @@ class FavoritePlayerChips extends StatelessWidget {
 
   final List<PresetPlayer> favorites;
   final void Function(String name, String colorKey, String avatarStyle)
-      onSelect;
+  onSelect;
 
   /// Names already added — these chips will be disabled.
   final Set<String> excludeNames;
@@ -50,8 +50,9 @@ class FavoritePlayerChips extends StatelessWidget {
                 const SizedBox(width: SpacingTokens.xs),
             itemBuilder: (context, index) {
               final fav = favorites[index];
-              final isExcluded = excludeNames
-                  .contains(fav.name.trim().toLowerCase());
+              final isExcluded = excludeNames.contains(
+                fav.name.trim().toLowerCase(),
+              );
 
               return Semantics(
                 label: 'Add ${fav.name} from favorites',
@@ -68,11 +69,7 @@ class FavoritePlayerChips extends StatelessWidget {
                   label: Text(fav.name),
                   onPressed: isExcluded
                       ? null
-                      : () => onSelect(
-                            fav.name,
-                            fav.colorKey,
-                            fav.avatarStyle,
-                          ),
+                      : () => onSelect(fav.name, fav.colorKey, fav.avatarStyle),
                 ),
               );
             },

@@ -30,9 +30,7 @@ class PremiumScreen extends ConsumerWidget {
 
           // ---- Body ----
           SliverPadding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: SpacingTokens.lg,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: SpacingTokens.lg),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 const SizedBox(height: SpacingTokens.lg),
@@ -107,11 +105,7 @@ class _HeroHeader extends StatelessWidget {
             ),
             shape: BoxShape.circle,
           ),
-          child: Icon(
-            Icons.star_rounded,
-            size: 44,
-            color: ext.goldAccent,
-          ),
+          child: Icon(Icons.star_rounded, size: 44, color: ext.goldAccent),
         ),
         const SizedBox(height: SpacingTokens.lg),
 
@@ -128,9 +122,9 @@ class _HeroHeader extends StatelessWidget {
         Text(
           isSupporter
               ? 'You have unlocked all supporter features. '
-                  'Your generosity helps keep StoryScore growing.'
+                    'Your generosity helps keep StoryScore growing.'
               : 'A one-time purchase to unlock premium features '
-                  'and support the development of StoryScore.',
+                    'and support the development of StoryScore.',
           style: theme.textTheme.bodyMedium?.copyWith(
             color: theme.colorScheme.onSurfaceVariant,
           ),
@@ -174,8 +168,7 @@ class _PurchaseSection extends ConsumerWidget {
               backgroundColor: ext.goldAccent,
               foregroundColor: Colors.black,
               shape: RoundedRectangleBorder(
-                borderRadius:
-                    BorderRadius.circular(SpacingTokens.radiusMd),
+                borderRadius: BorderRadius.circular(SpacingTokens.radiusMd),
               ),
             ),
             icon: const Icon(Icons.star_rounded, size: 20),
@@ -193,9 +186,7 @@ class _PurchaseSection extends ConsumerWidget {
           onPressed: () => _handleRestore(context, ref),
           child: Text(
             'Restore Purchases',
-            style: TextStyle(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
+            style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
           ),
         ),
       ],
@@ -208,9 +199,9 @@ class _PurchaseSection extends ConsumerWidget {
     // Invalidate the entitlement provider so isSupporterProvider updates
     ref.invalidate(purchaseEntitlementProvider);
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(result)));
     }
   }
 
@@ -219,9 +210,9 @@ class _PurchaseSection extends ConsumerWidget {
     final result = await ref.read(restorePurchasesProvider.future);
     ref.invalidate(purchaseEntitlementProvider);
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(result)));
     }
   }
 }
@@ -244,17 +235,11 @@ class _AlreadySupporterBanner extends StatelessWidget {
       decoration: BoxDecoration(
         color: ext.auroraTeal.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(SpacingTokens.radiusLg),
-        border: Border.all(
-          color: ext.auroraTeal.withValues(alpha: 0.30),
-        ),
+        border: Border.all(color: ext.auroraTeal.withValues(alpha: 0.30)),
       ),
       child: Row(
         children: [
-          Icon(
-            Icons.verified_rounded,
-            color: ext.auroraTeal,
-            size: 28,
-          ),
+          Icon(Icons.verified_rounded, color: ext.auroraTeal, size: 28),
           const SizedBox(width: SpacingTokens.md),
           Expanded(
             child: Column(
@@ -315,9 +300,9 @@ class _DebugClearButton extends ConsumerWidget {
     final result = await ref.read(clearPurchaseProvider.future);
     ref.invalidate(purchaseEntitlementProvider);
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(result)));
     }
   }
 }

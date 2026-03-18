@@ -81,10 +81,7 @@ class RoundResult {
   final List<ScoreEntry> scoreEntries;
   final ClueOutcome clueOutcome;
 
-  const RoundResult({
-    required this.scoreEntries,
-    required this.clueOutcome,
-  });
+  const RoundResult({required this.scoreEntries, required this.clueOutcome});
 
   /// Returns the total points earned by [playerId] in this round.
   int totalDeltaFor(String playerId) {
@@ -108,43 +105,52 @@ class ScoringEngine {
   /// The [input] must pass validation (enforced by [RoundInput]'s factory constructor).
   RoundResult computeRound(RoundInput input) {
     final storyteller = input.storytellerPlayerId;
-    final nonStorytellers =
-        input.allPlayerIds.where((id) => id != storyteller).toList();
+    final nonStorytellers = input.allPlayerIds
+        .where((id) => id != storyteller)
+        .toList();
 
     // Count votes for the storyteller's card.
-    final votesForStoryteller =
-        input.votes.values.where((v) => v == storyteller).length;
+    final votesForStoryteller = input.votes.values
+        .where((v) => v == storyteller)
+        .length;
 
     final isPerfectFail =
-        votesForStoryteller == 0 || votesForStoryteller == nonStorytellers.length;
+        votesForStoryteller == 0 ||
+        votesForStoryteller == nonStorytellers.length;
 
     final entries = <ScoreEntry>[];
 
     if (isPerfectFail) {
       // Storyteller gets 0; every non-storyteller gets +2.
       for (final player in nonStorytellers) {
-        entries.add(ScoreEntry(
-          playerId: player,
-          delta: 2,
-          reason: ScoreReason.allGuessedBonus,
-        ));
+        entries.add(
+          ScoreEntry(
+            playerId: player,
+            delta: 2,
+            reason: ScoreReason.allGuessedBonus,
+          ),
+        );
       }
     } else {
       // Storyteller gets +3.
-      entries.add(ScoreEntry(
-        playerId: storyteller,
-        delta: 3,
-        reason: ScoreReason.storytellerGoodClue,
-      ));
+      entries.add(
+        ScoreEntry(
+          playerId: storyteller,
+          delta: 3,
+          reason: ScoreReason.storytellerGoodClue,
+        ),
+      );
 
       // Each correct guesser gets +3.
       for (final entry in input.votes.entries) {
         if (entry.value == storyteller) {
-          entries.add(ScoreEntry(
-            playerId: entry.key,
-            delta: 3,
-            reason: ScoreReason.correctGuess,
-          ));
+          entries.add(
+            ScoreEntry(
+              playerId: entry.key,
+              delta: 3,
+              reason: ScoreReason.correctGuess,
+            ),
+          );
         }
       }
     }
@@ -152,20 +158,23 @@ class ScoringEngine {
     // Fooled bonus: each non-storyteller gets +1 per vote their card received.
     // The storyteller does NOT get bonus for votes on the storyteller's card.
     for (final player in nonStorytellers) {
-      final votesReceived =
-          input.votes.values.where((v) => v == player).length;
+      final votesReceived = input.votes.values.where((v) => v == player).length;
       if (votesReceived > 0) {
-        entries.add(ScoreEntry(
-          playerId: player,
-          delta: votesReceived,
-          reason: ScoreReason.fooledBonus,
-        ));
+        entries.add(
+          ScoreEntry(
+            playerId: player,
+            delta: votesReceived,
+            reason: ScoreReason.fooledBonus,
+          ),
+        );
       }
     }
 
     return RoundResult(
       scoreEntries: entries,
-      clueOutcome: isPerfectFail ? ClueOutcome.perfectFail : ClueOutcome.goodClue,
+      clueOutcome: isPerfectFail
+          ? ClueOutcome.perfectFail
+          : ClueOutcome.goodClue,
     );
   }
 
@@ -205,8 +214,9 @@ class ScoringEngine {
     }
 
     // All non-storytellers must vote exactly once.
-    final expectedVoters =
-        allIds.where((id) => id != input.storytellerPlayerId).toSet();
+    final expectedVoters = allIds
+        .where((id) => id != input.storytellerPlayerId)
+        .toSet();
     final actualVoters = input.votes.keys.toSet();
     final missingVoters = expectedVoters.difference(actualVoters);
     final extraVoters = actualVoters.difference(expectedVoters);

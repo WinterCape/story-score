@@ -100,17 +100,13 @@ class PlayerDetailSheet extends ConsumerWidget {
         // Player name
         Text(
           displayName,
-          style: textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: SpacingTokens.xs),
         Text(
           '${stats.gamesPlayed} games played',
-          style: textTheme.bodyMedium?.copyWith(
-            color: colors.onSurfaceVariant,
-          ),
+          style: textTheme.bodyMedium?.copyWith(color: colors.onSurfaceVariant),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: SpacingTokens.lg),
@@ -119,8 +115,7 @@ class PlayerDetailSheet extends ConsumerWidget {
           icon: Icons.emoji_events_rounded,
           label: 'Wins',
           value: '${stats.wins}',
-          subtitle:
-              'Win rate: ${(stats.winRate * 100).toStringAsFixed(0)}%',
+          subtitle: 'Win rate: ${(stats.winRate * 100).toStringAsFixed(0)}%',
           iconColor: ColorTokens.goldAccent,
         ),
         const SizedBox(height: SpacingTokens.xs),
@@ -140,10 +135,7 @@ class PlayerDetailSheet extends ConsumerWidget {
         ),
         const SizedBox(height: SpacingTokens.lg),
         // Streaks
-        Text(
-          'Streaks',
-          style: textTheme.titleMedium,
-        ),
+        Text('Streaks', style: textTheme.titleMedium),
         const SizedBox(height: SpacingTokens.sm),
         StatCard(
           icon: Icons.local_fire_department_rounded,
@@ -196,10 +188,7 @@ class _HeadToHeadSection extends ConsumerWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Head-to-Head',
-              style: context.textTheme.titleMedium,
-            ),
+            Text('Head-to-Head', style: context.textTheme.titleMedium),
             const SizedBox(height: SpacingTokens.sm),
             _HeadToHeadList(
               normalizedName: normalizedName,
@@ -227,9 +216,7 @@ class _HeadToHeadList extends ConsumerWidget {
       future: _computeRecords(ref),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return const SizedBox.shrink();
-        final records = snapshot.data!
-            .where((r) => r.sharedGames > 0)
-            .toList();
+        final records = snapshot.data!.where((r) => r.sharedGames > 0).toList();
         if (records.isEmpty) {
           return Text(
             'No head-to-head records yet',
@@ -240,11 +227,12 @@ class _HeadToHeadList extends ConsumerWidget {
         }
         return Column(
           children: records
-              .map((r) => Padding(
-                    padding:
-                        const EdgeInsets.only(bottom: SpacingTokens.xs),
-                    child: HeadToHeadCard(record: r),
-                  ))
+              .map(
+                (r) => Padding(
+                  padding: const EdgeInsets.only(bottom: SpacingTokens.xs),
+                  child: HeadToHeadCard(record: r),
+                ),
+              )
               .toList(),
         );
       },
@@ -257,10 +245,13 @@ class _HeadToHeadList extends ConsumerWidget {
 
     return opponents.map((opponent) {
       final sharedGames = allGames
-          .where((g) =>
-              g.players.any((p) => p.normalizedName == normalizedName) &&
-              g.players
-                  .any((p) => p.normalizedName == opponent.normalizedName))
+          .where(
+            (g) =>
+                g.players.any((p) => p.normalizedName == normalizedName) &&
+                g.players.any(
+                  (p) => p.normalizedName == opponent.normalizedName,
+                ),
+          )
           .toList();
       return StatsCalculator.computeHeadToHead(
         playerA: normalizedName,

@@ -10,8 +10,7 @@ class PresetPlayers extends Table {
   TextColumn get avatarStyle =>
       text().withDefault(const Constant('initials'))();
   IntColumn get seatOrder => integer()();
-  BoolColumn get isFavorite =>
-      boolean().withDefault(const Constant(false))();
+  BoolColumn get isFavorite => boolean().withDefault(const Constant(false))();
 
   @override
   Set<Column> get primaryKey => {id};

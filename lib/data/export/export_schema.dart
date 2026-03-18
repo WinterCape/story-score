@@ -37,7 +37,8 @@ class ExportedSession {
       appVersion: json['appVersion'] as String? ?? 'unknown',
       exportedAt: DateTime.parse(json['exportedAt'] as String),
       session: ExportedGameSession.fromJson(
-          json['session'] as Map<String, dynamic>),
+        json['session'] as Map<String, dynamic>,
+      ),
       players: (json['players'] as List)
           .map((p) => ExportedPlayer.fromJson(p as Map<String, dynamic>))
           .toList(),
@@ -121,15 +122,14 @@ class ExportedPlayer {
     'currentScore': currentScore,
   };
 
-  factory ExportedPlayer.fromJson(Map<String, dynamic> json) =>
-      ExportedPlayer(
-        id: json['id'] as String,
-        name: json['name'] as String,
-        seatOrder: json['seatOrder'] as int,
-        colorKey: json['colorKey'] as String,
-        avatarStyle: json['avatarStyle'] as String? ?? 'initials',
-        currentScore: json['currentScore'] as int? ?? 0,
-      );
+  factory ExportedPlayer.fromJson(Map<String, dynamic> json) => ExportedPlayer(
+    id: json['id'] as String,
+    name: json['name'] as String,
+    seatOrder: json['seatOrder'] as int,
+    colorKey: json['colorKey'] as String,
+    avatarStyle: json['avatarStyle'] as String? ?? 'initials',
+    currentScore: json['currentScore'] as int? ?? 0,
+  );
 }
 
 class ExportedRound {
@@ -171,8 +171,7 @@ class ExportedRound {
         .map((v) => ExportedVote.fromJson(v as Map<String, dynamic>))
         .toList(),
     scoreChanges: (json['scoreChanges'] as List)
-        .map((sc) =>
-            ExportedScoreChange.fromJson(sc as Map<String, dynamic>))
+        .map((sc) => ExportedScoreChange.fromJson(sc as Map<String, dynamic>))
         .toList(),
   );
 }

@@ -54,23 +54,22 @@ class _MilestoneToastState extends State<MilestoneToast>
       reverseDuration: duration,
     );
 
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, -1),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOutCubic,
-      reverseCurve: Curves.easeInCubic,
-    ));
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, -1), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _controller,
+            curve: Curves.easeOutCubic,
+            reverseCurve: Curves.easeInCubic,
+          ),
+        );
 
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOut,
-      reverseCurve: Curves.easeIn,
-    ));
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeOut,
+        reverseCurve: Curves.easeIn,
+      ),
+    );
 
     _controller.forward().then((_) {
       _autoDismissTimer = Timer(_displayDuration, _dismiss);
@@ -119,8 +118,7 @@ class _MilestoneToastState extends State<MilestoneToast>
                   vertical: SpacingTokens.md,
                 ),
                 decoration: BoxDecoration(
-                  borderRadius:
-                      BorderRadius.circular(SpacingTokens.radiusLg),
+                  borderRadius: BorderRadius.circular(SpacingTokens.radiusLg),
                   border: Border.all(
                     color: config.color.withValues(alpha: 0.4),
                     width: 1.5,
@@ -135,11 +133,7 @@ class _MilestoneToastState extends State<MilestoneToast>
                         color: config.color.withValues(alpha: 0.15),
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(
-                        config.icon,
-                        color: config.color,
-                        size: 22,
-                      ),
+                      child: Icon(config.icon, color: config.color, size: 22),
                     ),
                     const SizedBox(width: SpacingTokens.md),
                     Expanded(
@@ -193,25 +187,25 @@ class _MilestoneConfig {
 _MilestoneConfig _milestoneConfig(Milestone milestone) {
   return switch (milestone) {
     Milestone.firstCorrectGuess => const _MilestoneConfig(
-        icon: Icons.star_rounded,
-        color: Color(0xFFD4A742), // gold
-        title: 'First Correct Guess!',
-      ),
+      icon: Icons.star_rounded,
+      color: Color(0xFFD4A742), // gold
+      title: 'First Correct Guess!',
+    ),
     Milestone.onFire => const _MilestoneConfig(
-        icon: Icons.local_fire_department_rounded,
-        color: Color(0xFFFB923C), // orange
-        title: 'On Fire!',
-      ),
+      icon: Icons.local_fire_department_rounded,
+      color: Color(0xFFFB923C), // orange
+      title: 'On Fire!',
+    ),
     Milestone.masterStoryteller => const _MilestoneConfig(
-        icon: Icons.auto_stories_rounded,
-        color: Color(0xFF7B68EE), // violet
-        title: 'Master Storyteller!',
-      ),
+      icon: Icons.auto_stories_rounded,
+      color: Color(0xFF7B68EE), // violet
+      title: 'Master Storyteller!',
+    ),
     Milestone.trickster => const _MilestoneConfig(
-        icon: Icons.psychology_rounded,
-        color: Color(0xFF2EC4B6), // teal
-        title: 'Trickster!',
-      ),
+      icon: Icons.psychology_rounded,
+      color: Color(0xFF2EC4B6), // teal
+      title: 'Trickster!',
+    ),
   };
 }
 
@@ -220,10 +214,7 @@ _MilestoneConfig _milestoneConfig(Milestone milestone) {
 /// Call [showMilestones] to enqueue one or more milestones. They will
 /// display sequentially, each auto-dismissing before the next appears.
 class MilestoneToastQueue {
-  MilestoneToastQueue({
-    required this.overlayState,
-    this.reducedMotion = false,
-  });
+  MilestoneToastQueue({required this.overlayState, this.reducedMotion = false});
 
   final OverlayState overlayState;
   final bool reducedMotion;

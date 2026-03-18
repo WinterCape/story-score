@@ -61,8 +61,9 @@ class PremiumThemePalette {
         ? Color.lerp(surface, primary, 0.15)!
         : _lighten(Color.lerp(surface, primary, 0.15)!, 0.85);
     final onSurfColor = isDark ? onSurface : _darken(onSurface, 0.85);
-    final onSurfVariantColor =
-        isDark ? onSurfaceVariant : _darken(onSurfaceVariant, 0.5);
+    final onSurfVariantColor = isDark
+        ? onSurfaceVariant
+        : _darken(onSurfaceVariant, 0.5);
 
     final colorScheme = ColorScheme(
       brightness: brightness,
@@ -84,10 +85,12 @@ class PremiumThemePalette {
       onTertiaryContainer: isDark ? accent : _darken(accent, 0.5),
       error: const Color(0xFFFF6B6B),
       onError: isDark ? Colors.black : Colors.white,
-      errorContainer:
-          isDark ? const Color(0xFF93000A) : const Color(0xFFFFDAD6),
-      onErrorContainer:
-          isDark ? const Color(0xFFFFDAD6) : const Color(0xFF410002),
+      errorContainer: isDark
+          ? const Color(0xFF93000A)
+          : const Color(0xFFFFDAD6),
+      onErrorContainer: isDark
+          ? const Color(0xFFFFDAD6)
+          : const Color(0xFF410002),
       surface: bgColor,
       onSurface: onSurfColor,
       surfaceContainerHighest: surfColor,

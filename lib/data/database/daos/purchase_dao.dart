@@ -12,14 +12,15 @@ class PurchaseDao extends DatabaseAccessor<AppDatabase>
 
   /// Watches a single entitlement by [productId].
   Stream<PurchaseEntitlement?> watchEntitlement(String productId) {
-    return (select(purchaseEntitlements)
-          ..where((e) => e.productId.equals(productId)))
-        .watchSingleOrNull();
+    return (select(
+      purchaseEntitlements,
+    )..where((e) => e.productId.equals(productId))).watchSingleOrNull();
   }
 
   /// Inserts or updates an entitlement row.
   Future<void> upsertEntitlement(
-      PurchaseEntitlementsCompanion entitlement) async {
+    PurchaseEntitlementsCompanion entitlement,
+  ) async {
     await into(purchaseEntitlements).insertOnConflictUpdate(entitlement);
   }
 }

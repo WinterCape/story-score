@@ -77,16 +77,12 @@ class SettingsScreen extends ConsumerWidget {
               child: Text(
                 'Color Theme',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onSurfaceVariant,
-                    ),
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: SpacingTokens.lg,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: SpacingTokens.lg),
               child: const ThemePicker(),
             ),
             const SizedBox(height: SpacingTokens.sm),
@@ -101,9 +97,7 @@ class SettingsScreen extends ConsumerWidget {
               subtitle: const Text('Vibrate on score events'),
               value: settings.hapticsEnabled,
               onChanged: (v) {
-                ref
-                    .read(appSettingsProvider.notifier)
-                    .setHapticsEnabled(v);
+                ref.read(appSettingsProvider.notifier).setHapticsEnabled(v);
               },
             ),
             SwitchListTile(
@@ -155,22 +149,16 @@ class SettingsScreen extends ConsumerWidget {
               subtitle: const Text('Allow clue notes per round'),
               value: settings.showRoundNotes,
               onChanged: (v) {
-                ref
-                    .read(appSettingsProvider.notifier)
-                    .setShowRoundNotes(v);
+                ref.read(appSettingsProvider.notifier).setShowRoundNotes(v);
               },
             ),
             ListTile(
               leading: const Icon(Icons.flag_outlined),
               title: const Text('Default Target Mode'),
-              subtitle:
-                  Text(_targetTypeLabel(settings.defaultTargetMode)),
+              subtitle: Text(_targetTypeLabel(settings.defaultTargetMode)),
               trailing: SegmentedButton<TargetType>(
                 segments: const [
-                  ButtonSegment(
-                    value: TargetType.score,
-                    label: Text('Score'),
-                  ),
+                  ButtonSegment(value: TargetType.score, label: Text('Score')),
                   ButtonSegment(
                     value: TargetType.freeplay,
                     label: Text('Free'),
@@ -188,8 +176,7 @@ class SettingsScreen extends ConsumerWidget {
             ListTile(
               leading: const Icon(Icons.sort_outlined),
               title: const Text('Player Sort Order'),
-              subtitle:
-                  Text(_sortOrderLabel(settings.preferredSortOrder)),
+              subtitle: Text(_sortOrderLabel(settings.preferredSortOrder)),
               trailing: DropdownButton<PlayerSortOrder>(
                 value: settings.preferredSortOrder,
                 underline: const SizedBox.shrink(),
@@ -201,10 +188,12 @@ class SettingsScreen extends ConsumerWidget {
                   }
                 },
                 items: PlayerSortOrder.values
-                    .map((o) => DropdownMenuItem(
-                          value: o,
-                          child: Text(_sortOrderLabel(o)),
-                        ))
+                    .map(
+                      (o) => DropdownMenuItem(
+                        value: o,
+                        child: Text(_sortOrderLabel(o)),
+                      ),
+                    )
                     .toList(),
               ),
             ),
@@ -253,23 +242,23 @@ class SettingsScreen extends ConsumerWidget {
   }
 
   String _themeModeLabel(ThemeMode mode) => switch (mode) {
-        ThemeMode.system => 'System',
-        ThemeMode.light => 'Light',
-        ThemeMode.dark => 'Dark',
-      };
+    ThemeMode.system => 'System',
+    ThemeMode.light => 'Light',
+    ThemeMode.dark => 'Dark',
+  };
 
   String _targetTypeLabel(TargetType type) => switch (type) {
-        TargetType.score => 'Score Target',
-        TargetType.rounds => 'Round Limit',
-        TargetType.freeplay => 'Free Play',
-      };
+    TargetType.score => 'Score Target',
+    TargetType.rounds => 'Round Limit',
+    TargetType.freeplay => 'Free Play',
+  };
 
   String _sortOrderLabel(PlayerSortOrder order) => switch (order) {
-        PlayerSortOrder.seat => 'Seat Order',
-        PlayerSortOrder.scoreDesc => 'Score (High to Low)',
-        PlayerSortOrder.scoreAsc => 'Score (Low to High)',
-        PlayerSortOrder.name => 'Name',
-      };
+    PlayerSortOrder.seat => 'Seat Order',
+    PlayerSortOrder.scoreDesc => 'Score (High to Low)',
+    PlayerSortOrder.scoreAsc => 'Score (Low to High)',
+    PlayerSortOrder.name => 'Name',
+  };
 }
 
 class _SectionHeader extends StatelessWidget {
@@ -288,8 +277,8 @@ class _SectionHeader extends StatelessWidget {
       child: Text(
         title,
         style: Theme.of(context).textTheme.labelLarge?.copyWith(
-              color: Theme.of(context).colorScheme.primary,
-            ),
+          color: Theme.of(context).colorScheme.primary,
+        ),
       ),
     );
   }

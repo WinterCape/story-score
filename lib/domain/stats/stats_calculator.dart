@@ -110,9 +110,7 @@ abstract final class StatsCalculator {
         : 0.0;
 
     // MVP
-    final mvp = players.reduce(
-      (a, b) => a.finalScore >= b.finalScore ? a : b,
-    );
+    final mvp = players.reduce((a, b) => a.finalScore >= b.finalScore ? a : b);
 
     return SessionStats(
       bestRound: bestRound,
@@ -133,9 +131,11 @@ abstract final class StatsCalculator {
     required List<CompletedGameData> allGames,
   }) {
     // Filter to games this player participated in
-    final playerGames = allGames.where((game) =>
-      game.players.any((p) => p.normalizedName == normalizedName),
-    ).toList();
+    final playerGames = allGames
+        .where(
+          (game) => game.players.any((p) => p.normalizedName == normalizedName),
+        )
+        .toList();
 
     if (playerGames.isEmpty) {
       return PlayerAllTimeStats(
@@ -310,14 +310,16 @@ abstract final class StatsCalculator {
     // Filter by min games and build entries
     final entries = playerMap.values
         .where((acc) => acc.gamesPlayed >= minGames)
-        .map((acc) => LeaderboardEntry(
-              normalizedName: acc.normalizedName,
-              displayName: acc.displayName,
-              wins: acc.wins,
-              winRate: acc.gamesPlayed > 0 ? acc.wins / acc.gamesPlayed : 0.0,
-              gamesPlayed: acc.gamesPlayed,
-              totalPoints: acc.totalPoints,
-            ))
+        .map(
+          (acc) => LeaderboardEntry(
+            normalizedName: acc.normalizedName,
+            displayName: acc.displayName,
+            wins: acc.wins,
+            winRate: acc.gamesPlayed > 0 ? acc.wins / acc.gamesPlayed : 0.0,
+            gamesPlayed: acc.gamesPlayed,
+            totalPoints: acc.totalPoints,
+          ),
+        )
         .toList();
 
     entries.sort();

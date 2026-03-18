@@ -26,8 +26,9 @@ class RoundHistoryTile extends ConsumerWidget {
     final storyTheme = context.storyTheme;
 
     // Watch players for the session so we can resolve the storyteller name
-    final playersAsync =
-        ref.watch(sessionDaoProvider).watchPlayersForSession(sessionId);
+    final playersAsync = ref
+        .watch(sessionDaoProvider)
+        .watchPlayersForSession(sessionId);
 
     // Watch round details for score totals
     final detailsAsync = ref.watch(roundWithDetailsProvider(round.id));
@@ -74,13 +75,13 @@ class RoundHistoryTile extends ConsumerWidget {
                       builder: (context, snapshot) {
                         final players = snapshot.data ?? [];
                         final storyteller = players
-                            .where(
-                                (p) => p.id == round.storytellerPlayerId)
+                            .where((p) => p.id == round.storytellerPlayerId)
                             .firstOrNull;
                         return Text(
                           storyteller?.name ?? 'Unknown',
-                          style: text.titleSmall
-                              ?.copyWith(color: colors.onSurface),
+                          style: text.titleSmall?.copyWith(
+                            color: colors.onSurface,
+                          ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         );
@@ -94,12 +95,15 @@ class RoundHistoryTile extends ConsumerWidget {
                         if (details == null) {
                           return const SizedBox.shrink();
                         }
-                        final totalPoints = details.scoreChanges
-                            .fold<int>(0, (sum, sc) => sum + sc.delta);
+                        final totalPoints = details.scoreChanges.fold<int>(
+                          0,
+                          (sum, sc) => sum + sc.delta,
+                        );
 
                         // Determine outcome based on score changes
                         final hasGoodClue = details.scoreChanges.any(
-                            (sc) => sc.reasonCode == 'storytellerGoodClue');
+                          (sc) => sc.reasonCode == 'storytellerGoodClue',
+                        );
 
                         return Row(
                           children: [
@@ -133,21 +137,18 @@ class RoundHistoryTile extends ConsumerWidget {
                               Icon(
                                 Icons.edit_outlined,
                                 size: 12,
-                                color: colors.onSurfaceVariant
-                                    .withValues(alpha: 0.6),
+                                color: colors.onSurfaceVariant.withValues(
+                                  alpha: 0.6,
+                                ),
                               ),
                             ],
                           ],
                         );
                       },
-                      loading: () => const SizedBox(
-                        height: 16,
-                        width: 80,
-                      ),
+                      loading: () => const SizedBox(height: 16, width: 80),
                       error: (_, _) => Text(
                         'Error loading details',
-                        style: text.bodySmall
-                            ?.copyWith(color: colors.error),
+                        style: text.bodySmall?.copyWith(color: colors.error),
                       ),
                     ),
                   ],
@@ -155,10 +156,7 @@ class RoundHistoryTile extends ConsumerWidget {
               ),
 
               // Chevron
-              Icon(
-                Icons.chevron_right_rounded,
-                color: colors.onSurfaceVariant,
-              ),
+              Icon(Icons.chevron_right_rounded, color: colors.onSurfaceVariant),
             ],
           ),
         ),

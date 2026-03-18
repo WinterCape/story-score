@@ -30,8 +30,10 @@ class ScoreDistributionChart extends StatelessWidget {
     final colors = context.colorScheme;
     final barColor = playerColor ?? storyTheme.auroraTeal;
 
-    final maxCount = distribution.values.fold(0,
-        (max, count) => count > max ? count : max);
+    final maxCount = distribution.values.fold(
+      0,
+      (max, count) => count > max ? count : max,
+    );
 
     return SizedBox(
       height: height,

@@ -79,8 +79,7 @@ class _OnboardingFlowState extends ConsumerState<OnboardingFlow> {
             Expanded(
               child: PageView.builder(
                 controller: _controller,
-                onPageChanged: (page) =>
-                    setState(() => _currentPage = page),
+                onPageChanged: (page) => setState(() => _currentPage = page),
                 itemCount: _pages.length,
                 itemBuilder: (context, index) {
                   final page = _pages[index];
@@ -167,9 +166,9 @@ class _OnboardingFlowState extends ConsumerState<OnboardingFlow> {
                       onPressed: isLastPage
                           ? _finishOnboarding
                           : () => _controller.nextPage(
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.easeOutCubic,
-                              ),
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeOutCubic,
+                            ),
                       style: FilledButton.styleFrom(
                         padding: const EdgeInsets.symmetric(
                           vertical: SpacingTokens.md,

@@ -45,18 +45,10 @@ class StatsScreen extends ConsumerWidget {
           ),
         ),
         body: isSupporter
-            ? const TabBarView(
-                children: [
-                  _LeaderboardTab(),
-                  _PlayersTab(),
-                ],
-              )
+            ? const TabBarView(children: [_LeaderboardTab(), _PlayersTab()])
             : _PremiumGateOverlay(
                 child: const TabBarView(
-                  children: [
-                    _LeaderboardTab(),
-                    _PlayersTab(),
-                  ],
+                  children: [_LeaderboardTab(), _PlayersTab()],
                 ),
               ),
       ),
@@ -143,9 +135,8 @@ class _LeaderboardTab extends ConsumerWidget {
     final colors = context.colorScheme;
     return leaderboardAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, _) => Center(
-        child: Text('Failed to load leaderboard: $error'),
-      ),
+      error: (error, _) =>
+          Center(child: Text('Failed to load leaderboard: $error')),
       data: (entries) {
         if (entries.isEmpty) {
           return Center(
@@ -160,10 +151,7 @@ class _LeaderboardTab extends ConsumerWidget {
                     color: colors.onSurfaceVariant.withValues(alpha: 0.5),
                   ),
                   const SizedBox(height: SpacingTokens.md),
-                  Text(
-                    'No leaderboard yet',
-                    style: textTheme.titleMedium,
-                  ),
+                  Text('No leaderboard yet', style: textTheme.titleMedium),
                   const SizedBox(height: SpacingTokens.sm),
                   Text(
                     'Play at least 3 games with the same players '
@@ -182,17 +170,11 @@ class _LeaderboardTab extends ConsumerWidget {
         return ListView(
           padding: const EdgeInsets.all(SpacingTokens.md),
           children: [
-            Text(
-              'Win Rate',
-              style: textTheme.titleMedium,
-            ),
+            Text('Win Rate', style: textTheme.titleMedium),
             const SizedBox(height: SpacingTokens.sm),
             WinRateBarChart(entries: entries),
             const SizedBox(height: SpacingTokens.lg),
-            Text(
-              'Rankings',
-              style: textTheme.titleMedium,
-            ),
+            Text('Rankings', style: textTheme.titleMedium),
             const SizedBox(height: SpacingTokens.sm),
             ...entries.asMap().entries.map((e) {
               final index = e.key;
@@ -271,15 +253,11 @@ class _LeaderboardTile extends StatelessWidget {
         ),
         title: Text(
           entry.displayName,
-          style: textTheme.bodyMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
+          style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
         ),
         subtitle: Text(
           '${entry.wins}W / ${entry.gamesPlayed}G',
-          style: textTheme.bodySmall?.copyWith(
-            color: colors.onSurfaceVariant,
-          ),
+          style: textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
         ),
         trailing: Text(
           '${(entry.winRate * 100).toStringAsFixed(0)}%',
@@ -310,9 +288,8 @@ class _PlayersTab extends ConsumerWidget {
 
     return leaderboardAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, _) => Center(
-        child: Text('Failed to load players: $error'),
-      ),
+      error: (error, _) =>
+          Center(child: Text('Failed to load players: $error')),
       data: (entries) {
         if (entries.isEmpty) {
           return Center(
@@ -327,10 +304,7 @@ class _PlayersTab extends ConsumerWidget {
                     color: colors.onSurfaceVariant.withValues(alpha: 0.5),
                   ),
                   const SizedBox(height: SpacingTokens.md),
-                  Text(
-                    'No players yet',
-                    style: textTheme.titleMedium,
-                  ),
+                  Text('No players yet', style: textTheme.titleMedium),
                   const SizedBox(height: SpacingTokens.sm),
                   Text(
                     'Complete some games to see player stats.',

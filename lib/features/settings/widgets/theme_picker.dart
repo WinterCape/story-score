@@ -35,7 +35,8 @@ class ThemePicker extends ConsumerWidget {
           isSelected: selectedTheme == 'celestial',
           isPremium: false,
           isSupporter: isSupporter,
-          onTap: () => _selectTheme(context, ref, 'celestial', false, isSupporter),
+          onTap: () =>
+              _selectTheme(context, ref, 'celestial', false, isSupporter),
         ),
         // Premium themes
         for (final palette in PremiumThemes.all)
@@ -46,13 +47,8 @@ class ThemePicker extends ConsumerWidget {
             isSelected: selectedTheme == palette.id,
             isPremium: true,
             isSupporter: isSupporter,
-            onTap: () => _selectTheme(
-              context,
-              ref,
-              palette.id,
-              true,
-              isSupporter,
-            ),
+            onTap: () =>
+                _selectTheme(context, ref, palette.id, true, isSupporter),
           ),
       ],
     );
@@ -193,8 +189,9 @@ class _ThemeSwatch extends StatelessWidget {
                       color: isSelected
                           ? theme.colorScheme.primary
                           : theme.colorScheme.onSurfaceVariant,
-                      fontWeight:
-                          isSelected ? FontWeight.w600 : FontWeight.w400,
+                      fontWeight: isSelected
+                          ? FontWeight.w600
+                          : FontWeight.w400,
                     ),
                     textAlign: TextAlign.center,
                     maxLines: 1,
