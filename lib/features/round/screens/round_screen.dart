@@ -48,17 +48,19 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
       currentStorytellerProvider(widget.sessionId),
     );
     final voteState = ref.watch(voteEntryProvider);
+    final l10n = context.l10n;
 
     return sessionAsync.when(
       loading: () =>
           const Scaffold(body: Center(child: CircularProgressIndicator())),
-      error: (e, st) => Scaffold(body: Center(child: Text('Error: $e'))),
+      error: (e, st) =>
+          Scaffold(body: Center(child: Text('${l10n.error}: $e'))),
       data: (session) {
         if (session == null) {
           return Scaffold(
             body: Center(
               child: Text(
-                'Session not found',
+                l10n.sessionNotFound,
                 style: context.textTheme.titleMedium,
               ),
             ),
@@ -68,7 +70,8 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
         return playersAsync.when(
           loading: () =>
               const Scaffold(body: Center(child: CircularProgressIndicator())),
-          error: (e, st) => Scaffold(body: Center(child: Text('Error: $e'))),
+          error: (e, st) =>
+              Scaffold(body: Center(child: Text('${l10n.error}: $e'))),
           data: (players) {
             final storyteller = storytellerAsync.value;
 
@@ -76,7 +79,7 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
               return Scaffold(
                 body: Center(
                   child: Text(
-                    'No storyteller assigned',
+                    l10n.noStorytellerAssigned,
                     style: context.textTheme.titleMedium,
                   ),
                 ),
@@ -109,7 +112,7 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
                   onPressed: () =>
                       context.go('/game/${widget.sessionId}/scoreboard'),
                 ),
-                title: Text('Round ${session.roundCount + 1}'),
+                title: Text(l10n.round(session.roundCount + 1)),
               ),
               body: Center(
                 child: ConstrainedBox(
@@ -136,7 +139,7 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
                           child: TextField(
                             controller: _noteController,
                             decoration: InputDecoration(
-                              hintText: 'Round note (optional)',
+                              hintText: l10n.roundNoteHint,
                               prefixIcon: const Icon(
                                 Icons.note_alt_outlined,
                                 size: 20,
@@ -161,7 +164,7 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
                             vertical: SpacingTokens.sm,
                           ),
                           child: Text(
-                            'Who did each player vote for?',
+                            l10n.whoDidEachPlayerVoteFor,
                             style: context.textTheme.titleSmall?.copyWith(
                               color: context.colorScheme.onSurfaceVariant,
                             ),
@@ -173,10 +176,6 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
                       SliverList(
                         delegate: SliverChildBuilderDelegate((context, index) {
                           final voter = nonStorytellerPlayers[index];
-                          // Targets: all players except the voter themselves.
-                          // The storyteller IS a valid target (players vote
-                          // for the card they think is the storyteller's).
-                          // Players just cannot vote for their own card.
                           final targets = players
                               .where((p) => p.id != voter.id)
                               .toList();
@@ -191,7 +190,6 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
                               selectedTargetId: voteState.votes[voter.id],
                               onTargetSelected: (targetId) {
                                 Haptics.selection();
-                                // Toggle: tap again to deselect
                                 if (voteState.votes[voter.id] == targetId) {
                                   ref
                                       .read(voteEntryProvider.notifier)
@@ -220,8 +218,8 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
                   padding: const EdgeInsets.all(SpacingTokens.md),
                   child: Semantics(
                     label: voteState.allVotesCast
-                        ? 'Score round'
-                        : 'Score round, disabled, all players must vote first',
+                        ? l10n.scoreRound
+                        : l10n.scoreRoundDisabledHint,
                     button: true,
                     enabled: voteState.allVotesCast && !_isSubmitting,
                     excludeSemantics: true,
@@ -251,8 +249,8 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
                             )
                           : Text(
                               voteState.allVotesCast
-                                  ? 'Score Round'
-                                  : 'All players must vote',
+                                  ? l10n.scoreRound
+                                  : l10n.allPlayersMustVote,
                             ),
                     ),
                   ),
@@ -276,6 +274,7 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
     final navigator = GoRouter.of(context);
     final messenger = ScaffoldMessenger.of(context);
     final ctx = context;
+    final l10n = context.l10n;
 
     try {
       final result = await ref
@@ -300,7 +299,7 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
         votes: votes,
       );
 
-      // Show recap bottom sheet — context is guarded by mounted check above
+      // Show recap bottom sheet
       await showRoundRecapSheet(
         context: ctx, // ignore: use_build_context_synchronously
         result: result,
@@ -319,7 +318,7 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
     } catch (e) {
       if (!mounted) return;
       messenger.showSnackBar(
-        SnackBar(content: Text('Error scoring round: $e')),
+        SnackBar(content: Text(l10n.errorScoringRound('$e'))),
       );
     } finally {
       if (mounted) {
@@ -341,28 +340,25 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
         isSupporter && (settings?.soundEffectsEnabled ?? false);
     final isReducedMotion = context.reduceMotion;
 
-    // Build the RoundData for milestone detection
     final hasGoodClue = result.clueOutcome == ClueOutcome.goodClue;
 
-    // Build score deltas map from the result
     final scoreDeltas = <String, int>{};
     for (final player in players) {
       scoreDeltas[player.id] = result.totalDeltaFor(player.id);
     }
 
     final latestRound = RoundData(
-      roundNumber: 1, // Only the latest round matters for detection
+      roundNumber: 1,
       storytellerId: storyteller.id,
       votes: votes,
       scoreDeltas: scoreDeltas,
       hasGoodClue: hasGoodClue,
     );
 
-    // Build player names map
     final playerNames = {for (final p in players) p.id: p.name};
 
     final milestones = MilestoneDetector.detectMilestones(
-      sessionRounds: [latestRound], // simplified: only latest round
+      sessionRounds: [latestRound],
       latestRound: latestRound,
       playerNames: playerNames,
     );
@@ -400,6 +396,7 @@ class _RoundHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final storytellerColor = PlayerColors.colorFor(storyteller.colorKey);
     final goldAccent = context.storyTheme.goldAccent;
+    final l10n = context.l10n;
 
     return Container(
       width: double.infinity,
@@ -414,7 +411,7 @@ class _RoundHeader extends StatelessWidget {
         children: [
           // Round number
           Text(
-            'Round ${session.roundCount + 1}',
+            l10n.round(session.roundCount + 1),
             style: context.textTheme.headlineSmall?.copyWith(
               color: context.colorScheme.onSurface,
             ),
@@ -422,7 +419,7 @@ class _RoundHeader extends StatelessWidget {
           const SizedBox(height: SpacingTokens.sm),
           // Storyteller row
           Semantics(
-            label: '${storyteller.name} is the current storyteller',
+            label: l10n.playerIsStoryteller(storyteller.name),
             excludeSemantics: true,
             child: Container(
               padding: const EdgeInsets.symmetric(
@@ -449,7 +446,7 @@ class _RoundHeader extends StatelessWidget {
                   ),
                   const SizedBox(width: SpacingTokens.sm),
                   Text(
-                    '${storyteller.name} is the Storyteller',
+                    l10n.playerIsStoryteller(storyteller.name),
                     style: context.textTheme.titleSmall?.copyWith(
                       color: goldAccent,
                     ),

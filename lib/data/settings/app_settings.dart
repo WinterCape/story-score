@@ -16,6 +16,7 @@ class AppSettings {
     this.preferredSortOrder = PlayerSortOrder.seat,
     this.selectedTheme = 'celestial',
     this.soundEffectsEnabled = false,
+    this.locale,
   });
 
   final ThemeMode themeMode;
@@ -32,6 +33,10 @@ class AppSettings {
   /// Requires supporter status to take effect.
   final bool soundEffectsEnabled;
 
+  /// The user-selected locale code (e.g. 'en', 'ro'), or null to follow
+  /// the system locale.
+  final String? locale;
+
   AppSettings copyWith({
     ThemeMode? themeMode,
     bool? hapticsEnabled,
@@ -41,6 +46,7 @@ class AppSettings {
     PlayerSortOrder? preferredSortOrder,
     String? selectedTheme,
     bool? soundEffectsEnabled,
+    String? Function()? locale,
   }) {
     return AppSettings(
       themeMode: themeMode ?? this.themeMode,
@@ -52,6 +58,7 @@ class AppSettings {
       preferredSortOrder: preferredSortOrder ?? this.preferredSortOrder,
       selectedTheme: selectedTheme ?? this.selectedTheme,
       soundEffectsEnabled: soundEffectsEnabled ?? this.soundEffectsEnabled,
+      locale: locale != null ? locale() : this.locale,
     );
   }
 }

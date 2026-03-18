@@ -80,6 +80,12 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     );
   }
 
+  Future<void> setLocale(String? locale) async {
+    final repo = ref.read(appSettingsRepositoryProvider);
+    await repo.setLocale(locale);
+    state = AsyncData(state.requireValue.copyWith(locale: () => locale));
+  }
+
   Future<void> updateAll(AppSettings settings) async {
     final repo = ref.read(appSettingsRepositoryProvider);
     await repo.save(settings);
@@ -95,4 +101,12 @@ final themeModeProvider = Provider<ThemeMode>((ref) {
 /// Derived provider that exposes the selected theme identifier.
 final selectedThemeProvider = Provider<String>((ref) {
   return ref.watch(appSettingsProvider).value?.selectedTheme ?? 'celestial';
+});
+
+/// Derived provider that exposes the user-selected [Locale], or null if the
+/// app should follow the system locale.
+final localeProvider = Provider<Locale?>((ref) {
+  final code = ref.watch(appSettingsProvider).value?.locale;
+  if (code == null) return null;
+  return Locale(code);
 });

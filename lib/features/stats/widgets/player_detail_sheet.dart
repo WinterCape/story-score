@@ -177,7 +177,7 @@ class _HeadToHeadSection extends ConsumerWidget {
 
     return leaderboardAsync.when(
       loading: () => const SizedBox.shrink(),
-      error: (_, __) => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
       data: (entries) {
         // Get all other players from the leaderboard
         final opponents = entries

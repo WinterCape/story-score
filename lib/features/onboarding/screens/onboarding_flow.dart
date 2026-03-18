@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:story_score/app/theme/color_tokens.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
+import 'package:story_score/shared/extensions/context_extensions.dart';
 
 const _hasOnboardedKey = 'has_onboarded';
 
@@ -18,30 +19,6 @@ class OnboardingFlow extends ConsumerStatefulWidget {
 class _OnboardingFlowState extends ConsumerState<OnboardingFlow> {
   final _controller = PageController();
   int _currentPage = 0;
-
-  static const _pages = [
-    _OnboardingPageData(
-      icon: Icons.auto_stories_rounded,
-      title: 'Track Your Stories',
-      body:
-          'The fastest way to score storytelling card games. '
-          'No more pen and paper — just tap and play.',
-    ),
-    _OnboardingPageData(
-      icon: Icons.touch_app_rounded,
-      title: 'Score in 3 Taps',
-      body:
-          'Enter votes for each player with a single tap. '
-          'The app calculates everything automatically.',
-    ),
-    _OnboardingPageData(
-      icon: Icons.wifi_off_rounded,
-      title: 'Fully Offline',
-      body:
-          'No account needed. No internet required. '
-          'Your games stay on your device, always.',
-    ),
-  ];
 
   @override
   void dispose() {
@@ -60,7 +37,27 @@ class _OnboardingFlowState extends ConsumerState<OnboardingFlow> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isLastPage = _currentPage == _pages.length - 1;
+    final l10n = context.l10n;
+
+    final pages = [
+      _OnboardingPageData(
+        icon: Icons.auto_stories_rounded,
+        title: l10n.onboardingTitle1,
+        body: l10n.onboardingBody1,
+      ),
+      _OnboardingPageData(
+        icon: Icons.touch_app_rounded,
+        title: l10n.onboardingTitle2,
+        body: l10n.onboardingBody2,
+      ),
+      _OnboardingPageData(
+        icon: Icons.wifi_off_rounded,
+        title: l10n.onboardingTitle3,
+        body: l10n.onboardingBody3,
+      ),
+    ];
+
+    final isLastPage = _currentPage == pages.length - 1;
 
     return Scaffold(
       body: SafeArea(
@@ -71,7 +68,7 @@ class _OnboardingFlowState extends ConsumerState<OnboardingFlow> {
               alignment: Alignment.topRight,
               child: TextButton(
                 onPressed: _finishOnboarding,
-                child: const Text('Skip'),
+                child: Text(l10n.skip),
               ),
             ),
 
@@ -80,9 +77,9 @@ class _OnboardingFlowState extends ConsumerState<OnboardingFlow> {
               child: PageView.builder(
                 controller: _controller,
                 onPageChanged: (page) => setState(() => _currentPage = page),
-                itemCount: _pages.length,
+                itemCount: pages.length,
                 itemBuilder: (context, index) {
-                  final page = _pages[index];
+                  final page = pages[index];
                   return Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: SpacingTokens.xxl,
@@ -142,7 +139,7 @@ class _OnboardingFlowState extends ConsumerState<OnboardingFlow> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(
-                      _pages.length,
+                      pages.length,
                       (index) => AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
                         margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -174,7 +171,7 @@ class _OnboardingFlowState extends ConsumerState<OnboardingFlow> {
                           vertical: SpacingTokens.md,
                         ),
                       ),
-                      child: Text(isLastPage ? "Let's Play!" : 'Next'),
+                      child: Text(isLastPage ? l10n.letsPlay : l10n.next),
                     ),
                   ),
                 ],

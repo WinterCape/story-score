@@ -23,10 +23,11 @@ class PresetManagementScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isSupporter = ref.watch(isSupporterProvider);
     final presetsAsync = ref.watch(presetsProvider);
+    final l10n = context.l10n;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Player Presets'),
+        title: Text(l10n.playerPresets),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => context.pop(),
@@ -47,6 +48,7 @@ class PresetManagementScreen extends ConsumerWidget {
   Widget _buildLockedBody(BuildContext context) {
     final colorScheme = context.colorScheme;
     final textTheme = context.textTheme;
+    final l10n = context.l10n;
 
     return Center(
       child: Padding(
@@ -60,11 +62,10 @@ class PresetManagementScreen extends ConsumerWidget {
               color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
             ),
             const SizedBox(height: SpacingTokens.lg),
-            Text('Player Presets', style: textTheme.titleLarge),
+            Text(l10n.playerPresets, style: textTheme.titleLarge),
             const SizedBox(height: SpacingTokens.sm),
             Text(
-              'Save your favorite player groups for quick game setup. '
-              'Unlock with the Supporter Pack.',
+              l10n.playerPresetsLockedDescription,
               style: textTheme.bodyMedium?.copyWith(
                 color: colorScheme.onSurfaceVariant,
               ),
@@ -74,7 +75,7 @@ class PresetManagementScreen extends ConsumerWidget {
             FilledButton.icon(
               onPressed: () => context.push('/settings/premium'),
               icon: const Icon(Icons.star_rounded),
-              label: const Text('Unlock Supporter Pack'),
+              label: Text(l10n.unlockSupporterPack),
             ),
           ],
         ),
@@ -87,9 +88,10 @@ class PresetManagementScreen extends ConsumerWidget {
     WidgetRef ref,
     AsyncValue<List<PlayerPreset>> presetsAsync,
   ) {
+    final l10n = context.l10n;
     return presetsAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(child: Text('Error: $e')),
+      error: (e, _) => Center(child: Text('${l10n.error}: $e')),
       data: (presets) {
         if (presets.isEmpty) {
           return _buildEmptyState(context);
@@ -114,6 +116,7 @@ class PresetManagementScreen extends ConsumerWidget {
   Widget _buildEmptyState(BuildContext context) {
     final colorScheme = context.colorScheme;
     final textTheme = context.textTheme;
+    final l10n = context.l10n;
 
     return Center(
       child: Padding(
@@ -127,10 +130,10 @@ class PresetManagementScreen extends ConsumerWidget {
               color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
             ),
             const SizedBox(height: SpacingTokens.lg),
-            Text('No presets yet', style: textTheme.titleMedium),
+            Text(l10n.noPresetsYetTitle, style: textTheme.titleMedium),
             const SizedBox(height: SpacingTokens.sm),
             Text(
-              'Create a preset to quickly start games with your usual group.',
+              l10n.noPresetsYetDescription,
               style: textTheme.bodyMedium?.copyWith(
                 color: colorScheme.onSurfaceVariant,
               ),
@@ -146,30 +149,31 @@ class PresetManagementScreen extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
   ) async {
+    final l10n = context.l10n;
     final nameController = TextEditingController();
     final name = await showDialog<String>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('New Preset'),
+        title: Text(l10n.newPreset),
         content: TextField(
           controller: nameController,
           autofocus: true,
           maxLength: 30,
           textCapitalization: TextCapitalization.words,
-          decoration: const InputDecoration(
-            hintText: 'Preset name',
+          decoration: InputDecoration(
+            hintText: l10n.presetName,
             counterText: '',
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             onPressed: () =>
                 Navigator.of(dialogContext).pop(nameController.text.trim()),
-            child: const Text('Create'),
+            child: Text(l10n.create),
           ),
         ],
       ),
@@ -178,8 +182,6 @@ class PresetManagementScreen extends ConsumerWidget {
 
     if (name == null || name.isEmpty) return;
 
-    // Create an empty preset with placeholder players (min 3)
-    // Users will edit and add real players
     final dao = ref.read(presetDaoProvider);
     try {
       final presetId = IdGenerator.newId();
@@ -197,9 +199,9 @@ class PresetManagementScreen extends ConsumerWidget {
       Haptics.selection();
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Failed to create preset: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.failedToCreatePreset('$e'))),
+        );
       }
     }
   }
@@ -209,30 +211,31 @@ class PresetManagementScreen extends ConsumerWidget {
     WidgetRef ref,
     PlayerPreset preset,
   ) async {
+    final l10n = context.l10n;
     final nameController = TextEditingController(text: preset.name);
     final newName = await showDialog<String>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Rename Preset'),
+        title: Text(l10n.renamePreset),
         content: TextField(
           controller: nameController,
           autofocus: true,
           maxLength: 30,
           textCapitalization: TextCapitalization.words,
-          decoration: const InputDecoration(
-            hintText: 'Preset name',
+          decoration: InputDecoration(
+            hintText: l10n.presetName,
             counterText: '',
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             onPressed: () =>
                 Navigator.of(dialogContext).pop(nameController.text.trim()),
-            child: const Text('Save'),
+            child: Text(l10n.save),
           ),
         ],
       ),
@@ -250,13 +253,14 @@ class PresetManagementScreen extends ConsumerWidget {
     WidgetRef ref,
     PlayerPreset preset,
   ) async {
+    final l10n = context.l10n;
     final dao = ref.read(presetDaoProvider);
     await dao.deletePreset(preset.id);
 
     if (context.mounted) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Deleted "${preset.name}"')));
+      ).showSnackBar(SnackBar(content: Text(l10n.deletedPreset(preset.name))));
     }
   }
 }
@@ -282,7 +286,7 @@ class _PresetTileWithPlayers extends ConsumerWidget {
         height: 72,
         child: Center(child: CircularProgressIndicator()),
       ),
-      error: (e, _) => ListTile(title: Text('Error: $e')),
+      error: (e, _) => ListTile(title: Text('${context.l10n.error}: $e')),
       data: (players) => PresetListTile(
         preset: preset,
         players: players,

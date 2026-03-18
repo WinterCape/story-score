@@ -5,6 +5,7 @@ import 'package:story_score/app/theme/spacing_tokens.dart';
 import 'package:story_score/app/theme/theme_extensions.dart';
 import 'package:story_score/features/premium/providers/premium_providers.dart';
 import 'package:story_score/features/premium/widgets/feature_preview_list.dart';
+import 'package:story_score/shared/extensions/context_extensions.dart';
 
 /// Full-featured Supporter Pack purchase screen.
 ///
@@ -25,7 +26,7 @@ class PremiumScreen extends ConsumerWidget {
           // ---- App bar ----
           SliverAppBar(
             pinned: true,
-            title: const Text('Supporter Pack'),
+            title: Text(context.l10n.supporterPack),
             centerTitle: true,
           ),
 
@@ -43,7 +44,7 @@ class PremiumScreen extends ConsumerWidget {
 
                 // ---- Feature list ----
                 Text(
-                  "What's included",
+                  context.l10n.whatsIncluded,
                   style: theme.textTheme.titleMedium?.copyWith(
                     color: theme.colorScheme.onSurface,
                   ),
@@ -62,7 +63,7 @@ class PremiumScreen extends ConsumerWidget {
                 // ---- Debug clear button (when supporter, debug only) ----
                 if (isSupporter && kDebugMode) ...[
                   const SizedBox(height: SpacingTokens.md),
-                  const _DebugClearButton(),
+                  _DebugClearButton(),
                 ],
 
                 const SizedBox(height: SpacingTokens.xxl),
@@ -110,26 +111,34 @@ class _HeroHeader extends StatelessWidget {
         ),
         const SizedBox(height: SpacingTokens.lg),
 
-        Text(
-          isSupporter ? 'Thank you for your support!' : 'Supporter Pack',
-          style: theme.textTheme.headlineSmall?.copyWith(
-            color: theme.colorScheme.onSurface,
-            fontWeight: FontWeight.w600,
-          ),
-          textAlign: TextAlign.center,
+        Builder(
+          builder: (context) {
+            final l10n = context.l10n;
+            return Text(
+              isSupporter ? l10n.thankYouForSupport : l10n.supporterPack,
+              style: theme.textTheme.headlineSmall?.copyWith(
+                color: theme.colorScheme.onSurface,
+                fontWeight: FontWeight.w600,
+              ),
+              textAlign: TextAlign.center,
+            );
+          },
         ),
         const SizedBox(height: SpacingTokens.sm),
 
-        Text(
-          isSupporter
-              ? 'You have unlocked all supporter features. '
-                    'Your generosity helps keep StoryScore growing.'
-              : 'A one-time purchase to unlock premium features '
-                    'and support the development of StoryScore.',
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
-          textAlign: TextAlign.center,
+        Builder(
+          builder: (context) {
+            final l10n = context.l10n;
+            return Text(
+              isSupporter
+                  ? l10n.supporterThankYouDescription
+                  : l10n.supporterPackDescription,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              textAlign: TextAlign.center,
+            );
+          },
         ),
       ],
     );
@@ -166,11 +175,12 @@ class _PurchaseSectionState extends ConsumerState<_PurchaseSection> {
       error: (_, _) => _fallbackPrice,
     );
 
+    final l10n = context.l10n;
     final priceLabel = priceString != null
-        ? '$priceString \u2014 one-time purchase'
+        ? l10n.oneTimePurchase(priceString)
         : null;
     final buttonLabel = priceString != null
-        ? 'Get Supporter Pack \u2014 $priceString'
+        ? l10n.getSupporterPack(priceString)
         : null;
 
     return Column(
@@ -218,7 +228,7 @@ class _PurchaseSectionState extends ConsumerState<_PurchaseSection> {
                   )
                 : const Icon(Icons.star_rounded, size: 20),
             label: Text(
-              buttonLabel ?? 'Loading\u2026',
+              buttonLabel ?? l10n.loading,
               style: const TextStyle(fontWeight: FontWeight.w600),
             ),
             onPressed: (_isPurchasing || priceString == null)
@@ -238,7 +248,7 @@ class _PurchaseSectionState extends ConsumerState<_PurchaseSection> {
             : TextButton(
                 onPressed: () => _handleRestore(context, ref),
                 child: Text(
-                  'Restore Purchases',
+                  l10n.restorePurchases,
                   style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
                 ),
               ),
@@ -309,7 +319,7 @@ class _AlreadySupporterBanner extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Supporter Pack Active',
+                  context.l10n.supporterPackActive,
                   style: theme.textTheme.titleSmall?.copyWith(
                     color: ext.auroraTeal,
                     fontWeight: FontWeight.w600,
@@ -317,7 +327,7 @@ class _AlreadySupporterBanner extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'All premium features are unlocked.',
+                  context.l10n.allPremiumUnlocked,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
@@ -352,7 +362,7 @@ class _DebugClearButton extends ConsumerWidget {
           ),
         ),
         icon: const Icon(Icons.bug_report_outlined, size: 18),
-        label: const Text('Clear Purchase (Debug)'),
+        label: Text(context.l10n.clearPurchaseDebug),
         onPressed: () => _handleClear(context, ref),
       ),
     );

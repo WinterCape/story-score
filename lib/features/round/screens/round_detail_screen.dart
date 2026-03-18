@@ -51,10 +51,11 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
 
     final colors = context.colorScheme;
     final text = context.textTheme;
+    final l10n = context.l10n;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Round Detail'),
+        title: Text(l10n.roundDetail),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => context.pop(),
@@ -63,7 +64,7 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
       body: detailsAsync.when(
         data: (details) {
           if (details == null) {
-            return const Center(child: Text('Round not found'));
+            return Center(child: Text(l10n.roundNotFound));
           }
 
           final players = switch (playersAsync) {
@@ -82,7 +83,7 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
               // Round header
               _RoundHeader(
                 roundNumber: details.round.roundNumber,
-                storytellerName: storyteller?.name ?? 'Unknown',
+                storytellerName: storyteller?.name ?? l10n.unknown,
                 storytellerColor: storyteller != null
                     ? PlayerColors.colorFor(storyteller.colorKey)
                     : colors.primary,
@@ -93,7 +94,7 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
               const SizedBox(height: SpacingTokens.lg),
 
               // Votes section
-              _SectionTitle(title: 'Votes'),
+              _SectionTitle(title: l10n.votes),
               const SizedBox(height: SpacingTokens.sm),
               ...details.votes.map((vote) {
                 final voter = playerMap[vote.voterPlayerId];
@@ -101,18 +102,18 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
                 final votedForStoryteller =
                     vote.votedForPlayerId == details.round.storytellerPlayerId;
                 return _VoteTile(
-                  voterName: voter?.name ?? 'Unknown',
+                  voterName: voter?.name ?? l10n.unknown,
                   voterColor: voter != null
                       ? PlayerColors.colorFor(voter.colorKey)
                       : colors.primary,
-                  votedForName: votedFor?.name ?? 'Unknown',
+                  votedForName: votedFor?.name ?? l10n.unknown,
                   isCorrect: votedForStoryteller,
                 );
               }),
               const SizedBox(height: SpacingTokens.lg),
 
               // Score changes section
-              _SectionTitle(title: 'Score Changes'),
+              _SectionTitle(title: l10n.scoreChanges),
               const SizedBox(height: SpacingTokens.sm),
               ..._groupScoreChangesByPlayer(
                 details.scoreChanges,
@@ -120,7 +121,7 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
               ).entries.map((entry) {
                 final player = playerMap[entry.key];
                 return _ScoreChangeTile(
-                  playerName: player?.name ?? 'Unknown',
+                  playerName: player?.name ?? l10n.unknown,
                   playerColor: player != null
                       ? PlayerColors.colorFor(player.colorKey)
                       : colors.primary,
@@ -131,7 +132,7 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
 
               // Edit mode: vote editing UI
               if (_isEditing) ...[
-                _SectionTitle(title: 'Edit Votes'),
+                _SectionTitle(title: l10n.editVotes),
                 const SizedBox(height: SpacingTokens.sm),
                 ..._buildEditVoteRows(players, details),
                 const SizedBox(height: SpacingTokens.md),
@@ -142,7 +143,7 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
                         onPressed: _isSavingEdit
                             ? null
                             : () => setState(() => _isEditing = false),
-                        child: const Text('Cancel'),
+                        child: Text(l10n.cancel),
                       ),
                     ),
                     const SizedBox(width: SpacingTokens.md),
@@ -161,7 +162,7 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
                                 ),
                               )
                             : const Icon(Icons.check_rounded, size: 18),
-                        label: const Text('Save Changes'),
+                        label: Text(l10n.saveChanges),
                       ),
                     ),
                   ],
@@ -176,7 +177,7 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
                       child: FilledButton.icon(
                         onPressed: () => _startEditing(details),
                         icon: const Icon(Icons.edit_rounded, size: 18),
-                        label: const Text('Edit Round'),
+                        label: Text(l10n.editRound),
                       ),
                     ),
                     const SizedBox(width: SpacingTokens.md),
@@ -199,7 +200,7 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
                                 Icons.delete_outline_rounded,
                                 size: 18,
                               ),
-                        label: const Text('Delete Round'),
+                        label: Text(l10n.deleteRound),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: colors.error,
                           side: BorderSide(
@@ -228,7 +229,7 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
                   color: colors.error,
                 ),
                 const SizedBox(height: SpacingTokens.md),
-                Text('Failed to load round', style: text.titleMedium),
+                Text(l10n.failedToLoadRound, style: text.titleMedium),
                 const SizedBox(height: SpacingTokens.sm),
                 Text(
                   error.toString(),
@@ -269,7 +270,6 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
 
     return voters.map((voter) {
       final currentVote = _editVotes[voter.id];
-      // Targets: all players except the voter themselves
       final targets = players.where((p) => p.id != voter.id).toList();
 
       return Card(
@@ -380,6 +380,7 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
     RoundWithDetails details,
   ) async {
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
     final storytellerId =
         _editStorytellerId ?? details.round.storytellerPlayerId;
     final voters = players.where((p) => p.id != storytellerId).toList();
@@ -388,7 +389,7 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
     for (final voter in voters) {
       if (!_editVotes.containsKey(voter.id)) {
         messenger.showSnackBar(
-          SnackBar(content: Text('${voter.name} has not voted yet')),
+          SnackBar(content: Text(l10n.playerNotVotedYet(voter.name))),
         );
         return;
       }
@@ -425,6 +426,7 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
 
       // Show recap
       if (!mounted) return;
+      if (!context.mounted) return;
       await showRoundRecapSheet(
         context: context,
         result: result,
@@ -434,7 +436,7 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
       if (!mounted) return;
       setState(() => _isSavingEdit = false);
       messenger.showSnackBar(
-        SnackBar(content: Text('Failed to save changes: $e')),
+        SnackBar(content: Text(l10n.failedToSaveChanges('$e'))),
       );
     }
   }
@@ -453,26 +455,24 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
   Future<void> _confirmDelete(BuildContext context) async {
     final navigator = Navigator.of(context);
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
 
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete Round'),
-        content: const Text(
-          'This will permanently delete this round and revert all '
-          'score changes. This action cannot be undone.',
-        ),
+        title: Text(l10n.deleteRound),
+        content: Text(l10n.deleteRoundConfirmation),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: FilledButton.styleFrom(
               backgroundColor: Theme.of(ctx).colorScheme.error,
             ),
-            child: const Text('Delete'),
+            child: Text(l10n.delete),
           ),
         ],
       ),
@@ -490,7 +490,7 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
       if (!mounted) return;
       setState(() => _isDeleting = false);
       messenger.showSnackBar(
-        SnackBar(content: Text('Failed to delete round: $e')),
+        SnackBar(content: Text(l10n.failedToDeleteRound('$e'))),
       );
     }
   }
@@ -542,6 +542,7 @@ class _RoundHeader extends StatelessWidget {
     final colors = context.colorScheme;
     final text = context.textTheme;
     final storyTheme = context.storyTheme;
+    final l10n = context.l10n;
 
     return Card(
       child: Padding(
@@ -574,7 +575,7 @@ class _RoundHeader extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Round $roundNumber',
+                        l10n.round(roundNumber),
                         style: text.titleMedium?.copyWith(
                           color: colors.onSurface,
                         ),
@@ -592,7 +593,7 @@ class _RoundHeader extends StatelessWidget {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            hasGoodClue ? 'Good clue' : 'Bad clue',
+                            hasGoodClue ? l10n.goodClue : l10n.badClue,
                             style: text.bodySmall?.copyWith(
                               color: hasGoodClue
                                   ? storyTheme.goldAccent
@@ -607,7 +608,7 @@ class _RoundHeader extends StatelessWidget {
                 ),
                 if (editedAt != null)
                   Tooltip(
-                    message: 'Edited',
+                    message: l10n.edited,
                     child: Icon(
                       Icons.edit_outlined,
                       size: 16,
@@ -641,7 +642,7 @@ class _RoundHeader extends StatelessWidget {
                 ),
                 const SizedBox(width: SpacingTokens.sm),
                 Text(
-                  'Storyteller: $storytellerName',
+                  l10n.storytellerLabel(storytellerName),
                   style: text.bodyMedium?.copyWith(color: colors.onSurface),
                 ),
               ],
@@ -724,6 +725,7 @@ class _VoteTile extends StatelessWidget {
     final colors = context.colorScheme;
     final text = context.textTheme;
     final storyTheme = context.storyTheme;
+    final l10n = context.l10n;
 
     return Card(
       child: Padding(
@@ -733,7 +735,6 @@ class _VoteTile extends StatelessWidget {
         ),
         child: Row(
           children: [
-            // Voter avatar
             Container(
               width: 28,
               height: 28,
@@ -751,8 +752,6 @@ class _VoteTile extends StatelessWidget {
               ),
             ),
             const SizedBox(width: SpacingTokens.sm),
-
-            // Voter name
             Expanded(
               child: RichText(
                 text: TextSpan(
@@ -760,19 +759,17 @@ class _VoteTile extends StatelessWidget {
                   children: [
                     TextSpan(text: voterName),
                     TextSpan(
-                      text: ' voted for ',
+                      text: ' ${l10n.votedFor} ',
                       style: TextStyle(color: colors.onSurfaceVariant),
                     ),
                     TextSpan(
                       text: votedForName,
-                      style: TextStyle(fontWeight: FontWeight.w600),
+                      style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
                   ],
                 ),
               ),
             ),
-
-            // Correct indicator
             if (isCorrect)
               Icon(
                 Icons.check_circle_rounded,
@@ -816,7 +813,6 @@ class _ScoreChangeTile extends StatelessWidget {
         padding: const EdgeInsets.all(SpacingTokens.md),
         child: Row(
           children: [
-            // Player avatar
             Container(
               width: 32,
               height: 32,
@@ -834,8 +830,6 @@ class _ScoreChangeTile extends StatelessWidget {
               ),
             ),
             const SizedBox(width: SpacingTokens.sm),
-
-            // Player name and reasons
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -859,8 +853,6 @@ class _ScoreChangeTile extends StatelessWidget {
                 ],
               ),
             ),
-
-            // Total delta
             Text(
               '+$totalDelta',
               style: text.titleMedium?.copyWith(

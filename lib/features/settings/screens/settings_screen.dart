@@ -8,6 +8,7 @@ import 'package:story_score/data/settings/app_settings.dart';
 import 'package:story_score/features/premium/providers/premium_providers.dart';
 import 'package:story_score/features/settings/providers/settings_providers.dart';
 import 'package:story_score/features/settings/widgets/theme_picker.dart';
+import 'package:story_score/shared/extensions/context_extensions.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -16,10 +17,11 @@ class SettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final settingsAsync = ref.watch(appSettingsProvider);
     final isSupporter = ref.watch(isSupporterProvider);
+    final l10n = context.l10n;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Settings'),
+        title: Text(l10n.settings),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () {
@@ -33,16 +35,16 @@ class SettingsScreen extends ConsumerWidget {
       ),
       body: settingsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
+        error: (e, _) => Center(child: Text('${l10n.error}: $e')),
         data: (settings) => ListView(
           padding: const EdgeInsets.symmetric(vertical: SpacingTokens.md),
           children: [
             // Appearance section
-            _SectionHeader(title: 'Appearance'),
+            _SectionHeader(title: l10n.appearance),
             ListTile(
               leading: const Icon(Icons.palette_outlined),
-              title: const Text('Theme'),
-              subtitle: Text(_themeModeLabel(settings.themeMode)),
+              title: Text(l10n.theme),
+              subtitle: Text(_themeModeLabel(context, settings.themeMode)),
               trailing: SegmentedButton<ThemeMode>(
                 segments: const [
                   ButtonSegment(
@@ -75,7 +77,7 @@ class SettingsScreen extends ConsumerWidget {
                 vertical: SpacingTokens.sm,
               ),
               child: Text(
-                'Color Theme',
+                l10n.colorTheme,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
@@ -89,12 +91,42 @@ class SettingsScreen extends ConsumerWidget {
 
             const Divider(),
 
+            // Language section
+            _SectionHeader(title: l10n.language),
+            ListTile(
+              leading: const Icon(Icons.language_outlined),
+              title: Text(l10n.language),
+              trailing: DropdownButton<String?>(
+                value: settings.locale,
+                underline: const SizedBox.shrink(),
+                onChanged: (locale) {
+                  ref.read(appSettingsProvider.notifier).setLocale(locale);
+                },
+                items: [
+                  DropdownMenuItem<String?>(
+                    value: null,
+                    child: Text(l10n.system),
+                  ),
+                  DropdownMenuItem<String?>(
+                    value: 'en',
+                    child: Text(l10n.english),
+                  ),
+                  DropdownMenuItem<String?>(
+                    value: 'ro',
+                    child: Text(l10n.romanian),
+                  ),
+                ],
+              ),
+            ),
+
+            const Divider(),
+
             // Gameplay section
-            _SectionHeader(title: 'Gameplay'),
+            _SectionHeader(title: l10n.gameplay),
             SwitchListTile(
               secondary: const Icon(Icons.vibration_outlined),
-              title: const Text('Haptic Feedback'),
-              subtitle: const Text('Vibrate on score events'),
+              title: Text(l10n.hapticFeedback),
+              subtitle: Text(l10n.hapticFeedbackDescription),
               value: settings.hapticsEnabled,
               onChanged: (v) {
                 ref.read(appSettingsProvider.notifier).setHapticsEnabled(v);
@@ -107,7 +139,7 @@ class SettingsScreen extends ConsumerWidget {
               ),
               title: Row(
                 children: [
-                  const Text('Sound Effects'),
+                  Text(l10n.soundEffects),
                   if (!isSupporter) ...[
                     const SizedBox(width: SpacingTokens.xs),
                     Icon(
@@ -120,8 +152,8 @@ class SettingsScreen extends ConsumerWidget {
               ),
               subtitle: Text(
                 isSupporter
-                    ? 'Play sounds for celebrations'
-                    : 'Supporter Pack feature',
+                    ? l10n.soundEffectsDescription
+                    : l10n.supporterPackFeature,
               ),
               value: settings.soundEffectsEnabled && isSupporter,
               onChanged: isSupporter
@@ -134,8 +166,8 @@ class SettingsScreen extends ConsumerWidget {
             ),
             SwitchListTile(
               secondary: const Icon(Icons.slow_motion_video_outlined),
-              title: const Text('Reduce Motion'),
-              subtitle: const Text('Minimize animations'),
+              title: Text(l10n.reduceMotion),
+              subtitle: Text(l10n.reduceMotionDescription),
               value: settings.reducedMotionOverride,
               onChanged: (v) {
                 ref
@@ -145,8 +177,8 @@ class SettingsScreen extends ConsumerWidget {
             ),
             SwitchListTile(
               secondary: const Icon(Icons.note_outlined),
-              title: const Text('Show Round Notes'),
-              subtitle: const Text('Allow clue notes per round'),
+              title: Text(l10n.roundNotes),
+              subtitle: Text(l10n.roundNotesDescription),
               value: settings.showRoundNotes,
               onChanged: (v) {
                 ref.read(appSettingsProvider.notifier).setShowRoundNotes(v);
@@ -154,14 +186,19 @@ class SettingsScreen extends ConsumerWidget {
             ),
             ListTile(
               leading: const Icon(Icons.flag_outlined),
-              title: const Text('Default Target Mode'),
-              subtitle: Text(_targetTypeLabel(settings.defaultTargetMode)),
+              title: Text(l10n.defaultTargetMode),
+              subtitle: Text(
+                _targetTypeLabel(context, settings.defaultTargetMode),
+              ),
               trailing: SegmentedButton<TargetType>(
-                segments: const [
-                  ButtonSegment(value: TargetType.score, label: Text('Score')),
+                segments: [
+                  ButtonSegment(
+                    value: TargetType.score,
+                    label: Text(l10n.score),
+                  ),
                   ButtonSegment(
                     value: TargetType.freeplay,
-                    label: Text('Free'),
+                    label: Text(l10n.free),
                   ),
                 ],
                 selected: {settings.defaultTargetMode},
@@ -175,8 +212,10 @@ class SettingsScreen extends ConsumerWidget {
             ),
             ListTile(
               leading: const Icon(Icons.sort_outlined),
-              title: const Text('Player Sort Order'),
-              subtitle: Text(_sortOrderLabel(settings.preferredSortOrder)),
+              title: Text(l10n.playerSortOrder),
+              subtitle: Text(
+                _sortOrderLabel(context, settings.preferredSortOrder),
+              ),
               trailing: DropdownButton<PlayerSortOrder>(
                 value: settings.preferredSortOrder,
                 underline: const SizedBox.shrink(),
@@ -191,7 +230,7 @@ class SettingsScreen extends ConsumerWidget {
                     .map(
                       (o) => DropdownMenuItem(
                         value: o,
-                        child: Text(_sortOrderLabel(o)),
+                        child: Text(_sortOrderLabel(context, o)),
                       ),
                     )
                     .toList(),
@@ -201,15 +240,15 @@ class SettingsScreen extends ConsumerWidget {
             const Divider(),
 
             // Presets section
-            _SectionHeader(title: 'Player Presets'),
+            _SectionHeader(title: l10n.playerPresets),
             ListTile(
               leading: Icon(
                 ref.watch(isSupporterProvider)
                     ? Icons.group_outlined
                     : Icons.lock_outline_rounded,
               ),
-              title: const Text('Player Presets'),
-              subtitle: const Text('Save and manage player groups'),
+              title: Text(l10n.playerPresets),
+              subtitle: Text(l10n.saveAndManageGroups),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => context.push('/settings/presets'),
             ),
@@ -217,11 +256,11 @@ class SettingsScreen extends ConsumerWidget {
             const Divider(),
 
             // Premium section
-            _SectionHeader(title: 'Support'),
+            _SectionHeader(title: l10n.support),
             ListTile(
               leading: const Icon(Icons.star_outline_rounded),
-              title: const Text('Supporter Pack'),
-              subtitle: const Text('Premium themes & extras'),
+              title: Text(l10n.supporterPack),
+              subtitle: Text(l10n.premiumThemesAndExtras),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => context.push('/settings/premium'),
             ),
@@ -229,11 +268,11 @@ class SettingsScreen extends ConsumerWidget {
             const Divider(),
 
             // About section
-            _SectionHeader(title: 'About'),
-            const ListTile(
-              leading: Icon(Icons.info_outline_rounded),
-              title: Text('StoryScore'),
-              subtitle: Text('Version 1.0.0'),
+            _SectionHeader(title: l10n.about),
+            ListTile(
+              leading: const Icon(Icons.info_outline_rounded),
+              title: Text(l10n.appTitle),
+              subtitle: Text(l10n.version('1.0.0')),
             ),
           ],
         ),
@@ -241,24 +280,33 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  String _themeModeLabel(ThemeMode mode) => switch (mode) {
-    ThemeMode.system => 'System',
-    ThemeMode.light => 'Light',
-    ThemeMode.dark => 'Dark',
-  };
+  String _themeModeLabel(BuildContext context, ThemeMode mode) {
+    final l10n = context.l10n;
+    return switch (mode) {
+      ThemeMode.system => l10n.system,
+      ThemeMode.light => l10n.light,
+      ThemeMode.dark => l10n.dark,
+    };
+  }
 
-  String _targetTypeLabel(TargetType type) => switch (type) {
-    TargetType.score => 'Score Target',
-    TargetType.rounds => 'Round Limit',
-    TargetType.freeplay => 'Free Play',
-  };
+  String _targetTypeLabel(BuildContext context, TargetType type) {
+    final l10n = context.l10n;
+    return switch (type) {
+      TargetType.score => l10n.scoreTarget,
+      TargetType.rounds => l10n.roundLimit,
+      TargetType.freeplay => l10n.freePlay,
+    };
+  }
 
-  String _sortOrderLabel(PlayerSortOrder order) => switch (order) {
-    PlayerSortOrder.seat => 'Seat Order',
-    PlayerSortOrder.scoreDesc => 'Score (High to Low)',
-    PlayerSortOrder.scoreAsc => 'Score (Low to High)',
-    PlayerSortOrder.name => 'Name',
-  };
+  String _sortOrderLabel(BuildContext context, PlayerSortOrder order) {
+    final l10n = context.l10n;
+    return switch (order) {
+      PlayerSortOrder.seat => l10n.seatOrder,
+      PlayerSortOrder.scoreDesc => l10n.scoreHighToLow,
+      PlayerSortOrder.scoreAsc => l10n.scoreLowToHigh,
+      PlayerSortOrder.name => l10n.name,
+    };
+  }
 }
 
 class _SectionHeader extends StatelessWidget {

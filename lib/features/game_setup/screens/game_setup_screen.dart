@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:story_score/app/providers.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
+import 'package:story_score/app/theme/theme_extensions.dart';
 import 'package:story_score/core/constants/player_colors.dart';
 import 'package:story_score/core/utils/haptics.dart';
 import 'package:story_score/data/database/app_database.dart';
@@ -55,9 +56,9 @@ class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Failed to create game: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.failedToCreateGame('$e'))),
+        );
       }
     } finally {
       if (mounted) setState(() => _isCreating = false);
@@ -68,30 +69,31 @@ class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
     final state = ref.read(gameSetupProvider);
     if (state.players.length < 3) return;
 
+    final l10n = context.l10n;
     final nameController = TextEditingController();
     final name = await showDialog<String>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Save as Preset'),
+        title: Text(l10n.saveAsPreset),
         content: TextField(
           controller: nameController,
           autofocus: true,
           maxLength: 30,
           textCapitalization: TextCapitalization.words,
-          decoration: const InputDecoration(
-            hintText: 'Preset name',
+          decoration: InputDecoration(
+            hintText: l10n.presetName,
             counterText: '',
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             onPressed: () =>
                 Navigator.of(dialogContext).pop(nameController.text.trim()),
-            child: const Text('Save'),
+            child: Text(l10n.save),
           ),
         ],
       ),
@@ -120,13 +122,13 @@ class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Saved preset "$name"')));
+        ).showSnackBar(SnackBar(content: Text(l10n.savedPreset(name))));
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Failed to save preset: $e')));
+        ).showSnackBar(SnackBar(content: Text(l10n.failedToSavePreset('$e'))));
       }
     }
   }
@@ -197,10 +199,11 @@ class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
     final colorScheme = context.colorScheme;
     final textTheme = context.textTheme;
     final storyTheme = context.storyTheme;
+    final l10n = context.l10n;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('New Game'),
+        title: Text(l10n.newGame),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => context.pop(),
@@ -209,7 +212,7 @@ class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
           if (state.players.length >= 3 && ref.watch(isSupporterProvider))
             IconButton(
               icon: const Icon(Icons.bookmark_add_outlined),
-              tooltip: 'Save as Preset',
+              tooltip: l10n.saveAsPreset,
               onPressed: () => _showSavePresetDialog(),
             ),
         ],
@@ -231,7 +234,7 @@ class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
                   children: [
                     // ── Title field ──────────────────────────────────────────
                     Text(
-                      'Game Title',
+                      l10n.gameTitle,
                       style: textTheme.labelLarge?.copyWith(
                         color: colorScheme.onSurfaceVariant,
                       ),
@@ -239,9 +242,7 @@ class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
                     const SizedBox(height: SpacingTokens.sm),
                     TextFormField(
                       controller: _titleController,
-                      decoration: const InputDecoration(
-                        hintText: 'e.g. Friday Night Dixit',
-                      ),
+                      decoration: InputDecoration(hintText: l10n.gameTitleHint),
                       textCapitalization: TextCapitalization.words,
                       onChanged: (v) =>
                           ref.read(gameSetupProvider.notifier).setTitle(v),
@@ -251,7 +252,7 @@ class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
 
                     // ── Target type selector ─────────────────────────────────
                     Text(
-                      'Win Condition',
+                      l10n.winCondition,
                       style: textTheme.labelLarge?.copyWith(
                         color: colorScheme.onSurfaceVariant,
                       ),
@@ -260,16 +261,16 @@ class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
                     SizedBox(
                       width: double.infinity,
                       child: SegmentedButton<TargetType>(
-                        segments: const [
+                        segments: [
                           ButtonSegment(
                             value: TargetType.score,
-                            label: Text('Score Target'),
-                            icon: Icon(Icons.emoji_events_rounded),
+                            label: Text(l10n.scoreTarget),
+                            icon: const Icon(Icons.emoji_events_rounded),
                           ),
                           ButtonSegment(
                             value: TargetType.freeplay,
-                            label: Text('Infinite'),
-                            icon: Icon(Icons.all_inclusive_rounded),
+                            label: Text(l10n.infinite),
+                            icon: const Icon(Icons.all_inclusive_rounded),
                           ),
                         ],
                         selected: {state.targetType},
@@ -286,7 +287,7 @@ class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
                       Row(
                         children: [
                           Text(
-                            'Target Score',
+                            l10n.targetScore,
                             style: textTheme.labelLarge?.copyWith(
                               color: colorScheme.onSurfaceVariant,
                             ),
@@ -361,12 +362,12 @@ class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Continue Past Target',
+                                  l10n.continuePastTarget,
                                   style: textTheme.titleSmall,
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
-                                  'Keep playing after someone reaches the target',
+                                  l10n.continuePastTargetDescription,
                                   style: textTheme.bodySmall?.copyWith(
                                     color: colorScheme.onSurfaceVariant,
                                   ),
@@ -395,7 +396,7 @@ class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
                         child: OutlinedButton.icon(
                           onPressed: () => _showLoadPresetSheet(),
                           icon: const Icon(Icons.group_outlined),
-                          label: const Text('Load Preset'),
+                          label: Text(l10n.loadPreset),
                           style: OutlinedButton.styleFrom(
                             minimumSize: const Size(double.infinity, 44),
                           ),
@@ -405,7 +406,7 @@ class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
                     // ── Players section ──────────────────────────────────────
                     Row(
                       children: [
-                        Text('Players', style: textTheme.titleLarge),
+                        Text(l10n.players, style: textTheme.titleLarge),
                         const SizedBox(width: SpacingTokens.sm),
                         Container(
                           padding: const EdgeInsets.symmetric(
@@ -419,7 +420,7 @@ class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
                             ),
                           ),
                           child: Text(
-                            '${state.players.length}/10',
+                            l10n.playerCountLabel(state.players.length),
                             style: textTheme.labelSmall?.copyWith(
                               color: colorScheme.onPrimaryContainer,
                             ),
@@ -428,7 +429,7 @@ class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
                         const Spacer(),
                         if (state.players.length < 3)
                           Text(
-                            'Min 3 required',
+                            l10n.minPlayersRequired,
                             style: textTheme.bodySmall?.copyWith(
                               color: colorScheme.error,
                             ),
@@ -487,7 +488,7 @@ class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
                           ? null
                           : _showAddPlayerSheet,
                       icon: const Icon(Icons.person_add_rounded),
-                      label: const Text('Add Player'),
+                      label: Text(l10n.addPlayer),
                       style: OutlinedButton.styleFrom(
                         minimumSize: const Size(double.infinity, 48),
                         side: BorderSide(
@@ -555,7 +556,7 @@ class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
                               color: Colors.black54,
                             ),
                           )
-                        : const Text('Start Game'),
+                        : Text(l10n.startGame),
                   ),
                 ),
               ),
@@ -627,7 +628,7 @@ class _AddPlayerSheetState extends ConsumerState<_AddPlayerSheet> {
     '⭐', '👑', '🔥', '❤️', '🌙', '☀️', '✨', '🔮',
     '🪄', '⚡', '🌈', '🎲', '🍀', '🌻', '👻', '🎭',
     // People & roles
-    '🧙', '🧝', '🧚', '🦸', '🥷', '👸', '🤴', '🧑‍🎨',
+    '🧙', '🧝', '🧚', '🦸', '🥷', '👸', '🤴', '🧑\u200d🎨',
   ];
 
   // ── Premium emoji packs (supporter only) ────────────────────────
@@ -642,12 +643,12 @@ class _AddPlayerSheetState extends ConsumerState<_AddPlayerSheet> {
     '🦹',
     '🫅',
     '💂',
-    '🧑‍🚀',
-    '🧑‍🔬',
-    '🧑‍🍳',
-    '🧑‍✈️',
-    '🧑‍🎤',
-    '🧑‍🏫',
+    '🧑\u200d🚀',
+    '🧑\u200d🔬',
+    '🧑\u200d🍳',
+    '🧑\u200d✈️',
+    '🧑\u200d🎤',
+    '🧑\u200d🏫',
   ];
 
   static const _premiumMythical = [
@@ -718,6 +719,7 @@ class _AddPlayerSheetState extends ConsumerState<_AddPlayerSheet> {
     final colorScheme = context.colorScheme;
     final textTheme = context.textTheme;
     final storyTheme = context.storyTheme;
+    final l10n = context.l10n;
 
     return Padding(
       padding: EdgeInsets.only(
@@ -744,7 +746,7 @@ class _AddPlayerSheetState extends ConsumerState<_AddPlayerSheet> {
             ),
             const SizedBox(height: SpacingTokens.lg),
 
-            Text('Add Player', style: textTheme.titleLarge),
+            Text(l10n.addPlayer, style: textTheme.titleLarge),
             const SizedBox(height: SpacingTokens.lg),
 
             // Name field.
@@ -753,8 +755,8 @@ class _AddPlayerSheetState extends ConsumerState<_AddPlayerSheet> {
               autofocus: true,
               maxLength: 30,
               textCapitalization: TextCapitalization.words,
-              decoration: const InputDecoration(
-                hintText: 'Player name',
+              decoration: InputDecoration(
+                hintText: l10n.playerName,
                 counterText: '',
               ),
               onChanged: (_) => setState(() {}),
@@ -763,7 +765,7 @@ class _AddPlayerSheetState extends ConsumerState<_AddPlayerSheet> {
 
             // Color picker.
             Text(
-              'Choose Color',
+              l10n.chooseColor,
               style: textTheme.labelLarge?.copyWith(
                 color: colorScheme.onSurfaceVariant,
               ),
@@ -779,7 +781,7 @@ class _AddPlayerSheetState extends ConsumerState<_AddPlayerSheet> {
 
             // Avatar style section.
             Text(
-              'Avatar Style',
+              l10n.avatarStyle,
               style: textTheme.labelLarge?.copyWith(
                 color: colorScheme.onSurfaceVariant,
               ),
@@ -788,16 +790,16 @@ class _AddPlayerSheetState extends ConsumerState<_AddPlayerSheet> {
             SizedBox(
               width: double.infinity,
               child: SegmentedButton<bool>(
-                segments: const [
+                segments: [
                   ButtonSegment(
                     value: false,
-                    label: Text('Initials'),
-                    icon: Icon(Icons.text_fields_rounded, size: 18),
+                    label: Text(l10n.initials),
+                    icon: const Icon(Icons.text_fields_rounded, size: 18),
                   ),
                   ButtonSegment(
                     value: true,
-                    label: Text('Emoji'),
-                    icon: Icon(Icons.emoji_emotions_rounded, size: 18),
+                    label: Text(l10n.emoji),
+                    icon: const Icon(Icons.emoji_emotions_rounded, size: 18),
                   ),
                 ],
                 selected: {_isEmojiMode},
@@ -871,7 +873,7 @@ class _AddPlayerSheetState extends ConsumerState<_AddPlayerSheet> {
                       const SizedBox(width: SpacingTokens.sm),
                       Expanded(
                         child: Text(
-                          '3 bonus emoji packs with Supporter Pack',
+                          l10n.bonusEmojiPacks,
                           style: textTheme.labelMedium?.copyWith(
                             color: storyTheme.goldAccent,
                           ),
@@ -903,7 +905,7 @@ class _AddPlayerSheetState extends ConsumerState<_AddPlayerSheet> {
                 ),
                 disabledForegroundColor: Colors.black45,
               ),
-              child: const Text('Add'),
+              child: Text(l10n.add),
             ),
           ],
         ),
@@ -988,6 +990,7 @@ class _LoadPresetSheet extends ConsumerWidget {
     final presetsAsync = ref.watch(presetsProvider);
     final colorScheme = context.colorScheme;
     final textTheme = context.textTheme;
+    final l10n = context.l10n;
 
     return Padding(
       padding: const EdgeInsets.only(
@@ -1011,18 +1014,18 @@ class _LoadPresetSheet extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: SpacingTokens.lg),
-          Text('Load Preset', style: textTheme.titleLarge),
+          Text(l10n.loadPreset, style: textTheme.titleLarge),
           const SizedBox(height: SpacingTokens.md),
           presetsAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, _) => Text('Error: $e'),
+            error: (e, _) => Text('${l10n.error}: $e'),
             data: (presets) {
               if (presets.isEmpty) {
                 return Padding(
                   padding: const EdgeInsets.all(SpacingTokens.lg),
                   child: Center(
                     child: Text(
-                      'No presets saved yet.',
+                      l10n.noPresetsYet,
                       style: textTheme.bodyMedium?.copyWith(
                         color: colorScheme.onSurfaceVariant,
                       ),
@@ -1066,7 +1069,7 @@ class _LoadPresetTile extends ConsumerWidget {
 
     return playersAsync.when(
       loading: () => const SizedBox(height: 56),
-      error: (e, _) => ListTile(title: Text('Error: $e')),
+      error: (e, _) => ListTile(title: Text('${context.l10n.error}: $e')),
       data: (players) => PresetListTile(
         preset: preset,
         players: players,
@@ -1099,7 +1102,7 @@ class _FavoriteChipsSection extends ConsumerWidget {
 
     return favoritesAsync.when(
       loading: () => const SizedBox.shrink(),
-      error: (_, __) => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
       data: (favorites) {
         if (favorites.isEmpty) return const SizedBox.shrink();
 

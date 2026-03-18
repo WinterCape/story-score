@@ -20,6 +20,7 @@ class AppSettingsRepository {
   static const _keyPreferredSortOrder = 'settings.preferredSortOrder';
   static const _keySelectedTheme = 'settings.selectedTheme';
   static const _keySoundEffectsEnabled = 'settings.soundEffectsEnabled';
+  static const _keyLocale = 'settings.locale';
 
   // ── Read ─────────────────────────────────────────────────────────────────
 
@@ -33,6 +34,7 @@ class AppSettingsRepository {
       preferredSortOrder: _loadSortOrder(),
       selectedTheme: _prefs.getString(_keySelectedTheme) ?? 'celestial',
       soundEffectsEnabled: _prefs.getBool(_keySoundEffectsEnabled) ?? false,
+      locale: _prefs.getString(_keyLocale),
     );
   }
 
@@ -48,6 +50,7 @@ class AppSettingsRepository {
       setPreferredSortOrder(settings.preferredSortOrder),
       setSelectedTheme(settings.selectedTheme),
       setSoundEffectsEnabled(settings.soundEffectsEnabled),
+      setLocale(settings.locale),
     ]);
   }
 
@@ -83,6 +86,14 @@ class AppSettingsRepository {
 
   Future<void> setSoundEffectsEnabled(bool enabled) async {
     await _prefs.setBool(_keySoundEffectsEnabled, enabled);
+  }
+
+  Future<void> setLocale(String? locale) async {
+    if (locale == null) {
+      await _prefs.remove(_keyLocale);
+    } else {
+      await _prefs.setString(_keyLocale, locale);
+    }
   }
 
   // ── Helpers ──────────────────────────────────────────────────────────────

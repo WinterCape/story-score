@@ -25,6 +25,7 @@ import 'package:story_score/features/settings/providers/settings_providers.dart'
 import 'package:story_score/features/stats/providers/stats_providers.dart';
 import 'package:story_score/features/stats/widgets/score_progression_chart.dart';
 import 'package:story_score/features/stats/widgets/session_stats_section.dart';
+import 'package:story_score/core/l10n/generated/app_localizations.dart';
 import 'package:story_score/shared/extensions/context_extensions.dart';
 
 class EndgameScreen extends ConsumerStatefulWidget {
@@ -55,11 +56,12 @@ class _EndgameScreenState extends ConsumerState<EndgameScreen> {
             return const Center(child: CircularProgressIndicator());
           }
 
+          final l10n = AppLocalizations.of(context)!;
           final players = [...playersSnap.data!]
             ..sort((a, b) => b.currentScore.compareTo(a.currentScore));
 
           if (players.isEmpty) {
-            return const Center(child: Text('No players found'));
+            return Center(child: Text(l10n.noPlayersFound));
           }
 
           final topScore = players.first.currentScore;
@@ -84,7 +86,7 @@ class _EndgameScreenState extends ConsumerState<EndgameScreen> {
               slivers: [
                 SliverAppBar(
                   pinned: true,
-                  title: const Text('Game Over'),
+                  title: Text(l10n.gameOver),
                   leading: IconButton(
                     icon: const Icon(Icons.arrow_back_rounded),
                     onPressed: () => context.go('/'),
@@ -151,7 +153,7 @@ class _EndgameScreenState extends ConsumerState<EndgameScreen> {
                         _maybeAnimate(
                           skipAnimations: skipAnimations,
                           child: Text(
-                            hasTie ? "It's a Tie!" : 'Winner!',
+                            hasTie ? l10n.itsATie : l10n.winner,
                             style: theme.textTheme.headlineMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
@@ -184,7 +186,7 @@ class _EndgameScreenState extends ConsumerState<EndgameScreen> {
                         _maybeAnimate(
                           skipAnimations: skipAnimations,
                           child: Text(
-                            '$topScore points',
+                            l10n.points(topScore),
                             style: theme.textTheme.titleMedium?.copyWith(
                               color: theme.colorScheme.onSurfaceVariant,
                             ),
@@ -202,7 +204,7 @@ class _EndgameScreenState extends ConsumerState<EndgameScreen> {
                           child: Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
-                              'Final Standings',
+                              l10n.finalStandings,
                               style: theme.textTheme.titleMedium,
                             ),
                           ),
@@ -321,7 +323,7 @@ class _EndgameScreenState extends ConsumerState<EndgameScreen> {
                           child: FilledButton.icon(
                             onPressed: () => context.go('/game/new'),
                             icon: const Icon(Icons.replay_rounded),
-                            label: const Text('New Game'),
+                            label: Text(l10n.newGame),
                             style: FilledButton.styleFrom(
                               padding: const EdgeInsets.symmetric(
                                 vertical: SpacingTokens.md,
@@ -335,7 +337,7 @@ class _EndgameScreenState extends ConsumerState<EndgameScreen> {
                           child: OutlinedButton.icon(
                             onPressed: () => _shareResults(context, ref),
                             icon: const Icon(Icons.share_outlined),
-                            label: const Text('Share Results'),
+                            label: Text(l10n.shareResults),
                             style: OutlinedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(
                                 vertical: SpacingTokens.md,
@@ -353,7 +355,7 @@ class _EndgameScreenState extends ConsumerState<EndgameScreen> {
                               onPressed: () =>
                                   _saveAsPreset(context, ref, players),
                               icon: const Icon(Icons.bookmark_add_outlined),
-                              label: const Text('Save as Preset'),
+                              label: Text(l10n.saveAsPreset),
                               style: OutlinedButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(
                                   vertical: SpacingTokens.md,
@@ -377,7 +379,7 @@ class _EndgameScreenState extends ConsumerState<EndgameScreen> {
                               context.go('/');
                             },
                             icon: const Icon(Icons.home_rounded),
-                            label: const Text('Back to Home'),
+                            label: Text(l10n.backToHome),
                             style: OutlinedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(
                                 vertical: SpacingTokens.md,
@@ -403,30 +405,31 @@ class _EndgameScreenState extends ConsumerState<EndgameScreen> {
     WidgetRef ref,
     List<Player> players,
   ) async {
+    final l10n = AppLocalizations.of(context)!;
     final nameController = TextEditingController();
     final name = await showDialog<String>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Save as Preset'),
+        title: Text(l10n.saveAsPreset),
         content: TextField(
           controller: nameController,
           autofocus: true,
           maxLength: 30,
           textCapitalization: TextCapitalization.words,
-          decoration: const InputDecoration(
-            hintText: 'Preset name',
+          decoration: InputDecoration(
+            hintText: l10n.presetName,
             counterText: '',
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             onPressed: () =>
                 Navigator.of(dialogContext).pop(nameController.text.trim()),
-            child: const Text('Save'),
+            child: Text(l10n.save),
           ),
         ],
       ),
@@ -434,6 +437,7 @@ class _EndgameScreenState extends ConsumerState<EndgameScreen> {
     nameController.dispose();
 
     if (name == null || name.isEmpty || !mounted) return;
+    if (!context.mounted) return;
 
     final messenger = ScaffoldMessenger.of(context);
     try {
@@ -454,17 +458,18 @@ class _EndgameScreenState extends ConsumerState<EndgameScreen> {
       );
       Haptics.selection();
       if (!mounted) return;
-      messenger.showSnackBar(SnackBar(content: Text('Saved preset "$name"')));
+      messenger.showSnackBar(SnackBar(content: Text(l10n.savedPreset(name))));
     } catch (e) {
       if (!mounted) return;
       messenger.showSnackBar(
-        SnackBar(content: Text('Failed to save preset: $e')),
+        SnackBar(content: Text(l10n.failedToSavePreset('$e'))),
       );
     }
   }
 
   Future<void> _shareResults(BuildContext context, WidgetRef ref) async {
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context)!;
     try {
       Haptics.medium();
       final info = await PackageInfo.fromPlatform();
@@ -483,7 +488,7 @@ class _EndgameScreenState extends ConsumerState<EndgameScreen> {
         ShareParams(text: content, title: fileName),
       );
     } catch (e) {
-      messenger.showSnackBar(SnackBar(content: Text('Share failed: $e')));
+      messenger.showSnackBar(SnackBar(content: Text(l10n.shareFailed('$e'))));
     }
   }
 
@@ -559,12 +564,15 @@ class _SessionStatsBlock extends ConsumerWidget {
         // Session stats -- free for all users
         statsAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (_, __) => const SizedBox.shrink(),
+          error: (_, _) => const SizedBox.shrink(),
           data: (stats) => SessionStatsSection(stats: stats),
         ),
         const SizedBox(height: SpacingTokens.lg),
         // Score progression chart -- premium-gated
-        Text('Score Progression', style: textTheme.titleMedium),
+        Text(
+          AppLocalizations.of(context)?.scoreProgression ?? 'Score Progression',
+          style: textTheme.titleMedium,
+        ),
         const SizedBox(height: SpacingTokens.sm),
         if (isSupporter)
           progressionAsync.when(
@@ -572,7 +580,7 @@ class _SessionStatsBlock extends ConsumerWidget {
               height: 220,
               child: Center(child: CircularProgressIndicator()),
             ),
-            error: (_, __) => const SizedBox.shrink(),
+            error: (_, _) => const SizedBox.shrink(),
             data: (progression) =>
                 ScoreProgressionChart(progression: progression),
           )
@@ -584,7 +592,7 @@ class _SessionStatsBlock extends ConsumerWidget {
                 child: IgnorePointer(
                   child: progressionAsync.when(
                     loading: () => const SizedBox(height: 220),
-                    error: (_, __) => const SizedBox(height: 220),
+                    error: (_, _) => const SizedBox(height: 220),
                     data: (progression) =>
                         ScoreProgressionChart(progression: progression),
                   ),
@@ -602,7 +610,8 @@ class _SessionStatsBlock extends ConsumerWidget {
                       ),
                       const SizedBox(height: SpacingTokens.sm),
                       Text(
-                        'Supporter Pack',
+                        AppLocalizations.of(context)?.supporterPack ??
+                            'Supporter Pack',
                         style: textTheme.bodySmall?.copyWith(
                           color: storyTheme.goldAccent,
                           fontWeight: FontWeight.w600,
@@ -662,8 +671,12 @@ class _AnimatedScoreCounterState extends State<_AnimatedScoreCounter>
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _animation,
-      builder: (context, _) =>
-          Text('${_animation.value} points', style: widget.style),
+      builder: (context, _) {
+        final l10n = AppLocalizations.of(context);
+        final label =
+            l10n?.points(_animation.value) ?? '${_animation.value} points';
+        return Text(label, style: widget.style);
+      },
     );
   }
 }

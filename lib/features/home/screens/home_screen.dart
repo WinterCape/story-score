@@ -24,11 +24,12 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final activeAsync = ref.watch(activeSessionsProvider);
     final completedAsync = ref.watch(completedSessionsProvider);
+    final l10n = context.l10n;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'StoryScore',
+          l10n.appTitle,
           style: context.textTheme.titleLarge?.copyWith(
             color: context.storyTheme.goldAccent,
             fontWeight: FontWeight.w700,
@@ -37,17 +38,17 @@ class HomeScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.insights_rounded),
-            tooltip: 'Stats',
+            tooltip: l10n.stats,
             onPressed: () => context.push('/stats'),
           ),
           IconButton(
             icon: const Icon(Icons.file_download_outlined),
-            tooltip: 'Import Game',
+            tooltip: l10n.importGame,
             onPressed: () => _importGame(context, ref),
           ),
           IconButton(
             icon: const Icon(Icons.settings_outlined),
-            tooltip: 'Settings',
+            tooltip: l10n.settings,
             onPressed: () => context.push('/settings'),
           ),
         ],
@@ -56,7 +57,7 @@ class HomeScreen extends ConsumerWidget {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push('/game/new'),
         icon: const Icon(Icons.add_rounded),
-        label: const Text('New Game'),
+        label: Text(l10n.newGame),
         backgroundColor: context.storyTheme.goldAccent,
         foregroundColor: Colors.black,
       ),
@@ -69,6 +70,8 @@ class HomeScreen extends ConsumerWidget {
     AsyncValue<List<GameSession>> activeAsync,
     AsyncValue<List<GameSession>> completedAsync,
   ) {
+    final l10n = context.l10n;
+
     // Show loading skeleton while either list is loading for the first time
     final isLoading =
         activeAsync.isLoading && !activeAsync.hasValue ||
@@ -98,11 +101,9 @@ class HomeScreen extends ConsumerWidget {
     if (activeSessions.isEmpty && completedSessions.isEmpty) {
       return EmptyState(
         icon: Icons.auto_stories_outlined,
-        title: 'No games yet',
-        subtitle:
-            'Start your first game and begin tracking scores '
-            'for your storytelling card game.',
-        actionLabel: 'Start your first game',
+        title: l10n.noGamesYet,
+        subtitle: l10n.startYourFirstGameDescription,
+        actionLabel: l10n.startYourFirstGame,
         onAction: () => context.push('/game/new'),
       );
     }
@@ -122,7 +123,7 @@ class HomeScreen extends ConsumerWidget {
 
         // Active Games section
         if (activeSessions.isNotEmpty) ...[
-          _SectionHeader(title: 'Active Games'),
+          _SectionHeader(title: l10n.activeGames),
           const SizedBox(height: SpacingTokens.sm),
           if (isTablet)
             _SessionGrid(
@@ -146,7 +147,7 @@ class HomeScreen extends ConsumerWidget {
 
         // Completed Games section
         if (completedSessions.isNotEmpty) ...[
-          _SectionHeader(title: 'Completed Games'),
+          _SectionHeader(title: l10n.completedGames),
           const SizedBox(height: SpacingTokens.sm),
           if (isTablet)
             _SessionGrid(
@@ -172,6 +173,7 @@ class HomeScreen extends ConsumerWidget {
 
   Future<void> _importGame(BuildContext context, WidgetRef ref) async {
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
 
     try {
       final result = await FilePicker.platform.pickFiles(
@@ -192,7 +194,7 @@ class HomeScreen extends ConsumerWidget {
       if (!importResult.isValid) {
         messenger.showSnackBar(
           SnackBar(
-            content: Text('Import failed: ${importResult.errors.join(', ')}'),
+            content: Text(l10n.importFailed(importResult.errors.join(', '))),
           ),
         );
         return;
@@ -241,18 +243,16 @@ class HomeScreen extends ConsumerWidget {
         messenger.showSnackBar(
           SnackBar(
             content: Text(
-              'Game imported with warnings: ${importResult.warnings.join(', ')}',
+              l10n.importWithWarnings(importResult.warnings.join(', ')),
             ),
             duration: const Duration(seconds: 4),
           ),
         );
       } else {
-        messenger.showSnackBar(
-          const SnackBar(content: Text('Game imported successfully!')),
-        );
+        messenger.showSnackBar(SnackBar(content: Text(l10n.importSuccess)));
       }
     } catch (e) {
-      messenger.showSnackBar(SnackBar(content: Text('Import failed: $e')));
+      messenger.showSnackBar(SnackBar(content: Text(l10n.importFailed('$e'))));
     }
   }
 
@@ -282,6 +282,7 @@ class HomeScreen extends ConsumerWidget {
   }
 
   Widget _buildError(BuildContext context, Object error) {
+    final l10n = context.l10n;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(SpacingTokens.xl),
@@ -294,7 +295,7 @@ class HomeScreen extends ConsumerWidget {
               color: context.colorScheme.error,
             ),
             const SizedBox(height: SpacingTokens.md),
-            Text('Something went wrong', style: context.textTheme.titleMedium),
+            Text(l10n.somethingWentWrong, style: context.textTheme.titleMedium),
             const SizedBox(height: SpacingTokens.sm),
             Text(
               error.toString(),
@@ -337,10 +338,11 @@ class _QuickStartSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final presetsAsync = ref.watch(presetsProvider);
+    final l10n = context.l10n;
 
     return presetsAsync.when(
       loading: () => const SizedBox.shrink(),
-      error: (_, __) => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
       data: (presets) {
         if (presets.isEmpty) return const SizedBox.shrink();
 
@@ -350,7 +352,7 @@ class _QuickStartSection extends ConsumerWidget {
             alignment: Alignment.centerLeft,
             child: ActionChip(
               avatar: const Icon(Icons.bolt_rounded, size: 18),
-              label: const Text('Quick Start'),
+              label: Text(l10n.quickStart),
               onPressed: () => _showPresetPicker(context, ref, presets),
             ),
           ),
@@ -364,6 +366,7 @@ class _QuickStartSection extends ConsumerWidget {
     WidgetRef ref,
     List<PlayerPreset> presets,
   ) async {
+    final l10n = context.l10n;
     final selected = await showModalBottomSheet<PlayerPreset>(
       context: context,
       builder: (sheetContext) => Padding(
@@ -385,10 +388,10 @@ class _QuickStartSection extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: SpacingTokens.lg),
-            Text('Quick Start', style: context.textTheme.titleLarge),
+            Text(l10n.quickStart, style: context.textTheme.titleLarge),
             const SizedBox(height: SpacingTokens.sm),
             Text(
-              'Pick a preset to start a game instantly.',
+              l10n.quickStartDescription,
               style: context.textTheme.bodyMedium?.copyWith(
                 color: context.colorScheme.onSurfaceVariant,
               ),
@@ -431,7 +434,7 @@ class _QuickStartSection extends ConsumerWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Quick Start failed: $e')));
+        ).showSnackBar(SnackBar(content: Text(l10n.quickStartFailed('$e'))));
       }
     }
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:story_score/app/theme/theme_extensions.dart';
+import 'package:story_score/core/l10n/generated/app_localizations.dart';
 
 /// Convenience extensions on BuildContext for accessing theme data.
 extension ThemeContextX on BuildContext {
@@ -8,6 +9,11 @@ extension ThemeContextX on BuildContext {
   TextTheme get textTheme => theme.textTheme;
   StoryScoreThemeExtension get storyTheme =>
       theme.extension<StoryScoreThemeExtension>()!;
+}
+
+/// Convenience extension for accessing localized strings.
+extension L10nContextX on BuildContext {
+  AppLocalizations get l10n => AppLocalizations.of(this)!;
 }
 
 /// Convenience extensions for media queries.

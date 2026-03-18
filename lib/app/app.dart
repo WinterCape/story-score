@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:story_score/app/router/app_router.dart';
 import 'package:story_score/app/theme/premium_themes.dart';
 import 'package:story_score/app/theme/story_score_theme.dart';
+import 'package:story_score/core/l10n/generated/app_localizations.dart';
 import 'package:story_score/features/premium/providers/premium_providers.dart';
 import 'package:story_score/features/settings/providers/settings_providers.dart';
 
@@ -19,6 +19,7 @@ class StoryScoreApp extends ConsumerWidget {
     final router = ref.watch(routerProvider);
     final themeMode = ref.watch(themeModeProvider);
     final selectedTheme = ref.watch(selectedThemeProvider);
+    final locale = ref.watch(localeProvider);
 
     // Sync RevenueCat entitlement with local DB cache on app start.
     // Fire-and-forget — the result is not needed here.
@@ -51,12 +52,9 @@ class StoryScoreApp extends ConsumerWidget {
       routerConfig: router,
 
       // -- Localization --
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [Locale('en')],
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: locale,
     );
   }
 }

@@ -61,6 +61,7 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
     GameSession session,
     Player player,
   ) {
+    final l10n = context.l10n;
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -70,11 +71,11 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
           size: 48,
           color: context.storyTheme.goldAccent,
         ),
-        title: Text('${player.name} reached ${session.targetScore} points!'),
+        title: Text(l10n.reachedTarget(player.name, session.targetScore!)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Continue Playing'),
+            child: Text(l10n.continuePlaying),
           ),
           FilledButton(
             onPressed: () async {
@@ -92,7 +93,7 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
                 context.go('/game/$sessionId/endgame');
               }
             },
-            child: const Text('End Game Now'),
+            child: Text(l10n.endGameNow),
           ),
         ],
       ),
@@ -108,6 +109,7 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
         ? ref.watch(playersByScoreProvider(sessionId))
         : ref.watch(playersProvider(sessionId));
     final storytellerAsync = ref.watch(currentStorytellerProvider(sessionId));
+    final l10n = context.l10n;
 
     return sessionAsync.when(
       loading: () =>
@@ -126,7 +128,7 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
                 ),
                 const SizedBox(height: SpacingTokens.md),
                 Text(
-                  'Failed to load session',
+                  l10n.failedToLoadSession,
                   style: context.textTheme.titleMedium,
                 ),
                 const SizedBox(height: SpacingTokens.sm),
@@ -147,7 +149,7 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
           return Scaffold(
             body: Center(
               child: Text(
-                'Session not found',
+                l10n.sessionNotFound,
                 style: context.textTheme.titleMedium,
               ),
             ),
@@ -161,7 +163,7 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
               onPressed: () => context.go('/'),
             ),
             title: Text(
-              session.title.isNotEmpty ? session.title : 'Scoreboard',
+              session.title.isNotEmpty ? session.title : l10n.scoreboard,
             ),
             actions: [
               // Sort toggle
@@ -169,7 +171,7 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
                 icon: Icon(
                   sortByScore ? Icons.sort_by_alpha : Icons.leaderboard,
                 ),
-                tooltip: sortByScore ? 'Sort by seat' : 'Sort by score',
+                tooltip: sortByScore ? l10n.sortBySeat : l10n.sortByScore,
                 onPressed: () {
                   ref.read(sortByScoreProvider.notifier).toggle();
                 },
@@ -185,23 +187,23 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
                   }
                 },
                 itemBuilder: (context) => [
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'export_game',
                     child: Row(
                       children: [
-                        Icon(Icons.share_outlined, size: 20),
-                        SizedBox(width: SpacingTokens.sm),
-                        Text('Export Game'),
+                        const Icon(Icons.share_outlined, size: 20),
+                        const SizedBox(width: SpacingTokens.sm),
+                        Text(l10n.exportGame),
                       ],
                     ),
                   ),
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'end_game',
                     child: Row(
                       children: [
-                        Icon(Icons.flag_outlined, size: 20),
-                        SizedBox(width: SpacingTokens.sm),
-                        Text('End Game'),
+                        const Icon(Icons.flag_outlined, size: 20),
+                        const SizedBox(width: SpacingTokens.sm),
+                        Text(l10n.endGame),
                       ],
                     ),
                   ),
@@ -211,12 +213,13 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
           ),
           body: playersAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, st) => Center(child: Text('Error loading players: $e')),
+            error: (e, st) =>
+                Center(child: Text(l10n.errorLoadingPlayers('$e'))),
             data: (players) {
               if (players.isEmpty) {
                 return Center(
                   child: Text(
-                    'No players in this session',
+                    l10n.noPlayersInSession,
                     style: context.textTheme.bodyLarge?.copyWith(
                       color: context.colorScheme.onSurfaceVariant,
                     ),
@@ -253,7 +256,7 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
             },
           ),
           floatingActionButton: Semantics(
-            label: 'Start new round',
+            label: l10n.startNewRound,
             button: true,
             excludeSemantics: true,
             child: FloatingActionButton.extended(
@@ -261,7 +264,7 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
                 context.go('/game/$sessionId/round');
               },
               icon: const Icon(Icons.play_arrow),
-              label: const Text('New Round'),
+              label: Text(l10n.newRound),
               backgroundColor: context.storyTheme.goldAccent,
               foregroundColor: Colors.black,
             ),
@@ -272,6 +275,7 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
   }
 
   void _showExportSheet(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     showModalBottomSheet(
       context: context,
       builder: (sheetContext) => SafeArea(
@@ -285,12 +289,15 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
                 SpacingTokens.lg,
                 SpacingTokens.sm,
               ),
-              child: Text('Export Game', style: context.textTheme.titleMedium),
+              child: Text(
+                l10n.exportGame,
+                style: context.textTheme.titleMedium,
+              ),
             ),
             ListTile(
               leading: const Icon(Icons.data_object),
-              title: const Text('Export as JSON'),
-              subtitle: const Text('Full game data, can be re-imported'),
+              title: Text(l10n.exportAsJson),
+              subtitle: Text(l10n.exportAsJsonDescription),
               onTap: () {
                 Navigator.of(sheetContext).pop();
                 _exportAs(context, ref, format: 'json');
@@ -298,8 +305,8 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.table_chart_outlined),
-              title: const Text('Export as CSV'),
-              subtitle: const Text('Spreadsheet-friendly format'),
+              title: Text(l10n.exportAsCsv),
+              subtitle: Text(l10n.exportAsCsvDescription),
               onTap: () {
                 Navigator.of(sheetContext).pop();
                 _exportAs(context, ref, format: 'csv');
@@ -318,6 +325,7 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
     required String format,
   }) async {
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
     try {
       final info = await PackageInfo.fromPlatform();
       final exported = await buildExportedSession(
@@ -342,7 +350,7 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
         ShareParams(text: content, title: fileName),
       );
     } catch (e) {
-      messenger.showSnackBar(SnackBar(content: Text('Export failed: $e')));
+      messenger.showSnackBar(SnackBar(content: Text(l10n.exportFailed('$e'))));
     }
   }
 
@@ -351,18 +359,16 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
     WidgetRef ref,
     GameSession session,
   ) {
+    final l10n = context.l10n;
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('End Game?'),
-        content: Text(
-          'This will mark the game as completed after '
-          '${session.roundCount} round${session.roundCount == 1 ? '' : 's'}.',
-        ),
+        title: Text(l10n.endGameQuestion),
+        content: Text(l10n.endGameConfirmation(session.roundCount)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             onPressed: () async {
@@ -380,7 +386,7 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
                 context.go('/game/$sessionId/endgame');
               }
             },
-            child: const Text('End Game'),
+            child: Text(l10n.endGame),
           ),
         ],
       ),
@@ -404,6 +410,8 @@ class _RoundInfoHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(
@@ -423,7 +431,7 @@ class _RoundInfoHeader extends ConsumerWidget {
               borderRadius: BorderRadius.circular(SpacingTokens.radiusSm),
             ),
             child: Text(
-              'Round ${session.roundCount + 1}',
+              l10n.round(session.roundCount + 1),
               style: context.textTheme.labelLarge?.copyWith(
                 color: context.colorScheme.onPrimaryContainer,
               ),
@@ -434,8 +442,7 @@ class _RoundInfoHeader extends ConsumerWidget {
           if (storyteller != null) ...[
             Expanded(
               child: Semantics(
-                label:
-                    '${storyteller!.name} is the current storyteller. Tap to change.',
+                label: l10n.playerIsStoryteller(storyteller!.name),
                 button: true,
                 excludeSemantics: true,
                 child: InkWell(
@@ -455,7 +462,7 @@ class _RoundInfoHeader extends ConsumerWidget {
                         const SizedBox(width: SpacingTokens.xs),
                         Expanded(
                           child: Text(
-                            '${storyteller!.name} is storytelling',
+                            l10n.playerIsStorytelling(storyteller!.name),
                             style: context.textTheme.bodyMedium?.copyWith(
                               color: context.colorScheme.onSurfaceVariant,
                             ),
@@ -481,6 +488,7 @@ class _RoundInfoHeader extends ConsumerWidget {
   }
 
   void _showStorytellerPicker(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     showModalBottomSheet(
       context: context,
       builder: (sheetContext) => SafeArea(
@@ -496,7 +504,7 @@ class _RoundInfoHeader extends ConsumerWidget {
                 SpacingTokens.sm,
               ),
               child: Text(
-                'Choose Storyteller',
+                l10n.chooseStoryteller,
                 style: context.textTheme.titleMedium,
               ),
             ),
@@ -608,18 +616,19 @@ class _PlayerGrid extends ConsumerWidget {
     WidgetRef ref,
     Player player,
   ) {
+    final l10n = context.l10n;
     var adjustment = 0;
 
     showDialog(
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
-          title: Text('Adjust ${player.name}\'s Score'),
+          title: Text(l10n.adjustScore(player.name)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Current: ${player.currentScore}',
+                l10n.currentScore(player.currentScore),
                 style: context.textTheme.bodyLarge,
               ),
               const SizedBox(height: SpacingTokens.md),
@@ -653,7 +662,7 @@ class _PlayerGrid extends ConsumerWidget {
               ),
               const SizedBox(height: SpacingTokens.sm),
               Text(
-                'New score: ${player.currentScore + adjustment}',
+                l10n.newScore(player.currentScore + adjustment),
                 style: context.textTheme.bodyMedium?.copyWith(
                   color: context.colorScheme.onSurfaceVariant,
                 ),
@@ -663,7 +672,7 @@ class _PlayerGrid extends ConsumerWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('Cancel'),
+              child: Text(l10n.cancel),
             ),
             FilledButton(
               onPressed: adjustment == 0
@@ -677,7 +686,7 @@ class _PlayerGrid extends ConsumerWidget {
                             player.currentScore + adjustment,
                           );
                     },
-              child: const Text('Apply'),
+              child: Text(l10n.apply),
             ),
           ],
         ),

@@ -19,13 +19,14 @@ class StatsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isSupporter = ref.watch(isSupporterProvider);
+    final l10n = context.l10n;
 
     return DefaultTabController(
       length: 2,
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-            'Stats',
+            l10n.stats,
             style: context.textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.w700,
             ),
@@ -38,9 +39,9 @@ class StatsScreen extends ConsumerWidget {
             indicatorColor: context.storyTheme.goldAccent,
             labelColor: context.storyTheme.goldAccent,
             unselectedLabelColor: context.colorScheme.onSurfaceVariant,
-            tabs: const [
-              Tab(text: 'Leaderboard'),
-              Tab(text: 'Players'),
+            tabs: [
+              Tab(text: l10n.leaderboard),
+              Tab(text: l10n.players),
             ],
           ),
         ),
@@ -65,6 +66,7 @@ class _PremiumGateOverlay extends StatelessWidget {
   Widget build(BuildContext context) {
     final storyTheme = context.storyTheme;
     final textTheme = context.textTheme;
+    final l10n = context.l10n;
 
     return Stack(
       children: [
@@ -90,15 +92,14 @@ class _PremiumGateOverlay extends StatelessWidget {
                     ),
                     const SizedBox(height: SpacingTokens.md),
                     Text(
-                      'Advanced Stats',
+                      l10n.advancedStats,
                       style: textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: SpacingTokens.sm),
                     Text(
-                      'Unlock leaderboards, player stats, win streaks, '
-                      'and head-to-head records with the Supporter Pack.',
+                      l10n.advancedStatsDescription,
                       style: textTheme.bodyMedium?.copyWith(
                         color: context.colorScheme.onSurfaceVariant,
                       ),
@@ -111,7 +112,7 @@ class _PremiumGateOverlay extends StatelessWidget {
                         backgroundColor: storyTheme.goldAccent,
                         foregroundColor: Colors.black,
                       ),
-                      child: const Text('Unlock with Supporter Pack'),
+                      child: Text(l10n.unlockWithSupporterPack),
                     ),
                   ],
                 ),
@@ -133,10 +134,12 @@ class _LeaderboardTab extends ConsumerWidget {
     final leaderboardAsync = ref.watch(leaderboardProvider);
     final textTheme = context.textTheme;
     final colors = context.colorScheme;
+    final l10n = context.l10n;
+
     return leaderboardAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, _) =>
-          Center(child: Text('Failed to load leaderboard: $error')),
+          Center(child: Text(l10n.failedToLoadLeaderboard('$error'))),
       data: (entries) {
         if (entries.isEmpty) {
           return Center(
@@ -151,11 +154,10 @@ class _LeaderboardTab extends ConsumerWidget {
                     color: colors.onSurfaceVariant.withValues(alpha: 0.5),
                   ),
                   const SizedBox(height: SpacingTokens.md),
-                  Text('No leaderboard yet', style: textTheme.titleMedium),
+                  Text(l10n.noLeaderboardYet, style: textTheme.titleMedium),
                   const SizedBox(height: SpacingTokens.sm),
                   Text(
-                    'Play at least 3 games with the same players '
-                    'to see stats here.',
+                    l10n.noLeaderboardDescription,
                     style: textTheme.bodyMedium?.copyWith(
                       color: colors.onSurfaceVariant,
                     ),
@@ -170,11 +172,11 @@ class _LeaderboardTab extends ConsumerWidget {
         return ListView(
           padding: const EdgeInsets.all(SpacingTokens.md),
           children: [
-            Text('Win Rate', style: textTheme.titleMedium),
+            Text(l10n.winRate, style: textTheme.titleMedium),
             const SizedBox(height: SpacingTokens.sm),
             WinRateBarChart(entries: entries),
             const SizedBox(height: SpacingTokens.lg),
-            Text('Rankings', style: textTheme.titleMedium),
+            Text(l10n.rankings, style: textTheme.titleMedium),
             const SizedBox(height: SpacingTokens.sm),
             ...entries.asMap().entries.map((e) {
               final index = e.key;
@@ -216,6 +218,7 @@ class _LeaderboardTile extends StatelessWidget {
     final textTheme = context.textTheme;
     final colors = context.colorScheme;
     final storyTheme = context.storyTheme;
+    final l10n = context.l10n;
 
     return Card(
       child: ListTile(
@@ -256,7 +259,7 @@ class _LeaderboardTile extends StatelessWidget {
           style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
         ),
         subtitle: Text(
-          '${entry.wins}W / ${entry.gamesPlayed}G',
+          l10n.winsSlashGames(entry.wins, entry.gamesPlayed),
           style: textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
         ),
         trailing: Text(
@@ -285,11 +288,12 @@ class _PlayersTab extends ConsumerWidget {
     final leaderboardAsync = ref.watch(leaderboardProvider);
     final textTheme = context.textTheme;
     final colors = context.colorScheme;
+    final l10n = context.l10n;
 
     return leaderboardAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, _) =>
-          Center(child: Text('Failed to load players: $error')),
+          Center(child: Text(l10n.failedToLoadPlayers('$error'))),
       data: (entries) {
         if (entries.isEmpty) {
           return Center(
@@ -304,10 +308,10 @@ class _PlayersTab extends ConsumerWidget {
                     color: colors.onSurfaceVariant.withValues(alpha: 0.5),
                   ),
                   const SizedBox(height: SpacingTokens.md),
-                  Text('No players yet', style: textTheme.titleMedium),
+                  Text(l10n.noPlayersYet, style: textTheme.titleMedium),
                   const SizedBox(height: SpacingTokens.sm),
                   Text(
-                    'Complete some games to see player stats.',
+                    l10n.noPlayersYetDescription,
                     style: textTheme.bodyMedium?.copyWith(
                       color: colors.onSurfaceVariant,
                     ),
@@ -319,8 +323,6 @@ class _PlayersTab extends ConsumerWidget {
           );
         }
 
-        // Show all players, not just those meeting min games threshold
-        // by using a separate provider or just displaying leaderboard entries
         return ListView.builder(
           padding: const EdgeInsets.all(SpacingTokens.md),
           itemCount: entries.length,
@@ -350,9 +352,11 @@ class _PlayersTab extends ConsumerWidget {
                   ),
                 ),
                 subtitle: Text(
-                  '${entry.gamesPlayed} games  |  '
-                  '${entry.wins} wins  |  '
-                  '${entry.totalPoints} pts',
+                  l10n.playerGamesStats(
+                    entry.gamesPlayed,
+                    entry.wins,
+                    entry.totalPoints,
+                  ),
                   style: textTheme.bodySmall?.copyWith(
                     color: colors.onSurfaceVariant,
                   ),

@@ -46,8 +46,7 @@ class FavoritePlayerChips extends StatelessWidget {
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: favorites.length,
-            separatorBuilder: (_, __) =>
-                const SizedBox(width: SpacingTokens.xs),
+            separatorBuilder: (_, _) => const SizedBox(width: SpacingTokens.xs),
             itemBuilder: (context, index) {
               final fav = favorites[index];
               final isExcluded = excludeNames.contains(

@@ -16,6 +16,7 @@ class HistoryScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final roundsAsync = ref.watch(roundHistoryProvider(sessionId));
+    final l10n = context.l10n;
 
     return Scaffold(
       appBar: AppBar(
@@ -23,15 +24,15 @@ class HistoryScreen extends ConsumerWidget {
           icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => context.go('/game/$sessionId/scoreboard'),
         ),
-        title: const Text('Round History'),
+        title: Text(l10n.roundHistory),
       ),
       body: roundsAsync.when(
         data: (rounds) {
           if (rounds.isEmpty) {
-            return const EmptyState(
+            return EmptyState(
               icon: Icons.history_rounded,
-              title: 'No rounds yet',
-              subtitle: 'Complete your first round and it will appear here.',
+              title: l10n.noRoundsYet,
+              subtitle: l10n.noRoundsYetDescription,
             );
           }
 
@@ -51,7 +52,7 @@ class HistoryScreen extends ConsumerWidget {
                     child: OutlinedButton.icon(
                       onPressed: () => _confirmUndoLastRound(context, ref),
                       icon: const Icon(Icons.undo_rounded, size: 18),
-                      label: const Text('Undo Last Round'),
+                      label: Text(l10n.undoLastRound),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: context.colorScheme.error,
                         side: BorderSide(
@@ -97,25 +98,23 @@ class HistoryScreen extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
   ) async {
+    final l10n = context.l10n;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Undo Last Round'),
-        content: const Text(
-          'This will delete the most recent round and revert all score '
-          'changes from that round. This action cannot be undone.',
-        ),
+        title: Text(l10n.undoLastRound),
+        content: Text(l10n.undoLastRoundConfirmation),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: FilledButton.styleFrom(
               backgroundColor: Theme.of(ctx).colorScheme.error,
             ),
-            child: const Text('Undo'),
+            child: Text(l10n.undo),
           ),
         ],
       ),
@@ -149,6 +148,7 @@ class HistoryScreen extends ConsumerWidget {
   }
 
   Widget _buildError(BuildContext context, Object error) {
+    final l10n = context.l10n;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(SpacingTokens.xl),
@@ -162,7 +162,7 @@ class HistoryScreen extends ConsumerWidget {
             ),
             const SizedBox(height: SpacingTokens.md),
             Text(
-              'Failed to load history',
+              l10n.failedToLoadHistory,
               style: context.textTheme.titleMedium,
             ),
             const SizedBox(height: SpacingTokens.sm),

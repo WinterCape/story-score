@@ -1,68 +1,618 @@
 {
   "@@locale": "en",
+
   "appTitle": "StoryScore",
+  "@appTitle": { "description": "App title shown in app bar and about section" },
+
   "newGame": "New Game",
+  "@newGame": { "description": "Button/label to create a new game" },
+
   "settings": "Settings",
+  "@settings": { "description": "Settings screen title and tooltip" },
+
   "startGame": "Start Game",
+  "@startGame": { "description": "Button to start a new game" },
+
   "scoreRound": "Score Round",
+  "@scoreRound": { "description": "Button to submit and score the current round" },
+
   "endGame": "End Game",
+  "@endGame": { "description": "Menu item to end game" },
+
   "endGameNow": "End Game Now",
+  "@endGameNow": { "description": "Button to end game immediately" },
+
   "continuePlaying": "Continue Playing",
+  "@continuePlaying": { "description": "Button to continue playing after target reached" },
+
   "newRound": "New Round",
+  "@newRound": { "description": "FAB label for starting a new round" },
+
   "round": "Round {number}",
   "@round": { "placeholders": { "number": { "type": "int" } } },
+
   "playerIsStoryteller": "{name} is the Storyteller",
   "@playerIsStoryteller": { "placeholders": { "name": { "type": "String" } } },
+
+  "playerIsStorytelling": "{name} is storytelling",
+  "@playerIsStorytelling": { "placeholders": { "name": { "type": "String" } } },
+
   "whoDidEachPlayerVoteFor": "Who did each player vote for?",
+  "@whoDidEachPlayerVoteFor": { "description": "Instruction on round screen" },
+
   "allPlayersMustVote": "All players must vote",
+  "@allPlayersMustVote": { "description": "Message when not all votes are cast" },
+
   "addPlayer": "Add Player",
+  "@addPlayer": { "description": "Button to add a player" },
+
   "playerName": "Player name",
+  "@playerName": { "description": "Hint text for player name field" },
+
   "selectColor": "Pick a color",
-  "gameTitle": "Game Title (optional)",
+  "@selectColor": { "description": "Label for color picker" },
+
+  "gameTitle": "Game Title",
+  "@gameTitle": { "description": "Label for game title field" },
+
+  "gameTitleHint": "e.g. Friday Game Night",
+  "@gameTitleHint": { "description": "Hint text for game title field" },
+
   "targetScore": "Target Score",
+  "@targetScore": { "description": "Label for target score field" },
+
   "infinite": "Infinite",
+  "@infinite": { "description": "Label for infinite/freeplay mode" },
+
   "continuePastTarget": "Continue Past Target",
+  "@continuePastTarget": { "description": "Toggle label for continuing past target score" },
+
+  "continuePastTargetDescription": "Keep playing after someone reaches the target",
+  "@continuePastTargetDescription": { "description": "Description for continue past target toggle" },
+
   "itsATie": "It's a Tie!",
+  "@itsATie": { "description": "Headline when game ends in a tie" },
+
   "winner": "Winner!",
+  "@winner": { "description": "Headline when there is a single winner" },
+
   "points": "{count} points",
   "@points": { "placeholders": { "count": { "type": "int" } } },
+
   "finalStandings": "Final Standings",
+  "@finalStandings": { "description": "Section title on endgame screen" },
+
   "backToHome": "Back to Home",
+  "@backToHome": { "description": "Button to return to home screen" },
+
   "shareResults": "Share Results",
+  "@shareResults": { "description": "Button to share game results" },
+
   "activeGames": "Active Games",
+  "@activeGames": { "description": "Section header for active games" },
+
   "completedGames": "Completed Games",
+  "@completedGames": { "description": "Section header for completed games" },
+
   "noGamesYet": "No games yet",
+  "@noGamesYet": { "description": "Empty state title when no games exist" },
+
   "startYourFirstGame": "Start your first game",
+  "@startYourFirstGame": { "description": "Empty state action button" },
+
+  "startYourFirstGameDescription": "Start your first game and begin tracking scores for your storytelling card game.",
+  "@startYourFirstGameDescription": { "description": "Empty state subtitle" },
+
   "undoLastRound": "Undo Last Round",
+  "@undoLastRound": { "description": "Button to undo the last round" },
+
   "deleteRound": "Delete Round",
+  "@deleteRound": { "description": "Button to delete a round" },
+
   "editRound": "Edit Round",
+  "@editRound": { "description": "Button to edit a round" },
+
   "exportGame": "Export Game",
+  "@exportGame": { "description": "Menu item for exporting game" },
+
   "exportAsJson": "Export as JSON",
+  "@exportAsJson": { "description": "Option to export as JSON" },
+
+  "exportAsJsonDescription": "Full game data, can be re-imported",
+  "@exportAsJsonDescription": { "description": "JSON export description" },
+
   "exportAsCsv": "Export as CSV",
+  "@exportAsCsv": { "description": "Option to export as CSV" },
+
+  "exportAsCsvDescription": "Spreadsheet-friendly format",
+  "@exportAsCsvDescription": { "description": "CSV export description" },
+
   "importGame": "Import Game",
+  "@importGame": { "description": "Button to import a game" },
+
   "supporterPack": "Supporter Pack",
+  "@supporterPack": { "description": "Premium feature name" },
+
   "restorePurchases": "Restore Purchases",
+  "@restorePurchases": { "description": "Button to restore purchases" },
+
   "theme": "Theme",
+  "@theme": { "description": "Theme setting label" },
+
   "system": "System",
+  "@system": { "description": "System theme mode label" },
+
   "light": "Light",
+  "@light": { "description": "Light theme mode label" },
+
   "dark": "Dark",
+  "@dark": { "description": "Dark theme mode label" },
+
   "hapticFeedback": "Haptic Feedback",
+  "@hapticFeedback": { "description": "Haptic feedback setting label" },
+
+  "hapticFeedbackDescription": "Vibrate on score events",
+  "@hapticFeedbackDescription": { "description": "Haptic feedback description" },
+
   "reduceMotion": "Reduce Motion",
+  "@reduceMotion": { "description": "Reduce motion setting label" },
+
+  "reduceMotionDescription": "Minimize animations",
+  "@reduceMotionDescription": { "description": "Reduce motion description" },
+
   "roundNotes": "Show Round Notes",
+  "@roundNotes": { "description": "Show round notes setting label" },
+
+  "roundNotesDescription": "Allow clue notes per round",
+  "@roundNotesDescription": { "description": "Show round notes description" },
+
   "cancel": "Cancel",
+  "@cancel": { "description": "Cancel button label" },
+
   "delete": "Delete",
+  "@delete": { "description": "Delete button label" },
+
   "confirm": "Confirm",
+  "@confirm": { "description": "Confirm button label" },
+
   "error": "Error",
+  "@error": { "description": "Generic error label" },
+
   "goodClue": "Good clue",
+  "@goodClue": { "description": "Label when storyteller gave a good clue" },
+
   "badClue": "Bad clue",
+  "@badClue": { "description": "Label when storyteller gave a bad clue" },
+
   "correctGuess": "Correct guess",
+  "@correctGuess": { "description": "Score reason label" },
+
   "fooledBonus": "Fooled opponent",
+  "@fooledBonus": { "description": "Score reason label" },
+
   "reachedTarget": "{name} reached {target} points!",
   "@reachedTarget": { "placeholders": { "name": { "type": "String" }, "target": { "type": "int" } } },
+
   "appearance": "Appearance",
+  "@appearance": { "description": "Settings section header" },
+
   "gameplay": "Gameplay",
+  "@gameplay": { "description": "Settings section header" },
+
   "support": "Support",
+  "@support": { "description": "Settings section header" },
+
   "about": "About",
+  "@about": { "description": "Settings section header" },
+
   "version": "Version {version}",
-  "@version": { "placeholders": { "version": { "type": "String" } } }
+  "@version": { "placeholders": { "version": { "type": "String" } } },
+
+  "scoreboard": "Scoreboard",
+  "@scoreboard": { "description": "Tab label and screen title" },
+
+  "roundTab": "Round",
+  "@roundTab": { "description": "Tab label for round tab" },
+
+  "history": "History",
+  "@history": { "description": "Tab label and screen title" },
+
+  "roundHistory": "Round History",
+  "@roundHistory": { "description": "History screen title" },
+
+  "noRoundsYet": "No rounds yet",
+  "@noRoundsYet": { "description": "Empty state title when no rounds exist" },
+
+  "noRoundsYetDescription": "Complete your first round and it will appear here.",
+  "@noRoundsYetDescription": { "description": "Empty state description for rounds" },
+
+  "stats": "Stats",
+  "@stats": { "description": "Stats screen title and tooltip" },
+
+  "leaderboard": "Leaderboard",
+  "@leaderboard": { "description": "Leaderboard tab label" },
+
+  "players": "Players",
+  "@players": { "description": "Players tab label and section header" },
+
+  "gameOver": "Game Over",
+  "@gameOver": { "description": "Endgame screen app bar title" },
+
+  "winCondition": "Win Condition",
+  "@winCondition": { "description": "Label for win condition selector" },
+
+  "scoreTarget": "Score Target",
+  "@scoreTarget": { "description": "Score target win condition label" },
+
+  "roundLimit": "Round Limit",
+  "@roundLimit": { "description": "Round limit win condition label" },
+
+  "freePlay": "Free Play",
+  "@freePlay": { "description": "Free play win condition label" },
+
+  "minPlayersRequired": "Min 3 required",
+  "@minPlayersRequired": { "description": "Warning when fewer than 3 players" },
+
+  "playerCountLabel": "{count}/10",
+  "@playerCountLabel": { "placeholders": { "count": { "type": "int" } } },
+
+  "quickStart": "Quick Start",
+  "@quickStart": { "description": "Quick start button label" },
+
+  "quickStartDescription": "Pick a preset to start a game instantly.",
+  "@quickStartDescription": { "description": "Quick start sheet description" },
+
+  "loadPreset": "Load Preset",
+  "@loadPreset": { "description": "Button to load a player preset" },
+
+  "saveAsPreset": "Save as Preset",
+  "@saveAsPreset": { "description": "Button to save current players as preset" },
+
+  "save": "Save",
+  "@save": { "description": "Save button label" },
+
+  "presetName": "Preset name",
+  "@presetName": { "description": "Hint text for preset name field" },
+
+  "savedPreset": "Saved preset \"{name}\"",
+  "@savedPreset": { "placeholders": { "name": { "type": "String" } } },
+
+  "failedToSavePreset": "Failed to save preset: {error}",
+  "@failedToSavePreset": { "placeholders": { "error": { "type": "String" } } },
+
+  "failedToCreateGame": "Failed to create game: {error}",
+  "@failedToCreateGame": { "placeholders": { "error": { "type": "String" } } },
+
+  "noPresetsYet": "No presets saved yet.",
+  "@noPresetsYet": { "description": "Empty state in load preset sheet" },
+
+  "chooseColor": "Choose Color",
+  "@chooseColor": { "description": "Label for color picker in add player sheet" },
+
+  "avatarStyle": "Avatar Style",
+  "@avatarStyle": { "description": "Label for avatar style selector" },
+
+  "initials": "Initials",
+  "@initials": { "description": "Avatar style option for initials" },
+
+  "emoji": "Emoji",
+  "@emoji": { "description": "Avatar style option for emoji" },
+
+  "add": "Add",
+  "@add": { "description": "Add button label" },
+
+  "bonusEmojiPacks": "3 bonus emoji packs with Supporter Pack",
+  "@bonusEmojiPacks": { "description": "Premium upsell for emoji packs" },
+
+  "sortByScore": "Sort by score",
+  "@sortByScore": { "description": "Tooltip for sort by score button" },
+
+  "sortBySeat": "Sort by seat",
+  "@sortBySeat": { "description": "Tooltip for sort by seat button" },
+
+  "failedToLoadSession": "Failed to load session",
+  "@failedToLoadSession": { "description": "Error message when session fails to load" },
+
+  "sessionNotFound": "Session not found",
+  "@sessionNotFound": { "description": "Message when session is not found" },
+
+  "noPlayersInSession": "No players in this session",
+  "@noPlayersInSession": { "description": "Message when no players exist" },
+
+  "errorLoadingPlayers": "Error loading players: {error}",
+  "@errorLoadingPlayers": { "placeholders": { "error": { "type": "String" } } },
+
+  "chooseStoryteller": "Choose Storyteller",
+  "@chooseStoryteller": { "description": "Title for storyteller picker sheet" },
+
+  "endGameQuestion": "End Game?",
+  "@endGameQuestion": { "description": "Title for end game confirmation dialog" },
+
+  "endGameConfirmation": "This will mark the game as completed after {count} round{count, plural, =1{} other{s}}.",
+  "@endGameConfirmation": { "placeholders": { "count": { "type": "int" } } },
+
+  "exportFailed": "Export failed: {error}",
+  "@exportFailed": { "placeholders": { "error": { "type": "String" } } },
+
+  "adjustScore": "Adjust {name}'s Score",
+  "@adjustScore": { "placeholders": { "name": { "type": "String" } } },
+
+  "currentScore": "Current: {score}",
+  "@currentScore": { "placeholders": { "score": { "type": "int" } } },
+
+  "newScore": "New score: {score}",
+  "@newScore": { "placeholders": { "score": { "type": "int" } } },
+
+  "apply": "Apply",
+  "@apply": { "description": "Apply button label" },
+
+  "noStorytellerAssigned": "No storyteller assigned",
+  "@noStorytellerAssigned": { "description": "Message when no storyteller is assigned" },
+
+  "roundNoteHint": "Round note (optional)",
+  "@roundNoteHint": { "description": "Hint text for round note field" },
+
+  "errorScoringRound": "Error scoring round: {error}",
+  "@errorScoringRound": { "placeholders": { "error": { "type": "String" } } },
+
+  "roundDetail": "Round Detail",
+  "@roundDetail": { "description": "Round detail screen title" },
+
+  "roundNotFound": "Round not found",
+  "@roundNotFound": { "description": "Message when round is not found" },
+
+  "votes": "Votes",
+  "@votes": { "description": "Section title for votes" },
+
+  "scoreChanges": "Score Changes",
+  "@scoreChanges": { "description": "Section title for score changes" },
+
+  "editVotes": "Edit Votes",
+  "@editVotes": { "description": "Section title for editing votes" },
+
+  "saveChanges": "Save Changes",
+  "@saveChanges": { "description": "Button to save edited changes" },
+
+  "failedToSaveChanges": "Failed to save changes: {error}",
+  "@failedToSaveChanges": { "placeholders": { "error": { "type": "String" } } },
+
+  "deleteRoundConfirmation": "This will permanently delete this round and revert all score changes. This action cannot be undone.",
+  "@deleteRoundConfirmation": { "description": "Confirmation message for deleting a round" },
+
+  "failedToDeleteRound": "Failed to delete round: {error}",
+  "@failedToDeleteRound": { "placeholders": { "error": { "type": "String" } } },
+
+  "failedToLoadRound": "Failed to load round",
+  "@failedToLoadRound": { "description": "Error message when round fails to load" },
+
+  "storytellerLabel": "Storyteller: {name}",
+  "@storytellerLabel": { "placeholders": { "name": { "type": "String" } } },
+
+  "edited": "Edited",
+  "@edited": { "description": "Tooltip for edited indicator" },
+
+  "votedFor": "voted for",
+  "@votedFor": { "description": "Text between voter name and votee name" },
+
+  "unknown": "Unknown",
+  "@unknown": { "description": "Fallback name for unknown player" },
+
+  "undoLastRoundConfirmation": "This will delete the most recent round and revert all score changes from that round. This action cannot be undone.",
+  "@undoLastRoundConfirmation": { "description": "Confirmation message for undoing last round" },
+
+  "undo": "Undo",
+  "@undo": { "description": "Undo button label" },
+
+  "failedToLoadHistory": "Failed to load history",
+  "@failedToLoadHistory": { "description": "Error message when history fails to load" },
+
+  "noPlayersFound": "No players found",
+  "@noPlayersFound": { "description": "Message when no players found in endgame" },
+
+  "somethingWentWrong": "Something went wrong",
+  "@somethingWentWrong": { "description": "Generic error title" },
+
+  "importFailed": "Import failed: {error}",
+  "@importFailed": { "placeholders": { "error": { "type": "String" } } },
+
+  "importWithWarnings": "Game imported with warnings: {warnings}",
+  "@importWithWarnings": { "placeholders": { "warnings": { "type": "String" } } },
+
+  "importSuccess": "Game imported successfully!",
+  "@importSuccess": { "description": "Success message after importing a game" },
+
+  "quickStartFailed": "Quick Start failed: {error}",
+  "@quickStartFailed": { "placeholders": { "error": { "type": "String" } } },
+
+  "shareFailed": "Share failed: {error}",
+  "@shareFailed": { "placeholders": { "error": { "type": "String" } } },
+
+  "colorTheme": "Color Theme",
+  "@colorTheme": { "description": "Label for color theme picker" },
+
+  "soundEffects": "Sound Effects",
+  "@soundEffects": { "description": "Sound effects setting label" },
+
+  "soundEffectsDescription": "Play sounds for celebrations",
+  "@soundEffectsDescription": { "description": "Sound effects description for supporters" },
+
+  "supporterPackFeature": "Supporter Pack feature",
+  "@supporterPackFeature": { "description": "Sound effects description for non-supporters" },
+
+  "defaultTargetMode": "Default Target Mode",
+  "@defaultTargetMode": { "description": "Setting label for default target mode" },
+
+  "score": "Score",
+  "@score": { "description": "Score target type label for segmented button" },
+
+  "free": "Free",
+  "@free": { "description": "Free play target type label for segmented button" },
+
+  "playerSortOrder": "Player Sort Order",
+  "@playerSortOrder": { "description": "Setting label for player sort order" },
+
+  "seatOrder": "Seat Order",
+  "@seatOrder": { "description": "Sort order option" },
+
+  "scoreHighToLow": "Score (High to Low)",
+  "@scoreHighToLow": { "description": "Sort order option" },
+
+  "scoreLowToHigh": "Score (Low to High)",
+  "@scoreLowToHigh": { "description": "Sort order option" },
+
+  "name": "Name",
+  "@name": { "description": "Sort order option for alphabetical" },
+
+  "playerPresets": "Player Presets",
+  "@playerPresets": { "description": "Section header and screen title" },
+
+  "saveAndManageGroups": "Save and manage player groups",
+  "@saveAndManageGroups": { "description": "Subtitle for player presets tile" },
+
+  "premiumThemesAndExtras": "Premium themes & extras",
+  "@premiumThemesAndExtras": { "description": "Subtitle for supporter pack tile" },
+
+  "language": "Language",
+  "@language": { "description": "Language setting label" },
+
+  "english": "English",
+  "@english": { "description": "English language name" },
+
+  "romanian": "Romanian",
+  "@romanian": { "description": "Romanian language name" },
+
+  "onboardingTitle1": "Track Your Stories",
+  "@onboardingTitle1": { "description": "Onboarding page 1 title" },
+
+  "onboardingBody1": "The fastest way to score storytelling card games. No more pen and paper — just tap and play.",
+  "@onboardingBody1": { "description": "Onboarding page 1 body" },
+
+  "onboardingTitle2": "Score in 3 Taps",
+  "@onboardingTitle2": { "description": "Onboarding page 2 title" },
+
+  "onboardingBody2": "Enter votes for each player with a single tap. The app calculates everything automatically.",
+  "@onboardingBody2": { "description": "Onboarding page 2 body" },
+
+  "onboardingTitle3": "Fully Offline",
+  "@onboardingTitle3": { "description": "Onboarding page 3 title" },
+
+  "onboardingBody3": "No account needed. No internet required. Your games stay on your device, always.",
+  "@onboardingBody3": { "description": "Onboarding page 3 body" },
+
+  "skip": "Skip",
+  "@skip": { "description": "Skip button on onboarding" },
+
+  "next": "Next",
+  "@next": { "description": "Next button on onboarding" },
+
+  "letsPlay": "Let's Play!",
+  "@letsPlay": { "description": "Final onboarding button" },
+
+  "noPresetsYetTitle": "No presets yet",
+  "@noPresetsYetTitle": { "description": "Empty state title for presets" },
+
+  "noPresetsYetDescription": "Create a preset to quickly start games with your usual group.",
+  "@noPresetsYetDescription": { "description": "Empty state description for presets" },
+
+  "playerPresetsLockedDescription": "Save your favorite player groups for quick game setup. Unlock with the Supporter Pack.",
+  "@playerPresetsLockedDescription": { "description": "Description when presets are locked" },
+
+  "unlockSupporterPack": "Unlock Supporter Pack",
+  "@unlockSupporterPack": { "description": "CTA button for supporter pack" },
+
+  "newPreset": "New Preset",
+  "@newPreset": { "description": "Dialog title for creating a preset" },
+
+  "create": "Create",
+  "@create": { "description": "Create button label" },
+
+  "renamePreset": "Rename Preset",
+  "@renamePreset": { "description": "Dialog title for renaming a preset" },
+
+  "failedToCreatePreset": "Failed to create preset: {error}",
+  "@failedToCreatePreset": { "placeholders": { "error": { "type": "String" } } },
+
+  "deletedPreset": "Deleted \"{name}\"",
+  "@deletedPreset": { "placeholders": { "name": { "type": "String" } } },
+
+  "whatsIncluded": "What's included",
+  "@whatsIncluded": { "description": "Section title on premium screen" },
+
+  "thankYouForSupport": "Thank you for your support!",
+  "@thankYouForSupport": { "description": "Title for existing supporters" },
+
+  "supporterPackDescription": "A one-time purchase to unlock premium features and support the development of StoryScore.",
+  "@supporterPackDescription": { "description": "Description for non-supporters" },
+
+  "supporterThankYouDescription": "You have unlocked all supporter features. Your generosity helps keep StoryScore growing.",
+  "@supporterThankYouDescription": { "description": "Description for existing supporters" },
+
+  "oneTimePurchase": "{price} — one-time purchase",
+  "@oneTimePurchase": { "placeholders": { "price": { "type": "String" } } },
+
+  "getSupporterPack": "Get Supporter Pack — {price}",
+  "@getSupporterPack": { "placeholders": { "price": { "type": "String" } } },
+
+  "loading": "Loading\u2026",
+  "@loading": { "description": "Loading indicator text" },
+
+  "supporterPackActive": "Supporter Pack Active",
+  "@supporterPackActive": { "description": "Banner title for active supporters" },
+
+  "allPremiumUnlocked": "All premium features are unlocked.",
+  "@allPremiumUnlocked": { "description": "Banner description for active supporters" },
+
+  "clearPurchaseDebug": "Clear Purchase (Debug)",
+  "@clearPurchaseDebug": { "description": "Debug button to clear purchase" },
+
+  "advancedStats": "Advanced Stats",
+  "@advancedStats": { "description": "Title for premium stats gate" },
+
+  "advancedStatsDescription": "Unlock leaderboards, player stats, win streaks, and head-to-head records with the Supporter Pack.",
+  "@advancedStatsDescription": { "description": "Description for premium stats gate" },
+
+  "unlockWithSupporterPack": "Unlock with Supporter Pack",
+  "@unlockWithSupporterPack": { "description": "CTA on premium gate overlay" },
+
+  "noLeaderboardYet": "No leaderboard yet",
+  "@noLeaderboardYet": { "description": "Empty state title for leaderboard" },
+
+  "noLeaderboardDescription": "Play at least 3 games with the same players to see stats here.",
+  "@noLeaderboardDescription": { "description": "Empty state description for leaderboard" },
+
+  "winRate": "Win Rate",
+  "@winRate": { "description": "Win rate chart title" },
+
+  "rankings": "Rankings",
+  "@rankings": { "description": "Rankings section title" },
+
+  "noPlayersYet": "No players yet",
+  "@noPlayersYet": { "description": "Empty state title for players tab" },
+
+  "noPlayersYetDescription": "Complete some games to see player stats.",
+  "@noPlayersYetDescription": { "description": "Empty state description for players tab" },
+
+  "failedToLoadLeaderboard": "Failed to load leaderboard: {error}",
+  "@failedToLoadLeaderboard": { "placeholders": { "error": { "type": "String" } } },
+
+  "failedToLoadPlayers": "Failed to load players: {error}",
+  "@failedToLoadPlayers": { "placeholders": { "error": { "type": "String" } } },
+
+  "playerGamesStats": "{games} games  |  {wins} wins  |  {points} pts",
+  "@playerGamesStats": { "placeholders": { "games": { "type": "int" }, "wins": { "type": "int" }, "points": { "type": "int" } } },
+
+  "winsSlashGames": "{wins}W / {games}G",
+  "@winsSlashGames": { "placeholders": { "wins": { "type": "int" }, "games": { "type": "int" } } },
+
+  "scoreProgression": "Score Progression",
+  "@scoreProgression": { "description": "Chart title on endgame screen" },
+
+  "playerNotVotedYet": "{name} has not voted yet",
+  "@playerNotVotedYet": { "placeholders": { "name": { "type": "String" } } },
+
+  "startNewRound": "Start new round",
+  "@startNewRound": { "description": "Accessibility label for new round FAB" },
+
+  "scoreRoundDisabledHint": "Score round, disabled, all players must vote first",
+  "@scoreRoundDisabledHint": { "description": "Accessibility label for disabled score round button" }
 }
