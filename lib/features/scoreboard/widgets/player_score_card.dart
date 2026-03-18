@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:story_score/app/theme/color_tokens.dart';
 import 'package:story_score/app/theme/motion_tokens.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
 import 'package:story_score/core/constants/player_colors.dart';
@@ -6,7 +7,7 @@ import 'package:story_score/data/database/app_database.dart';
 import 'package:story_score/shared/extensions/context_extensions.dart';
 
 /// A card displaying a player's name, color indicator, score, and
-/// an optional storyteller badge. Features an animated score counter.
+/// an optional storyteller badge. Uses warm storybook styling.
 class PlayerScoreCard extends StatelessWidget {
   const PlayerScoreCard({
     super.key,
@@ -24,7 +25,7 @@ class PlayerScoreCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final playerColor = PlayerColors.colorFor(player.colorKey);
-    final goldAccent = context.storyTheme.goldAccent;
+    final isFirstPlace = rank == 1;
 
     final rankLabel = rank != null ? ', ${_ordinal(rank!)} place' : '';
     final storytellerLabel = isStoryteller ? ', current storyteller' : '';
@@ -41,23 +42,31 @@ class PlayerScoreCard extends StatelessWidget {
           duration: MotionTokens.durationMedium,
           curve: MotionTokens.curveStandard,
           decoration: BoxDecoration(
-            gradient: context.storyTheme.cardGradient,
-            borderRadius: BorderRadius.circular(SpacingTokens.radiusLg),
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [ColorTokens.darkCard, ColorTokens.darkCardVariant],
+            ),
+            borderRadius: BorderRadius.circular(14),
             border: Border.all(
               color: isStoryteller
-                  ? goldAccent
-                  : playerColor.withValues(alpha: 0.3),
-              width: isStoryteller ? 2.0 : 1.0,
+                  ? ColorTokens.goldAccent.withValues(alpha: 0.4)
+                  : Colors.white.withValues(alpha: 0.04),
+              width: isStoryteller ? 1.5 : 1.0,
             ),
-            boxShadow: isStoryteller
-                ? [
-                    BoxShadow(
-                      color: goldAccent.withValues(alpha: 0.25),
-                      blurRadius: 12,
-                      spreadRadius: 1,
-                    ),
-                  ]
-                : null,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.3),
+                blurRadius: 15,
+                offset: const Offset(0, 4),
+              ),
+              if (isStoryteller)
+                BoxShadow(
+                  color: ColorTokens.goldAccent.withValues(alpha: 0.1),
+                  blurRadius: 20,
+                  spreadRadius: 0,
+                ),
+            ],
           ),
           child: Padding(
             padding: const EdgeInsets.all(SpacingTokens.md),
@@ -65,40 +74,22 @@ class PlayerScoreCard extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Top row: color dot + name + storyteller badge
+                // Top row: avatar + name + storyteller badge
                 Row(
                   children: [
-                    // Color indicator / emoji avatar
-                    if (player.avatarStyle != 'initials' &&
-                        player.avatarStyle.isNotEmpty)
-                      SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(
-                            player.avatarStyle,
-                            style: const TextStyle(fontSize: 18),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      )
-                    else
-                      Container(
-                        width: 12,
-                        height: 12,
-                        decoration: BoxDecoration(
-                          color: playerColor,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
+                    // Avatar circle with gradient
+                    _PlayerAvatar(
+                      player: player,
+                      playerColor: playerColor,
+                      size: 28,
+                    ),
                     const SizedBox(width: SpacingTokens.sm),
                     // Player name
                     Expanded(
                       child: Text(
                         player.name,
                         style: context.textTheme.titleSmall?.copyWith(
-                          color: context.colorScheme.onSurface,
+                          color: ColorTokens.parchment,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -113,28 +104,29 @@ class PlayerScoreCard extends StatelessWidget {
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: goldAccent.withValues(alpha: 0.2),
+                          color: ColorTokens.goldAccent.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(
                             SpacingTokens.radiusSm,
                           ),
                           border: Border.all(
-                            color: goldAccent.withValues(alpha: 0.5),
+                            color: ColorTokens.goldAccent.withValues(
+                              alpha: 0.5,
+                            ),
                             width: 1,
                           ),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(
-                              Icons.auto_stories,
-                              size: 12,
-                              color: goldAccent,
+                            const Text(
+                              '\u{1F451}',
+                              style: TextStyle(fontSize: 10),
                             ),
                             const SizedBox(width: 2),
                             Text(
                               'Storyteller',
                               style: context.textTheme.labelSmall?.copyWith(
-                                color: goldAccent,
+                                color: ColorTokens.goldAccent,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -149,7 +141,7 @@ class PlayerScoreCard extends StatelessWidget {
                 Flexible(
                   child: _AnimatedScore(
                     score: player.currentScore,
-                    color: playerColor,
+                    isFirstPlace: isFirstPlace,
                   ),
                 ),
                 // Rank indicator
@@ -159,7 +151,7 @@ class PlayerScoreCard extends StatelessWidget {
                     child: Text(
                       _ordinal(rank!),
                       style: context.textTheme.labelSmall?.copyWith(
-                        color: context.colorScheme.onSurfaceVariant,
+                        color: ColorTokens.dustyRose,
                       ),
                     ),
                   ),
@@ -182,16 +174,71 @@ class PlayerScoreCard extends StatelessWidget {
   }
 }
 
+/// Player avatar circle with gradient background and emoji.
+class _PlayerAvatar extends StatelessWidget {
+  const _PlayerAvatar({
+    required this.player,
+    required this.playerColor,
+    this.size = 28,
+  });
+
+  final Player player;
+  final Color playerColor;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [playerColor, playerColor.withValues(alpha: 0.7)],
+        ),
+        border: Border.all(
+          color: playerColor.withValues(alpha: 0.5),
+          width: 2,
+        ),
+      ),
+      child: Center(
+        child: player.avatarStyle != 'initials' &&
+                player.avatarStyle.isNotEmpty
+            ? FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  player.avatarStyle,
+                  style: TextStyle(fontSize: size * 0.55),
+                  textAlign: TextAlign.center,
+                ),
+              )
+            : Text(
+                player.name.isNotEmpty ? player.name[0].toUpperCase() : '?',
+                style: TextStyle(
+                  fontSize: size * 0.4,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+      ),
+    );
+  }
+}
+
 /// Implicitly animated score text that tweens between old and new values.
 class _AnimatedScore extends ImplicitlyAnimatedWidget {
-  const _AnimatedScore({required this.score, required this.color})
-    : super(
-        duration: MotionTokens.durationSlow,
-        curve: MotionTokens.curveDecelerate,
-      );
+  const _AnimatedScore({
+    required this.score,
+    required this.isFirstPlace,
+  }) : super(
+          duration: MotionTokens.durationSlow,
+          curve: MotionTokens.curveDecelerate,
+        );
 
   final int score;
-  final Color color;
+  final bool isFirstPlace;
 
   @override
   ImplicitlyAnimatedWidgetState<_AnimatedScore> createState() =>
@@ -218,8 +265,18 @@ class _AnimatedScoreState extends AnimatedWidgetBaseState<_AnimatedScore> {
     return Text(
       '$value',
       style: context.textTheme.displaySmall?.copyWith(
-        color: context.colorScheme.onSurface,
+        color: widget.isFirstPlace
+            ? ColorTokens.goldAccent
+            : ColorTokens.parchment,
         fontWeight: FontWeight.w800,
+        shadows: widget.isFirstPlace
+            ? [
+                Shadow(
+                  color: ColorTokens.goldAccent.withValues(alpha: 0.3),
+                  blurRadius: 8,
+                ),
+              ]
+            : null,
       ),
     );
   }
@@ -265,31 +322,42 @@ class PlayerChip extends StatelessWidget {
           ),
           decoration: BoxDecoration(
             color: isSelected
-                ? playerColor.withValues(alpha: 0.2)
-                : context.colorScheme.surfaceContainerHighest,
+                ? const Color(0xFFE8A020).withValues(alpha: 0.15)
+                : Colors.white.withValues(alpha: 0.03),
             borderRadius: BorderRadius.circular(SpacingTokens.radiusMd),
             border: Border.all(
               color: isSelected
-                  ? playerColor
-                  : isDisabled
-                  ? context.colorScheme.outlineVariant.withValues(alpha: 0.3)
-                  : context.colorScheme.outlineVariant,
-              width: isSelected ? 2.0 : 1.0,
+                  ? ColorTokens.goldAccent
+                  : Colors.white.withValues(alpha: 0.08),
+              width: isSelected ? 1.5 : 1.0,
             ),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Color dot / emoji avatar
+              // Avatar circle with gradient
               Container(
-                width: 24,
-                height: 24,
+                width: 28,
+                height: 28,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: isDisabled
-                      ? playerColor.withValues(alpha: 0.3)
-                      : playerColor,
                   shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      isDisabled
+                          ? playerColor.withValues(alpha: 0.3)
+                          : playerColor,
+                      isDisabled
+                          ? playerColor.withValues(alpha: 0.15)
+                          : playerColor.withValues(alpha: 0.7),
+                    ],
+                  ),
+                  border: Border.all(
+                    color: playerColor.withValues(alpha: 0.5),
+                    width: 2,
+                  ),
                 ),
                 child: _buildChipAvatar(context, player, isDisabled),
               ),
@@ -298,12 +366,10 @@ class PlayerChip extends StatelessWidget {
                 player.name,
                 style: context.textTheme.labelSmall?.copyWith(
                   color: isDisabled
-                      ? context.colorScheme.onSurfaceVariant.withValues(
-                          alpha: 0.5,
-                        )
+                      ? ColorTokens.mutedText.withValues(alpha: 0.5)
                       : isSelected
-                      ? playerColor
-                      : context.colorScheme.onSurface,
+                      ? ColorTokens.goldAccent
+                      : ColorTokens.parchment,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                 ),
                 maxLines: 1,
@@ -312,7 +378,11 @@ class PlayerChip extends StatelessWidget {
               if (isSelected)
                 Padding(
                   padding: const EdgeInsets.only(top: 2),
-                  child: Icon(Icons.check_circle, size: 14, color: playerColor),
+                  child: Icon(
+                    Icons.check_circle,
+                    size: 14,
+                    color: ColorTokens.goldAccent,
+                  ),
                 ),
             ],
           ),

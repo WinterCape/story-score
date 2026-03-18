@@ -25,6 +25,14 @@ final playerCountProvider = StreamProvider.family<int, String>((
       .map((players) => players.length);
 });
 
+/// Watches the players for a given session (for avatar display).
+final sessionPlayersProvider = StreamProvider.family<List<Player>, String>((
+  ref,
+  sessionId,
+) {
+  return ref.watch(sessionDaoProvider).watchPlayersForSession(sessionId);
+});
+
 /// Deletes a session by its ID (cascades to players, rounds, etc.).
 final deleteSessionProvider = Provider<Future<void> Function(String sessionId)>(
   (ref) {

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:story_score/app/providers.dart';
+import 'package:story_score/app/theme/color_tokens.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
-import 'package:story_score/core/constants/player_colors.dart';
 import 'package:story_score/core/utils/haptics.dart';
 import 'package:story_score/data/database/app_database.dart';
 import 'package:story_score/domain/celebrations/celebration_engine.dart';
@@ -105,6 +105,9 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
                 .where((p) => p.id != storyteller.id)
                 .toList();
 
+            final remainingVotes = nonStorytellerPlayers.length -
+                voteState.votes.length;
+
             return Scaffold(
               appBar: AppBar(
                 leading: IconButton(
@@ -114,100 +117,116 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
                 ),
                 title: Text(l10n.round(session.roundCount + 1)),
               ),
-              body: Center(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxWidth: context.isTablet ? 600 : double.infinity,
+              body: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      ColorTokens.darkBackground,
+                      ColorTokens.darkSurface,
+                      ColorTokens.darkCard,
+                    ],
                   ),
-                  child: CustomScrollView(
-                    slivers: [
-                      // Header
-                      SliverToBoxAdapter(
-                        child: _RoundHeader(
-                          session: session,
-                          storyteller: storyteller,
-                        ),
-                      ),
-
-                      // Optional note field
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: SpacingTokens.md,
-                            vertical: SpacingTokens.sm,
-                          ),
-                          child: TextField(
-                            controller: _noteController,
-                            decoration: InputDecoration(
-                              hintText: l10n.roundNoteHint,
-                              prefixIcon: const Icon(
-                                Icons.note_alt_outlined,
-                                size: 20,
-                              ),
-                              isDense: true,
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: SpacingTokens.md,
-                                vertical: SpacingTokens.sm,
-                              ),
-                            ),
-                            textInputAction: TextInputAction.done,
-                            maxLines: 1,
+                ),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: context.isTablet ? 600 : double.infinity,
+                    ),
+                    child: CustomScrollView(
+                      slivers: [
+                        // Storyteller announcement header
+                        SliverToBoxAdapter(
+                          child: _StorytellerAnnouncement(
+                            session: session,
+                            storyteller: storyteller,
                           ),
                         ),
-                      ),
 
-                      // Instruction
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: SpacingTokens.md,
-                            vertical: SpacingTokens.sm,
-                          ),
-                          child: Text(
-                            l10n.whoDidEachPlayerVoteFor,
-                            style: context.textTheme.titleSmall?.copyWith(
-                              color: context.colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      // Voter rows
-                      SliverList(
-                        delegate: SliverChildBuilderDelegate((context, index) {
-                          final voter = nonStorytellerPlayers[index];
-                          final targets = players
-                              .where((p) => p.id != voter.id)
-                              .toList();
-
-                          return Padding(
+                        // Optional note field
+                        SliverToBoxAdapter(
+                          child: Padding(
                             padding: const EdgeInsets.symmetric(
                               horizontal: SpacingTokens.md,
+                              vertical: SpacingTokens.sm,
                             ),
-                            child: VoterCardGrid(
-                              voter: voter,
-                              targets: targets,
-                              selectedTargetId: voteState.votes[voter.id],
-                              onTargetSelected: (targetId) {
-                                Haptics.selection();
-                                if (voteState.votes[voter.id] == targetId) {
-                                  ref
-                                      .read(voteEntryProvider.notifier)
-                                      .clearVote(voter.id);
-                                } else {
-                                  ref
-                                      .read(voteEntryProvider.notifier)
-                                      .setVote(voter.id, targetId);
-                                }
-                              },
+                            child: TextField(
+                              controller: _noteController,
+                              decoration: InputDecoration(
+                                hintText: l10n.roundNoteHint,
+                                prefixIcon: const Icon(
+                                  Icons.note_alt_outlined,
+                                  size: 20,
+                                ),
+                                isDense: true,
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: SpacingTokens.md,
+                                  vertical: SpacingTokens.sm,
+                                ),
+                              ),
+                              textInputAction: TextInputAction.done,
+                              maxLines: 1,
                             ),
-                          );
-                        }, childCount: nonStorytellerPlayers.length),
-                      ),
+                          ),
+                        ),
 
-                      // Bottom padding for the button
-                      const SliverToBoxAdapter(child: SizedBox(height: 100)),
-                    ],
+                        // Instruction
+                        SliverToBoxAdapter(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: SpacingTokens.md,
+                              vertical: SpacingTokens.sm,
+                            ),
+                            child: Text(
+                              l10n.whoDidEachPlayerVoteFor.toUpperCase(),
+                              style: context.textTheme.labelSmall?.copyWith(
+                                color: ColorTokens.goldAccent,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 1.5,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        // Voter rows
+                        SliverList(
+                          delegate: SliverChildBuilderDelegate((context, index) {
+                            final voter = nonStorytellerPlayers[index];
+                            final targets = players
+                                .where((p) => p.id != voter.id)
+                                .toList();
+
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: SpacingTokens.md,
+                              ),
+                              child: VoterCardGrid(
+                                voter: voter,
+                                targets: targets,
+                                selectedTargetId: voteState.votes[voter.id],
+                                onTargetSelected: (targetId) {
+                                  Haptics.selection();
+                                  if (voteState.votes[voter.id] == targetId) {
+                                    ref
+                                        .read(voteEntryProvider.notifier)
+                                        .clearVote(voter.id);
+                                  } else {
+                                    ref
+                                        .read(voteEntryProvider.notifier)
+                                        .setVote(voter.id, targetId);
+                                  }
+                                },
+                              ),
+                            );
+                          }, childCount: nonStorytellerPlayers.length),
+                        ),
+
+                        // Bottom padding for the button
+                        const SliverToBoxAdapter(child: SizedBox(height: 100)),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -223,7 +242,15 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
                     button: true,
                     enabled: voteState.allVotesCast && !_isSubmitting,
                     excludeSemantics: true,
-                    child: FilledButton(
+                    child: _ScoreRoundButton(
+                      isEnabled: voteState.allVotesCast && !_isSubmitting,
+                      isSubmitting: _isSubmitting,
+                      label: voteState.allVotesCast
+                          ? l10n.scoreRound
+                          : l10n.allPlayersMustVote,
+                      subtitle: !voteState.allVotesCast && remainingVotes > 0
+                          ? '$remainingVotes vote${remainingVotes == 1 ? '' : 's'} remaining'
+                          : null,
                       onPressed: voteState.allVotesCast && !_isSubmitting
                           ? () => _submitRound(
                               session: session,
@@ -232,26 +259,6 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
                               votes: voteState.completedVotes,
                             )
                           : null,
-                      style: FilledButton.styleFrom(
-                        backgroundColor: context.storyTheme.goldAccent,
-                        foregroundColor: Colors.black,
-                        disabledBackgroundColor:
-                            context.colorScheme.surfaceContainerHighest,
-                        padding: const EdgeInsets.symmetric(
-                          vertical: SpacingTokens.md,
-                        ),
-                      ),
-                      child: _isSubmitting
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : Text(
-                              voteState.allVotesCast
-                                  ? l10n.scoreRound
-                                  : l10n.allPlayersMustVote,
-                            ),
                     ),
                   ),
                 ),
@@ -385,77 +392,198 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
   }
 }
 
-/// Round header showing storyteller name and round number.
-class _RoundHeader extends StatelessWidget {
-  const _RoundHeader({required this.session, required this.storyteller});
+/// Centered storyteller announcement card with warm storybook styling.
+class _StorytellerAnnouncement extends StatelessWidget {
+  const _StorytellerAnnouncement({
+    required this.session,
+    required this.storyteller,
+  });
 
   final GameSession session;
   final Player storyteller;
 
   @override
   Widget build(BuildContext context) {
-    final storytellerColor = PlayerColors.colorFor(storyteller.colorKey);
-    final goldAccent = context.storyTheme.goldAccent;
     final l10n = context.l10n;
 
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(
-        SpacingTokens.lg,
-        SpacingTokens.lg,
-        SpacingTokens.lg,
-        SpacingTokens.md,
+      margin: const EdgeInsets.all(SpacingTokens.md),
+      padding: const EdgeInsets.all(SpacingTokens.lg),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [ColorTokens.darkCard, ColorTokens.darkCardVariant],
+        ),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: ColorTokens.goldAccent.withValues(alpha: 0.2),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.3),
+            blurRadius: 15,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Round number
+          // Round label
           Text(
-            l10n.round(session.roundCount + 1),
-            style: context.textTheme.headlineSmall?.copyWith(
-              color: context.colorScheme.onSurface,
+            l10n.round(session.roundCount + 1).toUpperCase(),
+            style: context.textTheme.labelSmall?.copyWith(
+              color: ColorTokens.goldAccent,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.5,
+              fontSize: 11,
             ),
           ),
-          const SizedBox(height: SpacingTokens.sm),
-          // Storyteller row
-          Semantics(
-            label: l10n.playerIsStoryteller(storyteller.name),
-            excludeSemantics: true,
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: SpacingTokens.md,
-                vertical: SpacingTokens.sm,
-              ),
-              decoration: BoxDecoration(
-                color: goldAccent.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(SpacingTokens.radiusMd),
-                border: Border.all(color: goldAccent.withValues(alpha: 0.3)),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.auto_stories, size: 18, color: goldAccent),
-                  const SizedBox(width: SpacingTokens.sm),
-                  Container(
-                    width: 10,
-                    height: 10,
-                    decoration: BoxDecoration(
-                      color: storytellerColor,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  const SizedBox(width: SpacingTokens.sm),
-                  Text(
-                    l10n.playerIsStoryteller(storyteller.name),
-                    style: context.textTheme.titleSmall?.copyWith(
-                      color: goldAccent,
-                    ),
-                  ),
-                ],
-              ),
+          const SizedBox(height: SpacingTokens.md),
+          // Crown card icon
+          _CrownCardIcon(),
+          const SizedBox(height: SpacingTokens.md),
+          // Storyteller name
+          Text(
+            storyteller.name,
+            style: context.textTheme.titleLarge?.copyWith(
+              color: ColorTokens.parchment,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: SpacingTokens.xs),
+          Text(
+            l10n.playerIsStoryteller(storyteller.name),
+            style: context.textTheme.bodySmall?.copyWith(
+              color: ColorTokens.dustyRose,
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Crown emoji in a mini parchment card icon with gold border and shadow.
+class _CrownCardIcon extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 44,
+      height: 56,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            ColorTokens.lightBackground,
+            ColorTokens.lightSurface,
+            Color(0xFFE8D0A0),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(7),
+        border: Border.all(
+          color: ColorTokens.goldAccent,
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: ColorTokens.goldAccent.withValues(alpha: 0.2),
+            blurRadius: 8,
+            spreadRadius: 1,
+          ),
+        ],
+      ),
+      child: const Center(
+        child: Text('\u{1F451}', style: TextStyle(fontSize: 22)),
+      ),
+    );
+  }
+}
+
+/// Gradient Score Round button with disabled state.
+class _ScoreRoundButton extends StatelessWidget {
+  const _ScoreRoundButton({
+    required this.isEnabled,
+    required this.isSubmitting,
+    required this.label,
+    this.subtitle,
+    this.onPressed,
+  });
+
+  final bool isEnabled;
+  final bool isSubmitting;
+  final String label;
+  final String? subtitle;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Opacity(
+      opacity: isEnabled ? 1.0 : 0.5,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(14),
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [ColorTokens.burgundy, ColorTokens.goldAccent],
+          ),
+          boxShadow: isEnabled
+              ? [
+                  BoxShadow(
+                    color: ColorTokens.burgundy.withValues(alpha: 0.3),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : null,
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onPressed,
+            borderRadius: BorderRadius.circular(14),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                vertical: SpacingTokens.md,
+              ),
+              child: Center(
+                child: isSubmitting
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            label,
+                            style: context.textTheme.labelLarge?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          if (subtitle != null) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              subtitle!,
+                              style: context.textTheme.labelSmall?.copyWith(
+                                color: Colors.white.withValues(alpha: 0.7),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

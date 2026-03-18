@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:story_score/app/theme/color_tokens.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
 import 'package:story_score/core/constants/player_colors.dart';
 import 'package:story_score/data/database/app_database.dart';
 import 'package:story_score/features/scoreboard/widgets/player_score_card.dart';
 import 'package:story_score/shared/extensions/context_extensions.dart';
 
-/// A row showing a voter's name and a horizontal list of tappable
-/// player cards representing vote targets.
+/// A section showing a voter's name/avatar and a horizontal list of tappable
+/// player chips representing vote targets. Uses warm storybook styling.
 class VoterCardGrid extends StatelessWidget {
   const VoterCardGrid({
     super.key,
@@ -31,39 +32,95 @@ class VoterCardGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final voterColor = PlayerColors.colorFor(voter.colorKey);
+    final hasVoted = selectedTargetId != null;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: SpacingTokens.sm),
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: SpacingTokens.sm),
+      padding: const EdgeInsets.all(SpacingTokens.md),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [ColorTokens.darkCard, ColorTokens.darkCardVariant],
+        ),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.04),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.2),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Voter label
+          // Voter label with avatar
           Row(
             children: [
+              // Voter avatar
               Container(
-                width: 10,
-                height: 10,
+                width: 24,
+                height: 24,
                 decoration: BoxDecoration(
-                  color: voterColor,
                   shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [voterColor, voterColor.withValues(alpha: 0.7)],
+                  ),
+                  border: Border.all(
+                    color: voterColor.withValues(alpha: 0.5),
+                    width: 2,
+                  ),
+                ),
+                child: Center(
+                  child: voter.avatarStyle != 'initials' &&
+                          voter.avatarStyle.isNotEmpty
+                      ? Text(
+                          voter.avatarStyle,
+                          style: const TextStyle(fontSize: 12),
+                        )
+                      : Text(
+                          voter.name.isNotEmpty
+                              ? voter.name[0].toUpperCase()
+                              : '?',
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                 ),
               ),
               const SizedBox(width: SpacingTokens.sm),
-              Text(
-                voter.name,
-                style: context.textTheme.titleSmall?.copyWith(
-                  color: context.colorScheme.onSurface,
+              Expanded(
+                child: Text(
+                  voter.name,
+                  style: context.textTheme.titleSmall?.copyWith(
+                    color: ColorTokens.parchment,
+                  ),
                 ),
               ),
-              if (selectedTargetId != null) ...[
-                const SizedBox(width: SpacingTokens.sm),
-                Icon(Icons.check_circle, size: 16, color: voterColor),
+              Text(
+                'voted for:',
+                style: context.textTheme.labelSmall?.copyWith(
+                  color: ColorTokens.mutedText,
+                ),
+              ),
+              if (hasVoted) ...[
+                const SizedBox(width: SpacingTokens.xs),
+                Icon(Icons.check_circle, size: 16, color: ColorTokens.goldAccent),
               ],
             ],
           ),
           const SizedBox(height: SpacingTokens.sm),
-          // Horizontal scrolling target cards
+          // Horizontal scrolling target chips
           SizedBox(
             height: 88,
             child: ListView.separated(

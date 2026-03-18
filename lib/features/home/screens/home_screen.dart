@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:story_score/app/providers.dart';
+import 'package:story_score/app/theme/color_tokens.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
 import 'package:story_score/data/database/app_database.dart';
 import 'package:story_score/data/database/tables/game_sessions.dart';
@@ -28,12 +29,23 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          l10n.appTitle,
-          style: context.textTheme.titleLarge?.copyWith(
-            color: context.storyTheme.goldAccent,
-            fontWeight: FontWeight.w700,
-          ),
+        title: Column(
+          children: [
+            Text(
+              l10n.appTitle,
+              style: context.textTheme.titleLarge?.copyWith(
+                color: ColorTokens.goldAccent,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            Text(
+              'Your storytelling companion',
+              style: context.textTheme.labelSmall?.copyWith(
+                color: ColorTokens.dustyRose,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ],
         ),
         actions: [
           IconButton(
@@ -53,13 +65,30 @@ class HomeScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: _buildBody(context, ref, activeAsync, completedAsync),
-      floatingActionButton: FloatingActionButton.extended(
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              ColorTokens.darkBackground,
+              ColorTokens.darkSurface,
+              ColorTokens.darkCard,
+            ],
+          ),
+        ),
+        child: Stack(
+          children: [
+            // Sparkle decorations
+            const _SparkleDecorations(),
+            // Main content
+            _buildBody(context, ref, activeAsync, completedAsync),
+          ],
+        ),
+      ),
+      floatingActionButton: _GradientFAB(
         onPressed: () => context.push('/game/new'),
-        icon: const Icon(Icons.add_rounded),
-        label: Text(l10n.newGame),
-        backgroundColor: context.storyTheme.goldAccent,
-        foregroundColor: Colors.black,
+        label: l10n.newGame,
       ),
     );
   }
@@ -262,7 +291,6 @@ class HomeScreen extends ConsumerWidget {
   }
 
   Widget _buildLoadingSkeleton(BuildContext context) {
-    final colors = context.colorScheme;
     return ListView(
       padding: const EdgeInsets.all(SpacingTokens.md),
       children: List.generate(
@@ -272,8 +300,12 @@ class HomeScreen extends ConsumerWidget {
           child: Container(
             height: 80,
             decoration: BoxDecoration(
-              color: colors.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(SpacingTokens.radiusLg),
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [ColorTokens.darkCard, ColorTokens.darkCardVariant],
+              ),
+              borderRadius: BorderRadius.circular(14),
             ),
           ),
         ),
@@ -311,6 +343,71 @@ class HomeScreen extends ConsumerWidget {
   }
 }
 
+/// Subtle sparkle characters positioned absolutely on the background.
+class _SparkleDecorations extends StatelessWidget {
+  const _SparkleDecorations();
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      child: Stack(
+        children: const [
+          Positioned(
+            top: 40,
+            right: 30,
+            child: _Sparkle(char: '\u2605', color: ColorTokens.goldAccent, opacity: 0.12, size: 18),
+          ),
+          Positioned(
+            top: 120,
+            left: 20,
+            child: _Sparkle(char: '\u2726', color: ColorTokens.dustyRose, opacity: 0.15, size: 14),
+          ),
+          Positioned(
+            top: 280,
+            right: 50,
+            child: _Sparkle(char: '\u2726', color: ColorTokens.goldAccent, opacity: 0.10, size: 12),
+          ),
+          Positioned(
+            bottom: 200,
+            left: 40,
+            child: _Sparkle(char: '\u2605', color: ColorTokens.goldAccent, opacity: 0.12, size: 16),
+          ),
+          Positioned(
+            bottom: 80,
+            right: 60,
+            child: _Sparkle(char: '\u2726', color: ColorTokens.dustyRose, opacity: 0.10, size: 10),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Sparkle extends StatelessWidget {
+  const _Sparkle({
+    required this.char,
+    required this.color,
+    required this.opacity,
+    required this.size,
+  });
+
+  final String char;
+  final Color color;
+  final double opacity;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return Opacity(
+      opacity: opacity,
+      child: Text(
+        char,
+        style: TextStyle(fontSize: size, color: color),
+      ),
+    );
+  }
+}
+
 class _SectionHeader extends StatelessWidget {
   const _SectionHeader({required this.title});
 
@@ -321,10 +418,68 @@ class _SectionHeader extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(left: SpacingTokens.xs),
       child: Text(
-        title,
-        style: context.textTheme.titleSmall?.copyWith(
-          color: context.colorScheme.onSurfaceVariant,
-          letterSpacing: 0.5,
+        title.toUpperCase(),
+        style: context.textTheme.labelSmall?.copyWith(
+          color: ColorTokens.goldAccent,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 1.5,
+          fontSize: 11,
+        ),
+      ),
+    );
+  }
+}
+
+/// Gradient FAB with burgundy-to-gold gradient.
+class _GradientFAB extends StatelessWidget {
+  const _GradientFAB({required this.onPressed, required this.label});
+
+  final VoidCallback onPressed;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [ColorTokens.burgundy, ColorTokens.goldAccent],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: ColorTokens.burgundy.withValues(alpha: 0.4),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: SpacingTokens.lg,
+              vertical: SpacingTokens.md,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.add_rounded, color: Colors.white),
+                const SizedBox(width: SpacingTokens.sm),
+                Text(
+                  label,
+                  style: context.textTheme.labelLarge?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

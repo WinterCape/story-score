@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:story_score/app/theme/color_tokens.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
 import 'package:story_score/shared/extensions/context_extensions.dart';
 
 /// Centered empty-state placeholder with an icon, message, and optional CTA.
+/// Uses warm storybook styling with gold glow, parchment text, and gradient CTA.
 class EmptyState extends StatelessWidget {
   const EmptyState({
     super.key,
@@ -21,7 +23,6 @@ class EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colorScheme;
     final text = context.textTheme;
 
     return Center(
@@ -30,15 +31,31 @@ class EmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              size: 80,
-              color: colors.onSurfaceVariant.withValues(alpha: 0.4),
+            // Icon with gold glow
+            Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: ColorTokens.goldAccent.withValues(alpha: 0.2),
+                    blurRadius: 30,
+                    spreadRadius: 10,
+                  ),
+                ],
+              ),
+              child: Icon(
+                icon,
+                size: 80,
+                color: ColorTokens.goldAccent.withValues(alpha: 0.6),
+              ),
             ),
             const SizedBox(height: SpacingTokens.lg),
             Text(
               title,
-              style: text.titleLarge?.copyWith(color: colors.onSurface),
+              style: text.titleLarge?.copyWith(
+                color: ColorTokens.parchment,
+                fontWeight: FontWeight.w700,
+              ),
               textAlign: TextAlign.center,
             ),
             if (subtitle != null) ...[
@@ -46,17 +63,60 @@ class EmptyState extends StatelessWidget {
               Text(
                 subtitle!,
                 style: text.bodyMedium?.copyWith(
-                  color: colors.onSurfaceVariant,
+                  color: ColorTokens.dustyRose,
                 ),
                 textAlign: TextAlign.center,
               ),
             ],
             if (actionLabel != null && onAction != null) ...[
               const SizedBox(height: SpacingTokens.lg),
-              FilledButton.icon(
-                onPressed: onAction,
-                icon: const Icon(Icons.add_rounded),
-                label: Text(actionLabel!),
+              // Gradient CTA button
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(14),
+                  gradient: const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [ColorTokens.burgundy, ColorTokens.goldAccent],
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: ColorTokens.burgundy.withValues(alpha: 0.3),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: onAction,
+                    borderRadius: BorderRadius.circular(14),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: SpacingTokens.lg,
+                        vertical: SpacingTokens.md,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.add_rounded,
+                            color: Colors.white,
+                          ),
+                          const SizedBox(width: SpacingTokens.sm),
+                          Text(
+                            actionLabel!,
+                            style: text.labelLarge?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ],
           ],
