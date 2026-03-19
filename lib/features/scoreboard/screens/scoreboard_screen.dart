@@ -8,15 +8,14 @@ import 'package:story_score/app/providers.dart';
 import 'package:story_score/app/theme/color_tokens.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
 import 'package:story_score/core/constants/app_assets.dart';
+import 'package:story_score/core/constants/player_colors.dart';
 import 'package:story_score/data/database/app_database.dart';
 import 'package:story_score/data/database/tables/game_sessions.dart';
 import 'package:story_score/data/export/export_helper.dart';
 import 'package:story_score/data/export/session_exporter.dart';
 import 'package:story_score/features/premium/providers/premium_providers.dart';
 import 'package:story_score/features/scoreboard/providers/scoreboard_providers.dart';
-import 'package:story_score/features/scoreboard/widgets/player_score_card.dart';
 import 'package:story_score/shared/extensions/context_extensions.dart';
-import 'package:story_score/shared/widgets/custom_icon.dart';
 
 class ScoreboardScreen extends ConsumerStatefulWidget {
   const ScoreboardScreen({super.key, required this.sessionId});
@@ -46,12 +45,10 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
       if (player.currentScore >= target &&
           !_targetReachedShownFor.contains(player.id)) {
         _targetReachedShownFor.add(player.id);
-        // Schedule the dialog after the current frame to avoid build conflicts.
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!mounted) return;
           _showTargetReachedDialog(context, ref, session, player);
         });
-        // Only show one modal at a time.
         break;
       }
     }
@@ -159,60 +156,6 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
         }
 
         return Scaffold(
-          appBar: AppBar(
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back_rounded),
-              onPressed: () => context.go('/'),
-            ),
-            title: Text(
-              session.title.isNotEmpty ? session.title : l10n.scoreboard,
-            ),
-            actions: [
-              // Sort toggle
-              IconButton(
-                icon: Icon(
-                  sortByScore ? Icons.sort_by_alpha : Icons.leaderboard,
-                ),
-                tooltip: sortByScore ? l10n.sortBySeat : l10n.sortByScore,
-                onPressed: () {
-                  ref.read(sortByScoreProvider.notifier).toggle();
-                },
-              ),
-              // Overflow menu
-              PopupMenuButton<String>(
-                onSelected: (value) {
-                  switch (value) {
-                    case 'export_game':
-                      _showExportSheet(context, ref);
-                    case 'end_game':
-                      _showEndGameDialog(context, ref, session);
-                  }
-                },
-                itemBuilder: (context) => [
-                  PopupMenuItem(
-                    value: 'export_game',
-                    child: Row(
-                      children: [
-                        const CustomIcon('export', size: 20),
-                        const SizedBox(width: SpacingTokens.sm),
-                        Text(l10n.exportGame),
-                      ],
-                    ),
-                  ),
-                  PopupMenuItem(
-                    value: 'end_game',
-                    child: Row(
-                      children: [
-                        const CustomIcon('target', size: 20),
-                        const SizedBox(width: SpacingTokens.sm),
-                        Text(l10n.endGame),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
           body: Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -225,63 +168,198 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
                 ],
               ),
             ),
-            child: playersAsync.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, st) =>
-                  Center(child: Text(l10n.errorLoadingPlayers('$e'))),
-              data: (players) {
-                if (players.isEmpty) {
-                  return Center(
-                    child: Text(
-                      l10n.noPlayersInSession,
-                      style: context.textTheme.bodyLarge?.copyWith(
-                        color: ColorTokens.mutedText,
+            child: SafeArea(
+              child: playersAsync.when(
+                loading: () =>
+                    const Center(child: CircularProgressIndicator()),
+                error: (e, st) =>
+                    Center(child: Text(l10n.errorLoadingPlayers('$e'))),
+                data: (players) {
+                  if (players.isEmpty) {
+                    return Center(
+                      child: Text(
+                        l10n.noPlayersInSession,
+                        style: context.textTheme.bodyLarge?.copyWith(
+                          color: ColorTokens.mutedText,
+                        ),
                       ),
-                    ),
-                  );
-                }
+                    );
+                  }
 
-                // Check if any player reached the target score.
-                _checkTargetScore(session, players, context);
+                  _checkTargetScore(session, players, context);
+                  final storytellerId = storytellerAsync.value?.id;
 
-                final storytellerId = storytellerAsync.value?.id;
+                  return Column(
+                    children: [
+                      // Top bar: "Scoreboard" title + settings icon
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(
+                          SpacingTokens.lg,
+                          SpacingTokens.md,
+                          SpacingTokens.md,
+                          0,
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                l10n.scoreboard,
+                                style:
+                                    context.textTheme.headlineLarge?.copyWith(
+                                  color: ColorTokens.parchment,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ),
+                            _SettingsButton(
+                              onTap: () => _showSettingsMenu(
+                                context,
+                                ref,
+                                session,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
 
-                // Round info header
-                return Column(
-                  children: [
-                    // Round counter + storyteller info
-                    _RoundInfoHeader(
-                      session: session,
-                      storyteller: storytellerAsync.value,
-                      players: players,
-                      sessionId: sessionId,
-                    ),
-                    // Player grid
-                    Expanded(
-                      child: _PlayerGrid(
+                      // Round info card
+                      _RoundInfoCard(
+                        session: session,
+                        storyteller: storytellerAsync.value,
                         players: players,
-                        storytellerId: storytellerId,
                         sessionId: sessionId,
-                        targetScore: session.targetScore,
                       ),
-                    ),
-                  ],
-                );
-              },
-            ),
-          ),
-          floatingActionButton: Semantics(
-            label: l10n.startNewRound,
-            button: true,
-            excludeSemantics: true,
-            child: _GradientFAB(
-              onPressed: () => context.go('/game/$sessionId/round'),
-              icon: Icons.play_arrow,
-              label: l10n.newRound,
+
+                      // PLAYERS section header
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(
+                          SpacingTokens.lg,
+                          SpacingTokens.md,
+                          SpacingTokens.lg,
+                          SpacingTokens.sm,
+                        ),
+                        child: Row(
+                          children: [
+                            Text(
+                              l10n.players.toUpperCase(),
+                              style:
+                                  context.textTheme.labelSmall?.copyWith(
+                                color: ColorTokens.goldAccent,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 1.5,
+                                fontSize: 10,
+                              ),
+                            ),
+                            const Spacer(),
+                            GestureDetector(
+                              onTap: () {
+                                ref
+                                    .read(sortByScoreProvider.notifier)
+                                    .toggle();
+                              },
+                              child: Text(
+                                sortByScore
+                                    ? l10n.sortByScore
+                                    : l10n.sortBySeat,
+                                style: context.textTheme.labelSmall
+                                    ?.copyWith(
+                                  color: ColorTokens.mutedText,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // 2-column player grid
+                      Expanded(
+                        child: _PlayerGrid(
+                          players: players,
+                          storytellerId: storytellerId,
+                          sessionId: sessionId,
+                          targetScore: session.targetScore,
+                        ),
+                      ),
+
+                      // Hint text + New Round button
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(
+                          SpacingTokens.lg,
+                          SpacingTokens.sm,
+                          SpacingTokens.md,
+                          SpacingTokens.md,
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                'Tap the crown to change storyteller before a new round.',
+                                style: context.textTheme.bodySmall?.copyWith(
+                                  color: ColorTokens.mutedText,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: SpacingTokens.md),
+                            _GradientButton(
+                              onPressed: () =>
+                                  context.go('/game/$sessionId/round'),
+                              icon: Icons.play_arrow,
+                              label: l10n.newRound,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
             ),
           ),
         );
       },
+    );
+  }
+
+  void _showSettingsMenu(
+    BuildContext context,
+    WidgetRef ref,
+    GameSession session,
+  ) {
+    final l10n = context.l10n;
+    showModalBottomSheet(
+      context: context,
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.home_rounded),
+              title: Text(l10n.backToHome),
+              onTap: () {
+                Navigator.of(sheetContext).pop();
+                context.go('/');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.ios_share_rounded),
+              title: Text(l10n.exportGame),
+              onTap: () {
+                Navigator.of(sheetContext).pop();
+                _showExportSheet(context, ref);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.flag_rounded),
+              title: Text(l10n.endGame),
+              onTap: () {
+                Navigator.of(sheetContext).pop();
+                _showEndGameDialog(context, ref, session);
+              },
+            ),
+            const SizedBox(height: SpacingTokens.md),
+          ],
+        ),
+      ),
     );
   }
 
@@ -405,9 +483,39 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
   }
 }
 
-/// Header showing the current round number and storyteller with warm styling.
-class _RoundInfoHeader extends ConsumerWidget {
-  const _RoundInfoHeader({
+/// Settings icon button — 40x40 rounded square with gold tint.
+class _SettingsButton extends StatelessWidget {
+  const _SettingsButton({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: ColorTokens.goldAccent.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: ColorTokens.goldAccent.withValues(alpha: 0.3),
+          ),
+        ),
+        child: const Icon(
+          Icons.settings_rounded,
+          color: ColorTokens.goldAccent,
+          size: 20,
+        ),
+      ),
+    );
+  }
+}
+
+/// Round info card: round number left, storyteller name right, crown badge.
+class _RoundInfoCard extends ConsumerWidget {
+  const _RoundInfoCard({
     required this.session,
     required this.storyteller,
     required this.players,
@@ -451,59 +559,66 @@ class _RoundInfoHeader extends ConsumerWidget {
       ),
       child: Row(
         children: [
-          // Crown emoji card icon
-          _CrownCardIcon(),
-          const SizedBox(width: SpacingTokens.md),
-          // Round label + storyteller
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.round(session.roundCount + 1).toUpperCase(),
-                  style: context.textTheme.labelSmall?.copyWith(
-                    color: ColorTokens.goldAccent,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1.5,
-                    fontSize: 11,
+          // Round number left
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'ROUND',
+                style: context.textTheme.labelSmall?.copyWith(
+                  color: ColorTokens.goldAccent,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.5,
+                  fontSize: 10,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                (session.roundCount + 1).toString().padLeft(2, '0'),
+                style: context.textTheme.headlineLarge?.copyWith(
+                  color: ColorTokens.goldAccent,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(width: SpacingTokens.lg),
+          // Storyteller info right
+          if (storyteller != null)
+            Expanded(
+              child: Semantics(
+                label: l10n.playerIsStoryteller(storyteller!.name),
+                button: true,
+                excludeSemantics: true,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(SpacingTokens.radiusSm),
+                  onTap: () => _showStorytellerPicker(context, ref),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Storyteller',
+                        style: context.textTheme.labelSmall?.copyWith(
+                          color: ColorTokens.mutedText,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        storyteller!.name,
+                        style: context.textTheme.titleMedium?.copyWith(
+                          color: ColorTokens.parchment,
+                          fontWeight: FontWeight.w700,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ),
                 ),
-                if (storyteller != null) ...[
-                  const SizedBox(height: SpacingTokens.xs),
-                  Semantics(
-                    label: l10n.playerIsStoryteller(storyteller!.name),
-                    button: true,
-                    excludeSemantics: true,
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(
-                        SpacingTokens.radiusSm,
-                      ),
-                      onTap: () => _showStorytellerPicker(context, ref),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              l10n.playerIsStorytelling(storyteller!.name),
-                              style: context.textTheme.bodyMedium?.copyWith(
-                                color: ColorTokens.parchment,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          Icon(
-                            Icons.swap_horiz,
-                            size: 16,
-                            color: ColorTokens.mutedText,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ],
+              ),
             ),
-          ),
+          // Crown badge icon
+          Image.asset(AppAssets.crownBadge, width: 32),
         ],
       ),
     );
@@ -552,7 +667,8 @@ class _RoundInfoHeader extends ConsumerWidget {
                             .updateSession(
                               sessionId,
                               GameSessionsCompanion(
-                                currentStorytellerSeat: Value(player.seatOrder),
+                                currentStorytellerSeat:
+                                    Value(player.seatOrder),
                                 updatedAt: Value(DateTime.now()),
                               ),
                             );
@@ -567,15 +683,7 @@ class _RoundInfoHeader extends ConsumerWidget {
   }
 }
 
-/// Crown badge icon for the round info header.
-class _CrownCardIcon extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Image.asset(AppAssets.crownBadge, width: 32);
-  }
-}
-
-/// Responsive player grid — 2 columns for most counts.
+/// 2-column player grid matching the mockup.
 class _PlayerGrid extends ConsumerWidget {
   const _PlayerGrid({
     required this.players,
@@ -592,26 +700,17 @@ class _PlayerGrid extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isTablet = context.isTablet;
-    final int crossAxisCount;
-    if (isTablet) {
-      crossAxisCount = 3;
-    } else {
-      crossAxisCount = players.length <= 4 ? 1 : 2;
-    }
+    final crossAxisCount = isTablet ? 3 : 2;
 
     return GridView.builder(
-      padding: const EdgeInsets.fromLTRB(
-        SpacingTokens.md,
-        SpacingTokens.sm,
-        SpacingTokens.md,
-        // Extra padding for FAB
-        SpacingTokens.xxl + SpacingTokens.xxl,
+      padding: const EdgeInsets.symmetric(
+        horizontal: SpacingTokens.md,
       ),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: crossAxisCount,
-        crossAxisSpacing: SpacingTokens.md,
-        mainAxisSpacing: SpacingTokens.md,
-        childAspectRatio: crossAxisCount == 1 ? 3.0 : 1.3,
+        crossAxisSpacing: SpacingTokens.sm,
+        mainAxisSpacing: SpacingTokens.sm,
+        childAspectRatio: 0.85,
       ),
       itemCount: players.length,
       itemBuilder: (context, index) {
@@ -623,15 +722,13 @@ class _PlayerGrid extends ConsumerWidget {
             targetScore! > 0 &&
             player.currentScore >= targetScore!;
 
-        Widget card = PlayerScoreCard(
+        Widget card = _PlayerCard(
           player: player,
           isStoryteller: isStoryteller,
           rank: index + 1,
           onLongPress: () => _showScoreAdjustDialog(context, ref, player),
         );
 
-        // Animated gold border glow for players who reached the target
-        // score — premium-gated.
         if (hasReachedTarget && isSupporter) {
           card = _WinnerGlow(child: card);
         }
@@ -725,9 +822,163 @@ class _PlayerGrid extends ConsumerWidget {
   }
 }
 
-/// Gradient FAB for the scoreboard.
-class _GradientFAB extends StatelessWidget {
-  const _GradientFAB({
+/// Individual player card for the scoreboard grid (mockup style).
+class _PlayerCard extends StatelessWidget {
+  const _PlayerCard({
+    required this.player,
+    required this.isStoryteller,
+    this.rank,
+    this.onLongPress,
+  });
+
+  final Player player;
+  final bool isStoryteller;
+  final int? rank;
+  final VoidCallback? onLongPress;
+
+  @override
+  Widget build(BuildContext context) {
+    final playerColor = PlayerColors.colorFor(player.colorKey);
+    final isFirstPlace = rank == 1;
+
+    return GestureDetector(
+      onLongPress: onLongPress,
+      child: Container(
+        padding: const EdgeInsets.all(SpacingTokens.md),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [ColorTokens.darkCard, ColorTokens.darkCardVariant],
+          ),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: isStoryteller
+                ? ColorTokens.goldAccent.withValues(alpha: 0.4)
+                : Colors.white.withValues(alpha: 0.04),
+            width: isStoryteller ? 1.5 : 1.0,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.3),
+              blurRadius: 15,
+              offset: const Offset(0, 4),
+            ),
+            if (isStoryteller)
+              BoxShadow(
+                color: ColorTokens.goldAccent.withValues(alpha: 0.1),
+                blurRadius: 20,
+              ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Top row: avatar + name + rank/crown
+            Row(
+              children: [
+                // Colored avatar circle with initial
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        playerColor,
+                        playerColor.withValues(alpha: 0.7),
+                      ],
+                    ),
+                    border: Border.all(
+                      color: playerColor.withValues(alpha: 0.5),
+                      width: 2,
+                    ),
+                  ),
+                  alignment: Alignment.center,
+                  child: player.avatarStyle != 'initials' &&
+                          player.avatarStyle.isNotEmpty
+                      ? FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            player.avatarStyle,
+                            style: const TextStyle(fontSize: 18),
+                          ),
+                        )
+                      : Text(
+                          player.name.isNotEmpty
+                              ? player.name[0].toUpperCase()
+                              : '?',
+                          style: const TextStyle(
+                            fontSize: 15,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                ),
+                const SizedBox(width: SpacingTokens.sm),
+                Expanded(
+                  child: Text(
+                    player.name,
+                    style: context.textTheme.titleSmall?.copyWith(
+                      color: ColorTokens.parchment,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                if (isStoryteller)
+                  Image.asset(AppAssets.crownBadge, width: 20)
+                else if (rank != null)
+                  Text(
+                    '#$rank',
+                    style: context.textTheme.labelMedium?.copyWith(
+                      color: ColorTokens.mutedText,
+                    ),
+                  ),
+              ],
+            ),
+            const Spacer(),
+            // Large score number
+            Text(
+              '${player.currentScore}',
+              style: TextStyle(
+                fontSize: isFirstPlace ? 48 : 40,
+                fontWeight: FontWeight.w800,
+                color: isFirstPlace
+                    ? ColorTokens.goldAccent
+                    : ColorTokens.parchment,
+                shadows: isFirstPlace
+                    ? [
+                        Shadow(
+                          color: ColorTokens.goldAccent.withValues(alpha: 0.3),
+                          blurRadius: 8,
+                        ),
+                      ]
+                    : null,
+              ),
+            ),
+            // Subtitle: "Tap crown to change" for storyteller, "In the tale" for others
+            Text(
+              isStoryteller ? 'Tap crown to change' : 'In the tale',
+              style: context.textTheme.labelSmall?.copyWith(
+                color: isStoryteller
+                    ? ColorTokens.goldAccent.withValues(alpha: 0.7)
+                    : ColorTokens.mutedText,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Gradient button used for "New Round".
+class _GradientButton extends StatelessWidget {
+  const _GradientButton({
     required this.onPressed,
     required this.icon,
     required this.label,
@@ -768,7 +1019,7 @@ class _GradientFAB extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(icon, color: Colors.white),
+                Icon(icon, color: Colors.white, size: 20),
                 const SizedBox(width: SpacingTokens.sm),
                 Text(
                   label,
@@ -786,8 +1037,7 @@ class _GradientFAB extends StatelessWidget {
   }
 }
 
-/// Wraps a child widget in an animated gold border glow effect.
-/// Pulses 2 times then holds steady.
+/// Animated gold border glow for target-reached players.
 class _WinnerGlow extends StatefulWidget {
   const _WinnerGlow({required this.child});
 
@@ -815,7 +1065,6 @@ class _WinnerGlowState extends State<_WinnerGlow>
       end: 1.0,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
-    // Pulse 2 times then stop
     var count = 0;
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
@@ -844,7 +1093,7 @@ class _WinnerGlowState extends State<_WinnerGlow>
       builder: (context, child) {
         return Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(SpacingTokens.radiusLg),
+            borderRadius: BorderRadius.circular(18),
             boxShadow: [
               BoxShadow(
                 color: ColorTokens.goldAccent.withValues(

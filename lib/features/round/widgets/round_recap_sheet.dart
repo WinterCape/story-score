@@ -35,6 +35,11 @@ class RoundRecapSheet extends StatelessWidget {
 
     final isGoodClue = result.clueOutcome == ClueOutcome.goodClue;
 
+    final totalPoints = result.scoreEntries.fold<int>(
+      0,
+      (sum, e) => sum + e.delta,
+    );
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(
@@ -57,36 +62,43 @@ class RoundRecapSheet extends StatelessWidget {
             ),
             const SizedBox(height: SpacingTokens.lg),
 
-            // Outcome header — good or bad clue image
-            Image.asset(
-              isGoodClue ? AppAssets.clueGood : AppAssets.clueBad,
-              width: 32,
-            ),
-            const SizedBox(height: SpacingTokens.sm),
-            Text(
-              isGoodClue ? 'Good Clue!' : 'Bad Clue!',
-              style: context.textTheme.headlineSmall?.copyWith(
-                color: isGoodClue
-                    ? ColorTokens.goldAccent
-                    : ColorTokens.dustyRose,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Text(
-              isGoodClue
-                  ? 'Some players guessed correctly'
-                  : 'Everyone or nobody guessed correctly',
-              style: context.textTheme.bodySmall?.copyWith(
-                color: ColorTokens.mutedText,
-              ),
+            // Outcome icon + header
+            Row(
+              children: [
+                Image.asset(
+                  isGoodClue ? AppAssets.clueGood : AppAssets.clueBad,
+                  width: 32,
+                ),
+                const SizedBox(width: SpacingTokens.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        isGoodClue ? 'Good Clue!' : 'Bad Clue!',
+                        style: context.textTheme.headlineSmall?.copyWith(
+                          color: isGoodClue
+                              ? ColorTokens.goldAccent
+                              : ColorTokens.dustyRose,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        isGoodClue
+                            ? 'The table found the sweet spot this round.'
+                            : 'Everyone or nobody guessed correctly.',
+                        style: context.textTheme.bodySmall?.copyWith(
+                          color: ColorTokens.mutedText,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: SpacingTokens.lg),
 
-            // Ornate divider
-            Image.asset(AppAssets.dividerOrnate, width: 200),
-            const SizedBox(height: SpacingTokens.lg),
-
-            // Per-player score changes in warm styled rows
+            // Per-player score changes — simple rows
             ...playerDeltas.entries.map((entry) {
               final player = players
                   .where((p) => p.id == entry.key)
@@ -98,12 +110,35 @@ class RoundRecapSheet extends StatelessWidget {
                 (sum, e) => sum + e.delta,
               );
 
+              // Build reason summary text
+              final reasonText = totalDelta > 0
+                  ? entry.value
+                      .where((e) => e.delta > 0)
+                      .map((e) => '+${e.delta} ${e.reason.label}')
+                      .join(', ')
+                  : 'No points';
+
               return _PlayerRecapRow(
                 player: player,
-                entries: entry.value,
+                reasonText: reasonText,
                 totalDelta: totalDelta,
               );
             }),
+
+            const SizedBox(height: SpacingTokens.lg),
+
+            // Ornate divider
+            Image.asset(AppAssets.dividerOrnate, width: 200),
+            const SizedBox(height: SpacingTokens.sm),
+
+            // Total points summary
+            Text(
+              '$totalPoints total points awarded',
+              style: context.textTheme.bodyMedium?.copyWith(
+                color: ColorTokens.goldAccent,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
 
             const SizedBox(height: SpacingTokens.lg),
 
@@ -113,7 +148,7 @@ class RoundRecapSheet extends StatelessWidget {
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [ColorTokens.burgundy, ColorTokens.goldAccent],
+                    colors: [ColorTokens.goldAccent, ColorTokens.burgundy],
                     begin: Alignment.centerLeft,
                     end: Alignment.centerRight,
                   ),
@@ -142,12 +177,12 @@ class RoundRecapSheet extends StatelessWidget {
 class _PlayerRecapRow extends StatelessWidget {
   const _PlayerRecapRow({
     required this.player,
-    required this.entries,
+    required this.reasonText,
     required this.totalDelta,
   });
 
   final Player player;
-  final List<ScoreEntry> entries;
+  final String reasonText;
   final int totalDelta;
 
   @override
@@ -155,95 +190,76 @@ class _PlayerRecapRow extends StatelessWidget {
     final playerColor = PlayerColors.colorFor(player.colorKey);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: SpacingTokens.xs),
-      child: Container(
-        padding: const EdgeInsets.all(SpacingTokens.md),
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [ColorTokens.darkCard, ColorTokens.darkCardVariant],
-          ),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: Colors.white.withValues(alpha: 0.04),
-          ),
-        ),
-        child: Row(
-          children: [
-            // Gradient avatar circle
-            Container(
-              width: 28,
-              height: 28,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: LinearGradient(
-                  colors: [
-                    playerColor,
-                    playerColor.withValues(alpha: 0.7),
-                  ],
-                ),
-                border: Border.all(
-                  color: playerColor.withValues(alpha: 0.5),
-                  width: 2,
-                ),
-              ),
-              alignment: Alignment.center,
-              child: player.avatarStyle != 'initials' &&
-                      player.avatarStyle.isNotEmpty
-                  ? Text(
-                      player.avatarStyle,
-                      style: const TextStyle(fontSize: 14),
-                    )
-                  : Text(
-                      player.name.isNotEmpty
-                          ? player.name[0].toUpperCase()
-                          : '?',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                      ),
-                    ),
-            ),
-            const SizedBox(width: SpacingTokens.sm),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    player.name,
-                    style: context.textTheme.titleSmall?.copyWith(
-                      color: ColorTokens.parchment,
-                    ),
-                  ),
-                  // Reason labels
-                  Wrap(
-                    spacing: SpacingTokens.sm,
-                    children: entries.map((e) {
-                      return Text(
-                        '+${e.delta} ${e.reason.label}',
-                        style: context.textTheme.labelSmall?.copyWith(
-                          color: ColorTokens.mutedText,
-                        ),
-                      );
-                    }).toList(),
-                  ),
+      padding: const EdgeInsets.symmetric(vertical: SpacingTokens.xs + 2),
+      child: Row(
+        children: [
+          // Player avatar circle
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                colors: [
+                  playerColor,
+                  playerColor.withValues(alpha: 0.7),
                 ],
               ),
-            ),
-            // Total delta — gold for positive
-            Text(
-              '+$totalDelta',
-              style: context.textTheme.titleLarge?.copyWith(
-                color: totalDelta > 0
-                    ? ColorTokens.goldAccent
-                    : ColorTokens.parchment,
-                fontWeight: FontWeight.bold,
+              border: Border.all(
+                color: playerColor.withValues(alpha: 0.5),
+                width: 2,
               ),
             ),
-          ],
-        ),
+            alignment: Alignment.center,
+            child: player.avatarStyle != 'initials' &&
+                    player.avatarStyle.isNotEmpty
+                ? Text(
+                    player.avatarStyle,
+                    style: const TextStyle(fontSize: 14),
+                  )
+                : Text(
+                    player.name.isNotEmpty
+                        ? player.name[0].toUpperCase()
+                        : '?',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                    ),
+                  ),
+          ),
+          const SizedBox(width: SpacingTokens.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  player.name,
+                  style: context.textTheme.titleSmall?.copyWith(
+                    color: ColorTokens.parchment,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  reasonText,
+                  style: context.textTheme.labelSmall?.copyWith(
+                    color: ColorTokens.mutedText,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Delta
+          Text(
+            '+$totalDelta',
+            style: context.textTheme.titleMedium?.copyWith(
+              color: totalDelta > 0
+                  ? ColorTokens.goldAccent
+                  : ColorTokens.parchment,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
       ),
     );
   }

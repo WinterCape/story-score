@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:story_score/app/providers.dart';
 import 'package:story_score/app/theme/color_tokens.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
+import 'package:story_score/core/constants/app_assets.dart';
 import 'package:story_score/core/utils/haptics.dart';
 import 'package:story_score/data/database/app_database.dart';
 import 'package:story_score/domain/celebrations/celebration_engine.dart';
@@ -94,7 +95,6 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
 
             if (!_initialized ||
                 voteState.voterIds.length != nonStorytellerIds.length) {
-              // Schedule the init for after build
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 ref.read(voteEntryProvider.notifier).init(nonStorytellerIds);
               });
@@ -105,18 +105,9 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
                 .where((p) => p.id != storyteller.id)
                 .toList();
 
-            final remainingVotes = nonStorytellerPlayers.length -
-                voteState.votes.length;
+            final roundNumber = session.roundCount + 1;
 
             return Scaffold(
-              appBar: AppBar(
-                leading: IconButton(
-                  icon: const Icon(Icons.arrow_back_rounded),
-                  onPressed: () =>
-                      context.go('/game/${widget.sessionId}/scoreboard'),
-                ),
-                title: Text(l10n.round(session.roundCount + 1)),
-              ),
               body: Container(
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
@@ -129,137 +120,238 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
                     ],
                   ),
                 ),
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxWidth: context.isTablet ? 600 : double.infinity,
-                    ),
-                    child: CustomScrollView(
-                      slivers: [
-                        // Storyteller announcement header
-                        SliverToBoxAdapter(
-                          child: _StorytellerAnnouncement(
-                            session: session,
-                            storyteller: storyteller,
-                          ),
-                        ),
-
-                        // Optional note field
-                        SliverToBoxAdapter(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: SpacingTokens.md,
-                              vertical: SpacingTokens.sm,
+                child: SafeArea(
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: context.isTablet ? 600 : double.infinity,
+                      ),
+                      child: CustomScrollView(
+                        slivers: [
+                          // Round title header with icon circle
+                          SliverToBoxAdapter(
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(
+                                SpacingTokens.lg,
+                                SpacingTokens.md,
+                                SpacingTokens.lg,
+                                SpacingTokens.sm,
+                              ),
+                              child: Row(
+                                children: [
+                                  // Round icon circle
+                                  Container(
+                                    width: 40,
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: ColorTokens.goldAccent
+                                          .withValues(alpha: 0.15),
+                                      border: Border.all(
+                                        color: ColorTokens.goldAccent
+                                            .withValues(alpha: 0.3),
+                                      ),
+                                    ),
+                                    child: Center(
+                                      child: Image.asset(
+                                        AppAssets.clueGood,
+                                        width: 20,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: SpacingTokens.md),
+                                  Text(
+                                    l10n.round(roundNumber),
+                                    style: context.textTheme.headlineMedium
+                                        ?.copyWith(
+                                      color: ColorTokens.parchment,
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                            child: TextField(
-                              controller: _noteController,
-                              decoration: InputDecoration(
-                                hintText: l10n.roundNoteHint,
-                                prefixIcon: const Icon(
-                                  Icons.note_alt_outlined,
-                                  size: 20,
+                          ),
+
+                          // Storyteller announcement card
+                          SliverToBoxAdapter(
+                            child: _StorytellerCard(
+                              storyteller: storyteller,
+                            ),
+                          ),
+
+                          // "WHO DID EACH PLAYER VOTE FOR?" header
+                          SliverToBoxAdapter(
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(
+                                SpacingTokens.lg,
+                                SpacingTokens.lg,
+                                SpacingTokens.lg,
+                                SpacingTokens.sm,
+                              ),
+                              child: Text(
+                                l10n.whoDidEachPlayerVoteFor.toUpperCase(),
+                                style:
+                                    context.textTheme.labelSmall?.copyWith(
+                                  color: ColorTokens.goldAccent,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 1.5,
+                                  fontSize: 10,
                                 ),
-                                isDense: true,
-                                contentPadding: const EdgeInsets.symmetric(
+                              ),
+                            ),
+                          ),
+
+                          // Voter rows
+                          SliverList(
+                            delegate:
+                                SliverChildBuilderDelegate((context, index) {
+                              final voter = nonStorytellerPlayers[index];
+                              final targets = players
+                                  .where((p) => p.id != voter.id)
+                                  .toList();
+
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(
                                   horizontal: SpacingTokens.md,
-                                  vertical: SpacingTokens.sm,
                                 ),
+                                child: VoterCardGrid(
+                                  voter: voter,
+                                  targets: targets,
+                                  selectedTargetId:
+                                      voteState.votes[voter.id],
+                                  onTargetSelected: (targetId) {
+                                    Haptics.selection();
+                                    if (voteState.votes[voter.id] ==
+                                        targetId) {
+                                      ref
+                                          .read(voteEntryProvider.notifier)
+                                          .clearVote(voter.id);
+                                    } else {
+                                      ref
+                                          .read(voteEntryProvider.notifier)
+                                          .setVote(voter.id, targetId);
+                                    }
+                                  },
+                                ),
+                              );
+                            }, childCount: nonStorytellerPlayers.length),
+                          ),
+
+                          // Round note section
+                          SliverToBoxAdapter(
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(
+                                SpacingTokens.lg,
+                                SpacingTokens.lg,
+                                SpacingTokens.lg,
+                                SpacingTokens.sm,
                               ),
-                              textInputAction: TextInputAction.done,
-                              maxLines: 1,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'ROUND NOTE',
+                                    style: context.textTheme.labelSmall
+                                        ?.copyWith(
+                                      color: ColorTokens.goldAccent,
+                                      fontWeight: FontWeight.w700,
+                                      letterSpacing: 1.5,
+                                      fontSize: 10,
+                                    ),
+                                  ),
+                                  const SizedBox(height: SpacingTokens.sm),
+                                  TextField(
+                                    controller: _noteController,
+                                    decoration: InputDecoration(
+                                      hintText:
+                                          'Optional note about the clue',
+                                      hintStyle: TextStyle(
+                                        color: ColorTokens.mutedText
+                                            .withValues(alpha: 0.6),
+                                      ),
+                                      isDense: true,
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                        horizontal: SpacingTokens.md,
+                                        vertical: SpacingTokens.md,
+                                      ),
+                                    ),
+                                    textInputAction: TextInputAction.done,
+                                    maxLines: 1,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
 
-                        // Instruction
-                        SliverToBoxAdapter(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: SpacingTokens.md,
-                              vertical: SpacingTokens.sm,
-                            ),
-                            child: Text(
-                              l10n.whoDidEachPlayerVoteFor.toUpperCase(),
-                              style: context.textTheme.labelSmall?.copyWith(
-                                color: ColorTokens.goldAccent,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 1.5,
-                                fontSize: 11,
-                              ),
-                            ),
+                          // Bottom padding
+                          const SliverToBoxAdapter(
+                            child: SizedBox(height: 100),
                           ),
-                        ),
-
-                        // Voter rows
-                        SliverList(
-                          delegate: SliverChildBuilderDelegate((context, index) {
-                            final voter = nonStorytellerPlayers[index];
-                            final targets = players
-                                .where((p) => p.id != voter.id)
-                                .toList();
-
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: SpacingTokens.md,
-                              ),
-                              child: VoterCardGrid(
-                                voter: voter,
-                                targets: targets,
-                                selectedTargetId: voteState.votes[voter.id],
-                                onTargetSelected: (targetId) {
-                                  Haptics.selection();
-                                  if (voteState.votes[voter.id] == targetId) {
-                                    ref
-                                        .read(voteEntryProvider.notifier)
-                                        .clearVote(voter.id);
-                                  } else {
-                                    ref
-                                        .read(voteEntryProvider.notifier)
-                                        .setVote(voter.id, targetId);
-                                  }
-                                },
-                              ),
-                            );
-                          }, childCount: nonStorytellerPlayers.length),
-                        ),
-
-                        // Bottom padding for the button
-                        const SliverToBoxAdapter(child: SizedBox(height: 100)),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
 
-              // Score Round button
+              // "All votes entered" status + Score Round button
               bottomNavigationBar: SafeArea(
                 child: Padding(
                   padding: const EdgeInsets.all(SpacingTokens.md),
-                  child: Semantics(
-                    label: voteState.allVotesCast
-                        ? l10n.scoreRound
-                        : l10n.scoreRoundDisabledHint,
-                    button: true,
-                    enabled: voteState.allVotesCast && !_isSubmitting,
-                    excludeSemantics: true,
-                    child: _ScoreRoundButton(
-                      isEnabled: voteState.allVotesCast && !_isSubmitting,
-                      isSubmitting: _isSubmitting,
-                      label: voteState.allVotesCast
-                          ? l10n.scoreRound
-                          : l10n.allPlayersMustVote,
-                      subtitle: !voteState.allVotesCast && remainingVotes > 0
-                          ? '$remainingVotes vote${remainingVotes == 1 ? '' : 's'} remaining'
-                          : null,
-                      onPressed: voteState.allVotesCast && !_isSubmitting
-                          ? () => _submitRound(
-                              session: session,
-                              storyteller: storyteller,
-                              players: players,
-                              votes: voteState.completedVotes,
-                            )
-                          : null,
-                    ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (voteState.allVotesCast)
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            bottom: SpacingTokens.sm,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'All votes entered',
+                                style: context.textTheme.bodySmall?.copyWith(
+                                  color: ColorTokens.goldAccent,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                '*',
+                                style: context.textTheme.bodySmall?.copyWith(
+                                  color: ColorTokens.goldAccent,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      Semantics(
+                        label: voteState.allVotesCast
+                            ? l10n.scoreRound
+                            : l10n.scoreRoundDisabledHint,
+                        button: true,
+                        enabled:
+                            voteState.allVotesCast && !_isSubmitting,
+                        excludeSemantics: true,
+                        child: _ScoreRoundButton(
+                          isEnabled:
+                              voteState.allVotesCast && !_isSubmitting,
+                          isSubmitting: _isSubmitting,
+                          label: l10n.scoreRound,
+                          onPressed:
+                              voteState.allVotesCast && !_isSubmitting
+                                  ? () => _submitRound(
+                                        session: session,
+                                        storyteller: storyteller,
+                                        players: players,
+                                        votes: voteState.completedVotes,
+                                      )
+                                  : null,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -298,7 +390,6 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
 
       Haptics.medium();
 
-      // Detect milestones for this round
       _triggerMilestoneCelebrations(
         result: result,
         storyteller: storyteller,
@@ -306,7 +397,6 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
         votes: votes,
       );
 
-      // Show recap bottom sheet
       await showRoundRecapSheet(
         context: ctx, // ignore: use_build_context_synchronously
         result: result,
@@ -315,12 +405,10 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
 
       if (!mounted) return;
 
-      // Reset state for next round
       ref.read(voteEntryProvider.notifier).clearAll();
       _noteController.clear();
       _initialized = false;
 
-      // Navigate back to scoreboard
       navigator.go('/game/${widget.sessionId}/scoreboard');
     } catch (e) {
       if (!mounted) return;
@@ -392,23 +480,17 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
   }
 }
 
-/// Centered storyteller announcement card with warm storybook styling.
-class _StorytellerAnnouncement extends StatelessWidget {
-  const _StorytellerAnnouncement({
-    required this.session,
-    required this.storyteller,
-  });
+/// Storyteller announcement card — crown icon + "[Name] is the storyteller".
+class _StorytellerCard extends StatelessWidget {
+  const _StorytellerCard({required this.storyteller});
 
-  final GameSession session;
   final Player storyteller;
 
   @override
   Widget build(BuildContext context) {
-    final l10n = context.l10n;
-
     return Container(
-      margin: const EdgeInsets.all(SpacingTokens.md),
-      padding: const EdgeInsets.all(SpacingTokens.lg),
+      margin: const EdgeInsets.symmetric(horizontal: SpacingTokens.md),
+      padding: const EdgeInsets.all(SpacingTokens.md),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
@@ -428,35 +510,29 @@ class _StorytellerAnnouncement extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(
+      child: Row(
         children: [
-          // Round label
-          Text(
-            l10n.round(session.roundCount + 1).toUpperCase(),
-            style: context.textTheme.labelSmall?.copyWith(
-              color: ColorTokens.goldAccent,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 1.5,
-              fontSize: 11,
-            ),
-          ),
-          const SizedBox(height: SpacingTokens.md),
-          // Crown card icon
-          _CrownCardIcon(),
-          const SizedBox(height: SpacingTokens.md),
-          // Storyteller name
-          Text(
-            storyteller.name,
-            style: context.textTheme.titleLarge?.copyWith(
-              color: ColorTokens.parchment,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: SpacingTokens.xs),
-          Text(
-            l10n.playerIsStoryteller(storyteller.name),
-            style: context.textTheme.bodySmall?.copyWith(
-              color: ColorTokens.dustyRose,
+          Image.asset(AppAssets.crownBadge, width: 28),
+          const SizedBox(width: SpacingTokens.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${storyteller.name} is the storyteller',
+                  style: context.textTheme.titleSmall?.copyWith(
+                    color: ColorTokens.parchment,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Choose where each vote landed',
+                  style: context.textTheme.bodySmall?.copyWith(
+                    color: ColorTokens.mutedText,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -465,57 +541,18 @@ class _StorytellerAnnouncement extends StatelessWidget {
   }
 }
 
-/// Crown emoji in a mini parchment card icon with gold border and shadow.
-class _CrownCardIcon extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 44,
-      height: 56,
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            ColorTokens.lightBackground,
-            ColorTokens.lightSurface,
-            Color(0xFFE8D0A0),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(7),
-        border: Border.all(
-          color: ColorTokens.goldAccent,
-          width: 1.5,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: ColorTokens.goldAccent.withValues(alpha: 0.2),
-            blurRadius: 8,
-            spreadRadius: 1,
-          ),
-        ],
-      ),
-      child: const Center(
-        child: Text('\u{1F451}', style: TextStyle(fontSize: 22)),
-      ),
-    );
-  }
-}
-
-/// Gradient Score Round button with disabled state.
+/// Full-width gradient Score Round button.
 class _ScoreRoundButton extends StatelessWidget {
   const _ScoreRoundButton({
     required this.isEnabled,
     required this.isSubmitting,
     required this.label,
-    this.subtitle,
     this.onPressed,
   });
 
   final bool isEnabled;
   final bool isSubmitting;
   final String label;
-  final String? subtitle;
   final VoidCallback? onPressed;
 
   @override
@@ -523,12 +560,13 @@ class _ScoreRoundButton extends StatelessWidget {
     return Opacity(
       opacity: isEnabled ? 1.0 : 0.5,
       child: Container(
+        width: double.infinity,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(14),
           gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [ColorTokens.burgundy, ColorTokens.goldAccent],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+            colors: [ColorTokens.goldAccent, ColorTokens.burgundy],
           ),
           boxShadow: isEnabled
               ? [
@@ -559,26 +597,12 @@ class _ScoreRoundButton extends StatelessWidget {
                           color: Colors.white,
                         ),
                       )
-                    : Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            label,
-                            style: context.textTheme.labelLarge?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          if (subtitle != null) ...[
-                            const SizedBox(height: 2),
-                            Text(
-                              subtitle!,
-                              style: context.textTheme.labelSmall?.copyWith(
-                                color: Colors.white.withValues(alpha: 0.7),
-                              ),
-                            ),
-                          ],
-                        ],
+                    : Text(
+                        label,
+                        style: context.textTheme.titleMedium?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
               ),
             ),
