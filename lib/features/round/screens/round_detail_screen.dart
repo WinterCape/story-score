@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:story_score/app/providers.dart';
-import 'package:story_score/app/theme/color_tokens.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
 import 'package:story_score/core/constants/player_colors.dart';
 import 'package:story_score/core/utils/haptics.dart';
@@ -53,20 +52,13 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
 
     final colors = context.colorScheme;
     final text = context.textTheme;
+    final storyTheme = context.storyTheme;
     final l10n = context.l10n;
 
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              ColorTokens.darkBackground,
-              ColorTokens.darkSurface,
-              ColorTokens.darkCard,
-            ],
-          ),
+        decoration: BoxDecoration(
+          gradient: storyTheme.backgroundGradient,
         ),
         child: CustomScrollView(
           slivers: [
@@ -75,12 +67,12 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
               backgroundColor: Colors.transparent,
               title: Text(
                 l10n.roundDetail,
-                style: const TextStyle(color: ColorTokens.parchment),
+                style: TextStyle(color: storyTheme.primaryText),
               ),
               leading: IconButton(
-                icon: const Icon(
+                icon: Icon(
                   Icons.arrow_back_rounded,
-                  color: ColorTokens.goldAccent,
+                  color: storyTheme.primaryAccent,
                 ),
                 onPressed: () => context.pop(),
               ),
@@ -174,9 +166,9 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
                                       : () =>
                                           setState(() => _isEditing = false),
                                   style: OutlinedButton.styleFrom(
-                                    foregroundColor: ColorTokens.parchment,
+                                    foregroundColor: storyTheme.primaryText,
                                     side: BorderSide(
-                                      color: ColorTokens.parchment
+                                      color: storyTheme.primaryText
                                           .withValues(alpha: 0.3),
                                     ),
                                   ),
@@ -321,11 +313,7 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
       return Container(
         margin: const EdgeInsets.only(bottom: SpacingTokens.sm),
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [ColorTokens.darkCard, ColorTokens.darkCardVariant],
-          ),
+          gradient: storyTheme.cardGradient,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: Colors.white.withValues(alpha: 0.04),
@@ -362,7 +350,7 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
                   Text(
                     voter.name,
                     style: text.titleSmall?.copyWith(
-                      color: ColorTokens.parchment,
+                      color: storyTheme.primaryText,
                     ),
                   ),
                 ],
@@ -571,9 +559,7 @@ class _RoundDetailScreenState extends ConsumerState<RoundDetailScreen> {
             child: Container(
               height: 64,
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [ColorTokens.darkCard, ColorTokens.darkCardVariant],
-                ),
+                gradient: context.storyTheme.cardGradient,
                 borderRadius:
                     BorderRadius.circular(SpacingTokens.radiusLg),
               ),
@@ -610,18 +596,15 @@ class _RoundHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colorScheme;
     final text = context.textTheme;
+    final storyTheme = context.storyTheme;
     final l10n = context.l10n;
 
     return Container(
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [ColorTokens.darkCard, ColorTokens.darkCardVariant],
-        ),
+        gradient: storyTheme.cardGradient,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: ColorTokens.goldAccent.withValues(alpha: 0.15),
+          color: storyTheme.primaryAccent.withValues(alpha: 0.15),
         ),
         boxShadow: const [
           BoxShadow(
@@ -646,19 +629,19 @@ class _RoundHeader extends StatelessWidget {
                     shape: BoxShape.circle,
                     gradient: LinearGradient(
                       colors: [
-                        ColorTokens.goldAccent.withValues(alpha: 0.2),
-                        ColorTokens.goldAccent.withValues(alpha: 0.1),
+                        storyTheme.primaryAccent.withValues(alpha: 0.2),
+                        storyTheme.primaryAccent.withValues(alpha: 0.1),
                       ],
                     ),
                     border: Border.all(
-                      color: ColorTokens.goldAccent.withValues(alpha: 0.3),
+                      color: storyTheme.primaryAccent.withValues(alpha: 0.3),
                     ),
                   ),
                   alignment: Alignment.center,
                   child: Text(
                     '$roundNumber',
                     style: text.titleLarge?.copyWith(
-                      color: ColorTokens.goldAccent,
+                      color: storyTheme.primaryAccent,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -671,7 +654,7 @@ class _RoundHeader extends StatelessWidget {
                       Text(
                         l10n.round(roundNumber),
                         style: text.titleMedium?.copyWith(
-                          color: ColorTokens.parchment,
+                          color: storyTheme.primaryText,
                         ),
                       ),
                       Row(
@@ -682,16 +665,16 @@ class _RoundHeader extends StatelessWidget {
                                 : Icons.lightbulb_outline_rounded,
                             size: 16,
                             color: hasGoodClue
-                                ? ColorTokens.goldAccent
-                                : ColorTokens.dustyRose,
+                                ? storyTheme.primaryAccent
+                                : storyTheme.dustyRose,
                           ),
                           const SizedBox(width: 4),
                           Text(
                             hasGoodClue ? l10n.goodClue : l10n.badClue,
                             style: text.bodySmall?.copyWith(
                               color: hasGoodClue
-                                  ? ColorTokens.goldAccent
-                                  : ColorTokens.dustyRose,
+                                  ? storyTheme.primaryAccent
+                                  : storyTheme.dustyRose,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -747,7 +730,7 @@ class _RoundHeader extends StatelessWidget {
                 Text(
                   l10n.storytellerLabel(storytellerName),
                   style: text.bodyMedium?.copyWith(
-                    color: ColorTokens.parchment,
+                    color: storyTheme.primaryText,
                   ),
                 ),
               ],
@@ -760,7 +743,7 @@ class _RoundHeader extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.all(SpacingTokens.sm),
                 decoration: BoxDecoration(
-                  color: ColorTokens.darkBackground.withValues(alpha: 0.5),
+                  color: storyTheme.surfaceColor.withValues(alpha: 0.5),
                   borderRadius:
                       BorderRadius.circular(SpacingTokens.radiusSm),
                 ),
@@ -770,14 +753,14 @@ class _RoundHeader extends StatelessWidget {
                     Icon(
                       Icons.format_quote_rounded,
                       size: 16,
-                      color: ColorTokens.mutedText,
+                      color: storyTheme.secondaryText,
                     ),
                     const SizedBox(width: SpacingTokens.sm),
                     Expanded(
                       child: Text(
                         note,
                         style: text.bodySmall?.copyWith(
-                          color: ColorTokens.mutedText,
+                          color: storyTheme.secondaryText,
                           fontStyle: FontStyle.italic,
                         ),
                       ),
@@ -805,7 +788,7 @@ class _SectionTitle extends StatelessWidget {
       child: Text(
         title.toUpperCase(),
         style: context.textTheme.labelLarge?.copyWith(
-          color: ColorTokens.goldAccent,
+          color: context.storyTheme.primaryAccent,
           letterSpacing: 1.5,
           fontWeight: FontWeight.w700,
         ),
@@ -836,11 +819,7 @@ class _VoteTile extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: SpacingTokens.xs),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [ColorTokens.darkCard, ColorTokens.darkCardVariant],
-        ),
+        gradient: storyTheme.cardGradient,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: Colors.white.withValues(alpha: 0.04),
@@ -883,13 +862,13 @@ class _VoteTile extends StatelessWidget {
               child: RichText(
                 text: TextSpan(
                   style: text.bodyMedium?.copyWith(
-                    color: ColorTokens.parchment,
+                    color: storyTheme.primaryText,
                   ),
                   children: [
                     TextSpan(text: voterName),
                     TextSpan(
                       text: ' ${l10n.votedFor} ',
-                      style: const TextStyle(color: ColorTokens.mutedText),
+                      style: TextStyle(color: storyTheme.secondaryText),
                     ),
                     TextSpan(
                       text: votedForName,
@@ -909,7 +888,7 @@ class _VoteTile extends StatelessWidget {
               Icon(
                 Icons.cancel_outlined,
                 size: 18,
-                color: ColorTokens.mutedText.withValues(alpha: 0.4),
+                color: storyTheme.secondaryText.withValues(alpha: 0.4),
               ),
           ],
         ),
@@ -932,17 +911,14 @@ class _ScoreChangeTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final text = context.textTheme;
+    final storyTheme = context.storyTheme;
 
     final totalDelta = changes.fold<int>(0, (sum, c) => sum + c.delta);
 
     return Container(
       margin: const EdgeInsets.only(bottom: SpacingTokens.xs),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [ColorTokens.darkCard, ColorTokens.darkCardVariant],
-        ),
+        gradient: storyTheme.cardGradient,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: Colors.white.withValues(alpha: 0.04),
@@ -985,7 +961,7 @@ class _ScoreChangeTile extends StatelessWidget {
                   Text(
                     playerName,
                     style: text.titleSmall?.copyWith(
-                      color: ColorTokens.parchment,
+                      color: storyTheme.primaryText,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -995,7 +971,7 @@ class _ScoreChangeTile extends StatelessWidget {
                       return Text(
                         '+${c.delta} ${c.reasonLabel}',
                         style: text.bodySmall?.copyWith(
-                          color: ColorTokens.mutedText,
+                          color: storyTheme.secondaryText,
                         ),
                       );
                     }).toList(),
@@ -1007,8 +983,8 @@ class _ScoreChangeTile extends StatelessWidget {
               '+$totalDelta',
               style: text.titleMedium?.copyWith(
                 color: totalDelta > 0
-                    ? ColorTokens.goldAccent
-                    : ColorTokens.parchment,
+                    ? storyTheme.primaryAccent
+                    : storyTheme.primaryText,
                 fontWeight: FontWeight.w700,
               ),
             ),

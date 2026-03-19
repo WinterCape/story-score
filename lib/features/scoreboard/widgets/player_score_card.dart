@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:story_score/app/theme/color_tokens.dart';
 import 'package:story_score/app/theme/motion_tokens.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
 import 'package:story_score/core/constants/player_colors.dart';
@@ -26,6 +25,7 @@ class PlayerScoreCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final playerColor = PlayerColors.colorFor(player.colorKey);
     final isFirstPlace = rank == 1;
+    final storyTheme = context.storyTheme;
 
     final rankLabel = rank != null ? ', ${_ordinal(rank!)} place' : '';
     final storytellerLabel = isStoryteller ? ', current storyteller' : '';
@@ -42,15 +42,11 @@ class PlayerScoreCard extends StatelessWidget {
           duration: MotionTokens.durationMedium,
           curve: MotionTokens.curveStandard,
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [ColorTokens.darkCard, ColorTokens.darkCardVariant],
-            ),
+            gradient: storyTheme.cardGradient,
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
               color: isStoryteller
-                  ? ColorTokens.goldAccent.withValues(alpha: 0.4)
+                  ? storyTheme.goldAccent.withValues(alpha: 0.4)
                   : Colors.white.withValues(alpha: 0.04),
               width: isStoryteller ? 1.5 : 1.0,
             ),
@@ -62,7 +58,7 @@ class PlayerScoreCard extends StatelessWidget {
               ),
               if (isStoryteller)
                 BoxShadow(
-                  color: ColorTokens.goldAccent.withValues(alpha: 0.1),
+                  color: storyTheme.goldAccent.withValues(alpha: 0.1),
                   blurRadius: 20,
                   spreadRadius: 0,
                 ),
@@ -89,7 +85,7 @@ class PlayerScoreCard extends StatelessWidget {
                       child: Text(
                         player.name,
                         style: context.textTheme.titleSmall?.copyWith(
-                          color: ColorTokens.parchment,
+                          color: storyTheme.primaryText,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -104,12 +100,12 @@ class PlayerScoreCard extends StatelessWidget {
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: ColorTokens.goldAccent.withValues(alpha: 0.2),
+                          color: storyTheme.goldAccent.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(
                             SpacingTokens.radiusSm,
                           ),
                           border: Border.all(
-                            color: ColorTokens.goldAccent.withValues(
+                            color: storyTheme.goldAccent.withValues(
                               alpha: 0.5,
                             ),
                             width: 1,
@@ -126,7 +122,7 @@ class PlayerScoreCard extends StatelessWidget {
                             Text(
                               'Storyteller',
                               style: context.textTheme.labelSmall?.copyWith(
-                                color: ColorTokens.goldAccent,
+                                color: storyTheme.goldAccent,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -151,7 +147,7 @@ class PlayerScoreCard extends StatelessWidget {
                     child: Text(
                       _ordinal(rank!),
                       style: context.textTheme.labelSmall?.copyWith(
-                        color: ColorTokens.dustyRose,
+                        color: storyTheme.secondaryText,
                       ),
                     ),
                   ),
@@ -262,17 +258,18 @@ class _AnimatedScoreState extends AnimatedWidgetBaseState<_AnimatedScore> {
   @override
   Widget build(BuildContext context) {
     final value = _scoreTween?.evaluate(animation) ?? widget.score;
+    final storyTheme = context.storyTheme;
     return Text(
       '$value',
       style: context.textTheme.displaySmall?.copyWith(
         color: widget.isFirstPlace
-            ? ColorTokens.goldAccent
-            : ColorTokens.parchment,
+            ? storyTheme.primaryAccent
+            : storyTheme.primaryText,
         fontWeight: FontWeight.w800,
         shadows: widget.isFirstPlace
             ? [
                 Shadow(
-                  color: ColorTokens.goldAccent.withValues(alpha: 0.3),
+                  color: storyTheme.primaryAccent.withValues(alpha: 0.3),
                   blurRadius: 8,
                 ),
               ]
@@ -322,12 +319,12 @@ class PlayerChip extends StatelessWidget {
           ),
           decoration: BoxDecoration(
             color: isSelected
-                ? const Color(0xFFE8A020).withValues(alpha: 0.15)
+                ? context.storyTheme.primaryAccent.withValues(alpha: 0.15)
                 : Colors.white.withValues(alpha: 0.03),
             borderRadius: BorderRadius.circular(SpacingTokens.radiusMd),
             border: Border.all(
               color: isSelected
-                  ? ColorTokens.goldAccent
+                  ? context.storyTheme.primaryAccent
                   : Colors.white.withValues(alpha: 0.08),
               width: isSelected ? 1.5 : 1.0,
             ),
@@ -366,10 +363,10 @@ class PlayerChip extends StatelessWidget {
                 player.name,
                 style: context.textTheme.labelSmall?.copyWith(
                   color: isDisabled
-                      ? ColorTokens.mutedText.withValues(alpha: 0.5)
+                      ? context.storyTheme.secondaryText.withValues(alpha: 0.5)
                       : isSelected
-                      ? ColorTokens.goldAccent
-                      : ColorTokens.parchment,
+                      ? context.storyTheme.primaryAccent
+                      : context.storyTheme.primaryText,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                 ),
                 maxLines: 1,
@@ -381,7 +378,7 @@ class PlayerChip extends StatelessWidget {
                   child: Icon(
                     Icons.check_circle,
                     size: 14,
-                    color: ColorTokens.goldAccent,
+                    color: context.storyTheme.primaryAccent,
                   ),
                 ),
             ],

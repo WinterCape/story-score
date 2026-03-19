@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:story_score/app/providers.dart';
-import 'package:story_score/app/theme/color_tokens.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
 import 'package:story_score/core/constants/app_assets.dart';
 import 'package:story_score/data/database/app_database.dart';
@@ -9,7 +8,6 @@ import 'package:story_score/features/history/providers/history_providers.dart';
 import 'package:story_score/shared/extensions/context_extensions.dart';
 
 /// A list tile displaying a single round's summary in the history list.
-/// Matches the mockup: round number circle, "Storyteller - Name", pts awarded.
 class RoundHistoryTile extends ConsumerWidget {
   const RoundHistoryTile({
     super.key,
@@ -24,7 +22,9 @@ class RoundHistoryTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.colorScheme;
     final text = context.textTheme;
+    final storyTheme = context.storyTheme;
 
     // Watch players for the session so we can resolve the storyteller name
     final playersAsync = ref
@@ -37,14 +37,10 @@ class RoundHistoryTile extends ConsumerWidget {
     return Container(
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [ColorTokens.darkCard, ColorTokens.darkCardVariant],
-        ),
+        gradient: storyTheme.cardGradient,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: ColorTokens.goldAccent.withValues(alpha: 0.15),
+          color: Colors.white.withValues(alpha: 0.04),
         ),
         boxShadow: const [
           BoxShadow(
@@ -64,24 +60,28 @@ class RoundHistoryTile extends ConsumerWidget {
           ),
           child: Row(
             children: [
-              // Round number circle with gold border
+              // Round number circle in gold
               Container(
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: ColorTokens.darkCardVariant,
+                  gradient: LinearGradient(
+                    colors: [
+                      storyTheme.primaryAccent.withValues(alpha: 0.2),
+                      storyTheme.primaryAccent.withValues(alpha: 0.1),
+                    ],
+                  ),
                   border: Border.all(
-                    color: ColorTokens.goldAccent.withValues(alpha: 0.5),
-                    width: 2,
+                    color: storyTheme.primaryAccent.withValues(alpha: 0.3),
                   ),
                 ),
                 alignment: Alignment.center,
                 child: Text(
                   '${round.roundNumber}',
                   style: text.titleSmall?.copyWith(
-                    color: ColorTokens.goldAccent,
-                    fontWeight: FontWeight.w800,
+                    color: storyTheme.primaryAccent,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
@@ -92,7 +92,7 @@ class RoundHistoryTile extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // "Storyteller - Name"
+                    // Storyteller name in parchment
                     StreamBuilder<List<Player>>(
                       stream: playersAsync,
                       builder: (context, snapshot) {
@@ -101,10 +101,9 @@ class RoundHistoryTile extends ConsumerWidget {
                             .where((p) => p.id == round.storytellerPlayerId)
                             .firstOrNull;
                         return Text(
-                          'Storyteller \u2022 ${storyteller?.name ?? 'Unknown'}',
+                          storyteller?.name ?? 'Unknown',
                           style: text.titleSmall?.copyWith(
-                            color: ColorTokens.parchment,
-                            fontWeight: FontWeight.w600,
+                            color: storyTheme.primaryText,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -113,7 +112,7 @@ class RoundHistoryTile extends ConsumerWidget {
                     ),
                     const SizedBox(height: 2),
 
-                    // Points awarded
+                    // Score info and outcome: gold for good clue, rose for bad
                     detailsAsync.when(
                       data: (details) {
                         if (details == null) {
@@ -124,34 +123,61 @@ class RoundHistoryTile extends ConsumerWidget {
                           (sum, sc) => sum + sc.delta,
                         );
 
-                        return Text(
-                          '$totalPoints pts awarded',
-                          style: text.bodySmall?.copyWith(
-                            color: ColorTokens.mutedText,
-                          ),
+                        final hasGoodClue = details.scoreChanges.any(
+                          (sc) => sc.reasonCode == 'storytellerGoodClue',
+                        );
+
+                        return Row(
+                          children: [
+                            Image.asset(
+                              hasGoodClue
+                                  ? AppAssets.clueGood
+                                  : AppAssets.clueBad,
+                              width: 24,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              hasGoodClue ? 'Good clue' : 'Bad clue',
+                              style: text.bodySmall?.copyWith(
+                                color: hasGoodClue
+                                    ? storyTheme.primaryAccent
+                                    : storyTheme.dustyRose,
+                              ),
+                            ),
+                            const SizedBox(width: SpacingTokens.md),
+                            Text(
+                              '+$totalPoints pts',
+                              style: text.bodySmall?.copyWith(
+                                color: storyTheme.secondaryText,
+                              ),
+                            ),
+                            if (round.editedAt != null) ...[
+                              const SizedBox(width: SpacingTokens.sm),
+                              Icon(
+                                Icons.edit_outlined,
+                                size: 12,
+                                color: colors.onSurfaceVariant.withValues(
+                                  alpha: 0.6,
+                                ),
+                              ),
+                            ],
+                          ],
                         );
                       },
                       loading: () => const SizedBox(height: 16, width: 80),
-                      error: (_, _) => const SizedBox.shrink(),
+                      error: (_, _) => Text(
+                        'Error loading details',
+                        style: text.bodySmall?.copyWith(color: colors.error),
+                      ),
                     ),
                   ],
                 ),
               ),
 
-              // Clue outcome icon
-              detailsAsync.when(
-                data: (details) {
-                  if (details == null) return const SizedBox.shrink();
-                  final hasGoodClue = details.scoreChanges.any(
-                    (sc) => sc.reasonCode == 'storytellerGoodClue',
-                  );
-                  return Image.asset(
-                    hasGoodClue ? AppAssets.clueGood : AppAssets.clueBad,
-                    width: 24,
-                  );
-                },
-                loading: () => const SizedBox(width: 24, height: 24),
-                error: (_, _) => const SizedBox.shrink(),
+              // Chevron
+              Icon(
+                Icons.chevron_right_rounded,
+                color: storyTheme.secondaryText,
               ),
             ],
           ),

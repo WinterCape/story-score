@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:story_score/app/theme/color_tokens.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
 import 'package:story_score/domain/stats/stats_calculator.dart';
 import 'package:story_score/domain/stats/stats_models.dart';
@@ -81,6 +80,7 @@ class PlayerDetailSheet extends ConsumerWidget {
     TextTheme textTheme,
     ColorScheme colors,
   ) {
+    final storyTheme = context.storyTheme;
     return ListView(
       padding: const EdgeInsets.symmetric(horizontal: SpacingTokens.md),
       children: [
@@ -116,7 +116,7 @@ class PlayerDetailSheet extends ConsumerWidget {
           label: 'Wins',
           value: '${stats.wins}',
           subtitle: 'Win rate: ${(stats.winRate * 100).toStringAsFixed(0)}%',
-          iconColor: ColorTokens.goldAccent,
+          iconColor: storyTheme.primaryAccent,
         ),
         const SizedBox(height: SpacingTokens.xs),
         StatCard(
@@ -124,14 +124,14 @@ class PlayerDetailSheet extends ConsumerWidget {
           label: 'Average Score',
           value: stats.avgScore.toStringAsFixed(1),
           subtitle: 'Best: ${stats.bestGameScore}',
-          iconColor: ColorTokens.teal,
+          iconColor: storyTheme.teal,
         ),
         const SizedBox(height: SpacingTokens.xs),
         StatCard(
           icon: Icons.bolt_rounded,
           label: 'Total Points',
           value: '${stats.totalPoints}',
-          iconColor: ColorTokens.violet,
+          iconColor: storyTheme.violet,
         ),
         const SizedBox(height: SpacingTokens.lg),
         // Streaks
@@ -141,14 +141,14 @@ class PlayerDetailSheet extends ConsumerWidget {
           icon: Icons.local_fire_department_rounded,
           label: 'Current Win Streak',
           value: '${stats.currentWinStreak}',
-          iconColor: ColorTokens.coral,
+          iconColor: storyTheme.dustyRose,
         ),
         const SizedBox(height: SpacingTokens.xs),
         StatCard(
           icon: Icons.stars_rounded,
           label: 'Longest Win Streak',
           value: '${stats.longestWinStreak}',
-          iconColor: ColorTokens.goldAccent,
+          iconColor: storyTheme.primaryAccent,
         ),
         const SizedBox(height: SpacingTokens.xs),
         StatCard(

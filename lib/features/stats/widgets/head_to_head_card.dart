@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:story_score/app/theme/color_tokens.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
 import 'package:story_score/domain/stats/stats_models.dart';
 import 'package:story_score/shared/extensions/context_extensions.dart';
@@ -14,6 +13,7 @@ class HeadToHeadCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = context.textTheme;
     final colors = context.colorScheme;
+    final storyTheme = context.storyTheme;
 
     return Card(
       child: Padding(
@@ -40,7 +40,7 @@ class HeadToHeadCard extends StatelessWidget {
                     '${record.winsA} wins',
                     style: textTheme.bodySmall?.copyWith(
                       color: record.winsA > record.winsB
-                          ? ColorTokens.teal
+                          ? storyTheme.teal
                           : colors.onSurfaceVariant,
                       fontWeight: record.winsA > record.winsB
                           ? FontWeight.bold
@@ -97,7 +97,7 @@ class HeadToHeadCard extends StatelessWidget {
                     '${record.winsB} wins',
                     style: textTheme.bodySmall?.copyWith(
                       color: record.winsB > record.winsA
-                          ? ColorTokens.teal
+                          ? storyTheme.teal
                           : colors.onSurfaceVariant,
                       fontWeight: record.winsB > record.winsA
                           ? FontWeight.bold

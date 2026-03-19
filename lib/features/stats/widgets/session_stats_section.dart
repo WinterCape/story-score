@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:story_score/app/theme/color_tokens.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
 import 'package:story_score/domain/stats/stats_models.dart';
 import 'package:story_score/features/stats/widgets/stat_card.dart';
@@ -15,6 +14,7 @@ class SessionStatsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final storyTheme = context.storyTheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -30,21 +30,21 @@ class SessionStatsSection extends StatelessWidget {
           label: 'MVP',
           value: stats.mvpName.isNotEmpty ? stats.mvpName : '--',
           subtitle: stats.mvpScore > 0 ? '${stats.mvpScore} points' : null,
-          iconColor: ColorTokens.goldAccent,
+          iconColor: storyTheme.primaryAccent,
         ),
         const SizedBox(height: SpacingTokens.xs),
         StatCard(
           icon: Icons.trending_up_rounded,
           label: 'Best Round',
           value: stats.bestRound > 0 ? 'Round ${stats.bestRound}' : '--',
-          iconColor: ColorTokens.teal,
+          iconColor: storyTheme.teal,
         ),
         const SizedBox(height: SpacingTokens.xs),
         StatCard(
           icon: Icons.trending_down_rounded,
           label: 'Worst Round',
           value: stats.worstRound > 0 ? 'Round ${stats.worstRound}' : '--',
-          iconColor: ColorTokens.coral,
+          iconColor: storyTheme.dustyRose,
         ),
         const SizedBox(height: SpacingTokens.xs),
         StatCard(
@@ -52,7 +52,7 @@ class SessionStatsSection extends StatelessWidget {
           label: 'Guess Accuracy',
           value: '${(stats.guessAccuracy * 100).round()}%',
           subtitle: '${stats.totalBonusPoints} bonus points earned',
-          iconColor: ColorTokens.teal,
+          iconColor: storyTheme.teal,
         ),
         const SizedBox(height: SpacingTokens.xs),
         StatCard(
@@ -60,7 +60,7 @@ class SessionStatsSection extends StatelessWidget {
           label: 'Storyteller Success',
           value: '${(stats.storytellerSuccessRate * 100).round()}%',
           subtitle: 'good clue rate',
-          iconColor: ColorTokens.violet,
+          iconColor: storyTheme.violet,
         ),
       ],
     );

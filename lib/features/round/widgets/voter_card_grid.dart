@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:story_score/app/theme/color_tokens.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
 import 'package:story_score/core/constants/player_colors.dart';
 import 'package:story_score/data/database/app_database.dart';
+import 'package:story_score/features/scoreboard/widgets/player_score_card.dart';
 import 'package:story_score/shared/extensions/context_extensions.dart';
 
-/// A section showing a voter's name/avatar and a horizontal row of tappable
-/// name chips representing vote targets. Matches the mockup design.
+/// A section showing a voter's name/avatar and a horizontal list of tappable
+/// player chips representing vote targets. Uses warm storybook styling.
 class VoterCardGrid extends StatelessWidget {
   const VoterCardGrid({
     super.key,
@@ -31,16 +31,14 @@ class VoterCardGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final voterColor = PlayerColors.colorFor(voter.colorKey);
+    final storyTheme = context.storyTheme;
+    final hasVoted = selectedTargetId != null;
 
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: SpacingTokens.xs),
+      margin: const EdgeInsets.symmetric(vertical: SpacingTokens.sm),
       padding: const EdgeInsets.all(SpacingTokens.md),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [ColorTokens.darkCard, ColorTokens.darkCardVariant],
-        ),
+        gradient: storyTheme.cardGradient,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: Colors.white.withValues(alpha: 0.04),
@@ -61,10 +59,10 @@ class VoterCardGrid extends StatelessWidget {
           // Voter label with avatar
           Row(
             children: [
-              // Voter avatar circle
+              // Voter avatar
               Container(
-                width: 28,
-                height: 28,
+                width: 24,
+                height: 24,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: LinearGradient(
@@ -98,101 +96,50 @@ class VoterCardGrid extends StatelessWidget {
               ),
               const SizedBox(width: SpacingTokens.sm),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      voter.name,
-                      style: context.textTheme.titleSmall?.copyWith(
-                        color: ColorTokens.parchment,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    Text(
-                      'voted for:',
-                      style: context.textTheme.labelSmall?.copyWith(
-                        color: ColorTokens.mutedText,
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  voter.name,
+                  style: context.textTheme.titleSmall?.copyWith(
+                    color: storyTheme.primaryText,
+                  ),
                 ),
               ),
+              Text(
+                'voted for:',
+                style: context.textTheme.labelSmall?.copyWith(
+                  color: storyTheme.secondaryText,
+                ),
+              ),
+              if (hasVoted) ...[
+                const SizedBox(width: SpacingTokens.xs),
+                Icon(Icons.check_circle, size: 16, color: storyTheme.primaryAccent),
+              ],
             ],
           ),
           const SizedBox(height: SpacingTokens.sm),
-          // Horizontal row of name chips
-          Wrap(
-            spacing: SpacingTokens.sm,
-            runSpacing: SpacingTokens.xs,
-            children: targets.map((target) {
-              final isSelected = target.id == selectedTargetId;
-              final isSelf = target.id == voter.id;
+          // Horizontal scrolling target chips
+          SizedBox(
+            height: 88,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: targets.length,
+              separatorBuilder: (_, _) =>
+                  const SizedBox(width: SpacingTokens.sm),
+              itemBuilder: (context, index) {
+                final target = targets[index];
+                final isSelected = target.id == selectedTargetId;
 
-              return _VoteChip(
-                name: target.name,
-                isSelected: isSelected,
-                isDisabled: isSelf,
-                onTap: isSelf ? null : () => onTargetSelected(target.id),
-              );
-            }).toList(),
+                return SizedBox(
+                  width: 80,
+                  child: PlayerChip(
+                    player: target,
+                    isSelected: isSelected,
+                    onTap: () => onTargetSelected(target.id),
+                  ),
+                );
+              },
+            ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-/// Outlined name chip for vote selection.
-class _VoteChip extends StatelessWidget {
-  const _VoteChip({
-    required this.name,
-    required this.isSelected,
-    required this.isDisabled,
-    this.onTap,
-  });
-
-  final String name;
-  final bool isSelected;
-  final bool isDisabled;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: isDisabled ? null : onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        padding: const EdgeInsets.symmetric(
-          horizontal: SpacingTokens.md,
-          vertical: SpacingTokens.sm,
-        ),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? ColorTokens.goldAccent.withValues(alpha: 0.15)
-              : isDisabled
-                  ? Colors.white.withValues(alpha: 0.02)
-                  : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected
-                ? ColorTokens.goldAccent
-                : isDisabled
-                    ? Colors.white.withValues(alpha: 0.06)
-                    : ColorTokens.parchment.withValues(alpha: 0.3),
-            width: isSelected ? 1.5 : 1.0,
-          ),
-        ),
-        child: Text(
-          name,
-          style: context.textTheme.labelMedium?.copyWith(
-            color: isSelected
-                ? ColorTokens.goldAccent
-                : isDisabled
-                    ? ColorTokens.mutedText.withValues(alpha: 0.4)
-                    : ColorTokens.parchment,
-            fontWeight: isSelected ? FontWeight.w700 : FontWeight.normal,
-          ),
-        ),
       ),
     );
   }

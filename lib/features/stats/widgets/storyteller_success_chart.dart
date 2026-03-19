@@ -1,6 +1,5 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:story_score/app/theme/color_tokens.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
 import 'package:story_score/shared/extensions/context_extensions.dart';
 
@@ -60,7 +59,7 @@ class StorytellerSuccessChart extends StatelessWidget {
                 ),
                 PieChartSectionData(
                   value: badClueCount.toDouble(),
-                  color: ColorTokens.coral,
+                  color: storyTheme.dustyRose,
                   radius: size * 0.18,
                   showTitle: false,
                 ),
@@ -115,7 +114,7 @@ class StorytellerSuccessLegend extends StatelessWidget {
         const SizedBox(width: SpacingTokens.xs),
         Text('Good ($goodClueCount)', style: textTheme.bodySmall),
         const SizedBox(width: SpacingTokens.md),
-        _LegendDot(color: ColorTokens.coral),
+        _LegendDot(color: storyTheme.dustyRose),
         const SizedBox(width: SpacingTokens.xs),
         Text('Bad ($badClueCount)', style: textTheme.bodySmall),
       ],

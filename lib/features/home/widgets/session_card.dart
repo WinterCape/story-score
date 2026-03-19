@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:story_score/app/theme/color_tokens.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
 import 'package:story_score/core/constants/app_assets.dart';
 import 'package:story_score/data/database/app_database.dart';
@@ -47,8 +46,8 @@ class SessionCard extends ConsumerWidget {
     final accentColor = isActive
         ? storyTheme.goldAccent
         : isPaused
-        ? ColorTokens.teal
-        : ColorTokens.mutedText;
+        ? storyTheme.teal
+        : storyTheme.secondaryText;
 
     final statusLabel = switch (session.status) {
       GameStatus.active => 'active',
@@ -89,15 +88,11 @@ class SessionCard extends ConsumerWidget {
           onTap: onTap,
           child: Container(
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [ColorTokens.darkCard, ColorTokens.darkCardVariant],
-              ),
+              gradient: storyTheme.cardGradient,
               borderRadius: BorderRadius.circular(14),
               border: isActive
                   ? Border.all(
-                      color: ColorTokens.goldAccent.withValues(alpha: 0.4),
+                      color: storyTheme.goldAccent.withValues(alpha: 0.4),
                       width: 1.5,
                     )
                   : Border.all(
@@ -150,7 +145,7 @@ class SessionCard extends ConsumerWidget {
                             child: Text(
                               title,
                               style: text.titleMedium?.copyWith(
-                                color: ColorTokens.parchment,
+                                color: storyTheme.primaryText,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -168,30 +163,30 @@ class SessionCard extends ConsumerWidget {
                       // Metadata row
                       DefaultTextStyle(
                         style: text.bodySmall!.copyWith(
-                          color: ColorTokens.mutedText,
+                          color: storyTheme.secondaryText,
                         ),
                         child: Row(
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.people_outline_rounded,
                               size: 14,
-                              color: ColorTokens.mutedText,
+                              color: storyTheme.secondaryText,
                             ),
                             const SizedBox(width: 4),
                             Text('$playerCount'),
                             const SizedBox(width: SpacingTokens.md),
-                            const Icon(
+                            Icon(
                               Icons.loop_rounded,
                               size: 14,
-                              color: ColorTokens.mutedText,
+                              color: storyTheme.secondaryText,
                             ),
                             const SizedBox(width: 4),
                             Text('Round ${session.roundCount}'),
                             const SizedBox(width: SpacingTokens.md),
-                            const Icon(
+                            Icon(
                               Icons.calendar_today_outlined,
                               size: 14,
-                              color: ColorTokens.mutedText,
+                              color: storyTheme.secondaryText,
                             ),
                             const SizedBox(width: 4),
                             Text(_formatDate(session.updatedAt)),
@@ -214,7 +209,7 @@ class SessionCard extends ConsumerWidget {
                     padding: const EdgeInsets.only(left: SpacingTokens.sm),
                     child: Icon(
                       Icons.chevron_right_rounded,
-                      color: ColorTokens.mutedText,
+                      color: storyTheme.secondaryText,
                     ),
                   ),
               ],
@@ -322,7 +317,7 @@ class _PlayerAvatarRow extends StatelessWidget {
           Text(
             '+$remaining',
             style: context.textTheme.labelSmall?.copyWith(
-              color: ColorTokens.mutedText,
+              color: context.storyTheme.secondaryText,
               fontSize: 10,
             ),
           ),

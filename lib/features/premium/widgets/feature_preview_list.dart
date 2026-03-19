@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:story_score/app/theme/color_tokens.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
+import 'package:story_score/shared/extensions/context_extensions.dart';
 import 'package:story_score/core/constants/app_assets.dart';
 
 /// A single feature item in the supporter-pack feature list.
@@ -58,9 +58,7 @@ class FeaturePreviewList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final checkColor = isDark ? ColorTokens.teal : ColorTokens.teal;
+    final checkColor = context.storyTheme.teal;
 
     return Column(
       children: [
