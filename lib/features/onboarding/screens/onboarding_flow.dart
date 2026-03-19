@@ -31,30 +31,26 @@ class _OnboardingFlowState extends ConsumerState<OnboardingFlow> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_hasOnboardedKey, true);
     if (mounted) {
-      context.go('/');
+      context.go('/home');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final l10n = context.l10n;
 
     final pages = [
       _OnboardingPageData(
-        icon: Icons.auto_stories_rounded,
         illustration: AppAssets.onboarding1,
         title: l10n.onboardingTitle1,
         body: l10n.onboardingBody1,
       ),
       _OnboardingPageData(
-        icon: Icons.touch_app_rounded,
         illustration: AppAssets.onboarding2,
         title: l10n.onboardingTitle2,
         body: l10n.onboardingBody2,
       ),
       _OnboardingPageData(
-        icon: Icons.wifi_off_rounded,
         illustration: AppAssets.onboarding3,
         title: l10n.onboardingTitle3,
         body: l10n.onboardingBody3,
@@ -79,19 +75,7 @@ class _OnboardingFlowState extends ConsumerState<OnboardingFlow> {
         child: SafeArea(
           child: Column(
             children: [
-              // Skip button
-              Align(
-                alignment: Alignment.topRight,
-                child: TextButton(
-                  onPressed: _finishOnboarding,
-                  child: Text(
-                    l10n.skip,
-                    style: const TextStyle(color: ColorTokens.mutedText),
-                  ),
-                ),
-              ),
-
-              // Pages
+              // Pages — illustration at top, text below
               Expanded(
                 child: PageView.builder(
                   controller: _controller,
@@ -100,132 +84,155 @@ class _OnboardingFlowState extends ConsumerState<OnboardingFlow> {
                   itemCount: pages.length,
                   itemBuilder: (context, index) {
                     final page = pages[index];
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: SpacingTokens.xxl,
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          // Hero illustration
-                          Image.asset(
-                            page.illustration,
-                            width: 280,
-                            fit: BoxFit.contain,
+                    return Column(
+                      children: [
+                        const SizedBox(height: SpacingTokens.xl),
+
+                        // Large illustration at top
+                        Image.asset(
+                          page.illustration,
+                          width: 330,
+                          height: 206,
+                          fit: BoxFit.contain,
+                          errorBuilder: (_, _, _) => const SizedBox(
+                            width: 330,
+                            height: 206,
                           ),
-                          const SizedBox(height: SpacingTokens.xl),
-                          // Title: gold, 26px, weight 800
-                          Text(
-                            'StoryScore',
-                            style: theme.textTheme.headlineMedium?.copyWith(
-                              color: ColorTokens.goldAccent,
+                        ),
+                        const SizedBox(height: SpacingTokens.xl),
+
+                        // Title: parchment, 26px, extrabold
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: SpacingTokens.lg,
+                          ),
+                          child: Text(
+                            page.title,
+                            style: const TextStyle(
                               fontSize: 26,
                               fontWeight: FontWeight.w800,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: SpacingTokens.sm),
-                          Text(
-                            page.title,
-                            style: theme.textTheme.titleLarge?.copyWith(
                               color: ColorTokens.parchment,
-                              fontWeight: FontWeight.w700,
+                              height: 1.2,
                             ),
-                            textAlign: TextAlign.center,
+                            textAlign: TextAlign.left,
                           ),
-                          const SizedBox(height: SpacingTokens.md),
-                          Text(
+                        ),
+                        const SizedBox(height: SpacingTokens.md),
+
+                        // Description: muted text
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: SpacingTokens.lg,
+                          ),
+                          child: Text(
                             page.body,
-                            style: theme.textTheme.bodyLarge?.copyWith(
-                              color: ColorTokens.dustyRose,
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w400,
+                              color: ColorTokens.mutedText,
+                              height: 1.5,
                             ),
-                            textAlign: TextAlign.center,
+                            textAlign: TextAlign.left,
                           ),
-                          const SizedBox(height: SpacingTokens.xl),
-                          // Feature list items with warm gradient icon tiles
-                          _FeatureItem(
-                            icon: page.icon,
-                            title: page.title,
-                            description: page.body,
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     );
                   },
                 ),
               ),
 
-              // Page indicators + button
-              Padding(
-                padding: const EdgeInsets.all(SpacingTokens.lg),
-                child: Column(
-                  children: [
-                    // Gold page dots
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(
-                        pages.length,
-                        (index) => AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          margin: const EdgeInsets.symmetric(horizontal: 4),
-                          width: _currentPage == index ? 24 : 8,
-                          height: 8,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(4),
-                            color: _currentPage == index
-                                ? ColorTokens.goldAccent
-                                : ColorTokens.goldAccent
-                                    .withValues(alpha: 0.3),
-                          ),
-                        ),
-                      ),
+              // Page dots centered
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(
+                  pages.length,
+                  (index) => AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    width: _currentPage == index ? 24 : 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(4),
+                      color: _currentPage == index
+                          ? ColorTokens.goldAccent
+                          : ColorTokens.mutedText.withValues(alpha: 0.4),
                     ),
-                    const SizedBox(height: SpacingTokens.lg),
+                  ),
+                ),
+              ),
+              const SizedBox(height: SpacingTokens.lg),
 
-                    // CTA button with gradient (burgundy -> gold)
-                    SizedBox(
-                      width: double.infinity,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [
-                              ColorTokens.burgundy,
-                              ColorTokens.goldAccent,
-                            ],
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
-                          ),
-                          borderRadius: BorderRadius.circular(
-                            SpacingTokens.radiusMd,
-                          ),
+              // Bottom row: gradient button left + Skip text right
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: SpacingTokens.lg,
+                ),
+                child: Row(
+                  children: [
+                    // Gradient "Next" / "Get Started" button
+                    Container(
+                      height: 50,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [
+                            ColorTokens.burgundy,
+                            ColorTokens.goldAccent,
+                          ],
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
                         ),
-                        child: FilledButton(
-                          onPressed: isLastPage
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: isLastPage
                               ? _finishOnboarding
                               : () => _controller.nextPage(
                                     duration:
                                         const Duration(milliseconds: 300),
                                     curve: Curves.easeOutCubic,
                                   ),
-                          style: FilledButton.styleFrom(
-                            backgroundColor: Colors.transparent,
-                            foregroundColor: Colors.white,
+                          borderRadius: BorderRadius.circular(14),
+                          child: Padding(
                             padding: const EdgeInsets.symmetric(
-                              vertical: SpacingTokens.md,
+                              horizontal: SpacingTokens.xl,
+                            ),
+                            child: Center(
+                              child: Text(
+                                isLastPage
+                                    ? l10n.letsPlay
+                                    : l10n.next,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 16,
+                                ),
+                              ),
                             ),
                           ),
-                          child: Text(
-                            isLastPage ? l10n.letsPlay : l10n.next,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
+                        ),
+                      ),
+                    ),
+
+                    const Spacer(),
+
+                    // "Skip" text button
+                    TextButton(
+                      onPressed: _finishOnboarding,
+                      child: Text(
+                        l10n.skip,
+                        style: const TextStyle(
+                          color: ColorTokens.mutedText,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),
                   ],
                 ),
               ),
+              const SizedBox(height: SpacingTokens.lg),
             ],
           ),
         ),
@@ -234,81 +241,12 @@ class _OnboardingFlowState extends ConsumerState<OnboardingFlow> {
   }
 }
 
-/// Feature list item with warm gradient icon tile.
-class _FeatureItem extends StatelessWidget {
-  const _FeatureItem({
-    required this.icon,
-    required this.title,
-    required this.description,
-  });
-
-  final IconData icon;
-  final String title;
-  final String description;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                ColorTokens.darkCard,
-                ColorTokens.darkCardVariant,
-              ],
-            ),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: ColorTokens.goldAccent.withValues(alpha: 0.15),
-            ),
-          ),
-          child: Icon(
-            icon,
-            size: 20,
-            color: ColorTokens.goldAccent,
-          ),
-        ),
-        const SizedBox(width: SpacingTokens.md),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  color: ColorTokens.parchment,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              Text(
-                description,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: ColorTokens.mutedText,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 class _OnboardingPageData {
-  final IconData icon;
   final String illustration;
   final String title;
   final String body;
 
   const _OnboardingPageData({
-    required this.icon,
     required this.illustration,
     required this.title,
     required this.body,

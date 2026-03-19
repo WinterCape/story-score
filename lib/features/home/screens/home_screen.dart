@@ -1,7 +1,3 @@
-import 'dart:io';
-
-import 'package:drift/drift.dart' show Value;
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -9,8 +5,6 @@ import 'package:story_score/app/providers.dart';
 import 'package:story_score/app/theme/color_tokens.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
 import 'package:story_score/data/database/app_database.dart';
-import 'package:story_score/data/database/tables/game_sessions.dart';
-import 'package:story_score/data/export/session_importer.dart';
 import 'package:story_score/features/home/providers/home_providers.dart';
 import 'package:story_score/features/home/widgets/empty_state.dart';
 import 'package:story_score/features/home/widgets/session_card.dart';
@@ -29,43 +23,6 @@ class HomeScreen extends ConsumerWidget {
     final l10n = context.l10n;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Column(
-          children: [
-            Text(
-              l10n.appTitle,
-              style: context.textTheme.titleLarge?.copyWith(
-                color: ColorTokens.goldAccent,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-            Text(
-              'Your storytelling companion',
-              style: context.textTheme.labelSmall?.copyWith(
-                color: ColorTokens.dustyRose,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          IconButton(
-            icon: const CustomIcon('stats', size: 20),
-            tooltip: l10n.stats,
-            onPressed: () => context.push('/stats'),
-          ),
-          IconButton(
-            icon: const CustomIcon('import', size: 20),
-            tooltip: l10n.importGame,
-            onPressed: () => _importGame(context, ref),
-          ),
-          IconButton(
-            icon: const CustomIcon('settings', size: 20),
-            tooltip: l10n.settings,
-            onPressed: () => context.push('/settings'),
-          ),
-        ],
-      ),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -78,18 +35,31 @@ class HomeScreen extends ConsumerWidget {
             ],
           ),
         ),
-        child: Stack(
-          children: [
-            // Sparkle decorations
-            const _SparkleDecorations(),
-            // Main content
-            _buildBody(context, ref, activeAsync, completedAsync),
-          ],
+        child: SafeArea(
+          child: Stack(
+            children: [
+              // Sparkle decorations
+              const _SparkleDecorations(),
+              // Main content
+              Column(
+                children: [
+                  // Top bar: title left, icon buttons right
+                  _HomeTopBar(l10n: l10n),
+
+                  // Body
+                  Expanded(
+                    child: _buildBody(
+                      context,
+                      ref,
+                      activeAsync,
+                      completedAsync,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
-      ),
-      floatingActionButton: _GradientFAB(
-        onPressed: () => context.push('/game/new'),
-        label: l10n.newGame,
       ),
     );
   }
@@ -102,7 +72,6 @@ class HomeScreen extends ConsumerWidget {
   ) {
     final l10n = context.l10n;
 
-    // Show loading skeleton while either list is loading for the first time
     final isLoading =
         activeAsync.isLoading && !activeAsync.hasValue ||
         completedAsync.isLoading && !completedAsync.hasValue;
@@ -111,7 +80,6 @@ class HomeScreen extends ConsumerWidget {
       return _buildLoadingSkeleton(context);
     }
 
-    // Show error if both failed
     final activeError = activeAsync.error;
     final completedError = completedAsync.error;
     if (activeError != null && completedError != null) {
@@ -127,7 +95,7 @@ class HomeScreen extends ConsumerWidget {
       _ => <GameSession>[],
     };
 
-    // Empty state when no sessions exist at all
+    // Empty state when no sessions exist
     if (activeSessions.isEmpty && completedSessions.isEmpty) {
       return EmptyState(
         icon: Icons.auto_stories_outlined,
@@ -138,152 +106,76 @@ class HomeScreen extends ConsumerWidget {
       );
     }
 
-    final isTablet = context.isTablet;
-
-    return ListView(
-      padding: const EdgeInsets.only(
-        left: SpacingTokens.md,
-        right: SpacingTokens.md,
-        top: SpacingTokens.sm,
-        bottom: 88, // space for FAB
-      ),
+    // Has games — show Quick Start, Active, Completed sections
+    return Stack(
       children: [
-        // Quick Start chip (premium-gated, shown when presets exist)
-        if (ref.watch(isSupporterProvider)) const _QuickStartSection(),
+        ListView(
+          padding: const EdgeInsets.only(
+            left: SpacingTokens.md,
+            right: SpacingTokens.md,
+            top: SpacingTokens.sm,
+            bottom: 88, // space for New Game button
+          ),
+          children: [
+            // Quick Start banner (premium-gated)
+            if (ref.watch(isSupporterProvider))
+              const _QuickStartBanner(),
 
-        // Active Games section
-        if (activeSessions.isNotEmpty) ...[
-          _SectionHeader(title: l10n.activeGames),
-          const SizedBox(height: SpacingTokens.sm),
-          if (isTablet)
-            _SessionGrid(
-              sessions: activeSessions,
-              onTap: (session) => context.go('/game/${session.id}/scoreboard'),
-              onDismissed: (session) => _deleteSession(ref, session.id),
-            )
-          else
-            ...activeSessions.map(
-              (session) => Padding(
-                padding: const EdgeInsets.only(bottom: SpacingTokens.sm),
-                child: SessionCard(
-                  session: session,
-                  onTap: () => context.go('/game/${session.id}/scoreboard'),
-                  onDismissed: () => _deleteSession(ref, session.id),
+            // Active Games section
+            if (activeSessions.isNotEmpty) ...[
+              _SectionHeader(
+                title: l10n.activeGames,
+                action: 'See all',
+                onAction: () {},
+              ),
+              const SizedBox(height: SpacingTokens.sm),
+              ...activeSessions.map(
+                (session) => Padding(
+                  padding: const EdgeInsets.only(bottom: SpacingTokens.sm),
+                  child: SessionCard(
+                    session: session,
+                    onTap: () =>
+                        context.go('/game/${session.id}/scoreboard'),
+                    onDismissed: () => _deleteSession(ref, session.id),
+                  ),
                 ),
               ),
-            ),
-          const SizedBox(height: SpacingTokens.lg),
-        ],
+              const SizedBox(height: SpacingTokens.md),
+            ],
 
-        // Completed Games section
-        if (completedSessions.isNotEmpty) ...[
-          _SectionHeader(title: l10n.completedGames),
-          const SizedBox(height: SpacingTokens.sm),
-          if (isTablet)
-            _SessionGrid(
-              sessions: completedSessions,
-              onTap: (session) => context.go('/archive/${session.id}'),
-              onDismissed: (session) => _deleteSession(ref, session.id),
-            )
-          else
-            ...completedSessions.map(
-              (session) => Padding(
-                padding: const EdgeInsets.only(bottom: SpacingTokens.sm),
-                child: SessionCard(
-                  session: session,
-                  onTap: () => context.go('/archive/${session.id}'),
-                  onDismissed: () => _deleteSession(ref, session.id),
+            // Completed section
+            if (completedSessions.isNotEmpty) ...[
+              _SectionHeader(
+                title: l10n.completedGames,
+                action: 'Archive',
+                onAction: () {},
+              ),
+              const SizedBox(height: SpacingTokens.sm),
+              ...completedSessions.map(
+                (session) => Padding(
+                  padding: const EdgeInsets.only(bottom: SpacingTokens.sm),
+                  child: SessionCard(
+                    session: session,
+                    onTap: () => context.go('/archive/${session.id}'),
+                    onDismissed: () => _deleteSession(ref, session.id),
+                  ),
                 ),
               ),
-            ),
-        ],
+            ],
+          ],
+        ),
+
+        // Small gradient "New Game" button bottom-right
+        Positioned(
+          bottom: SpacingTokens.md,
+          right: SpacingTokens.md,
+          child: _SmallGradientButton(
+            label: l10n.newGame,
+            onPressed: () => context.push('/game/new'),
+          ),
+        ),
       ],
     );
-  }
-
-  Future<void> _importGame(BuildContext context, WidgetRef ref) async {
-    final messenger = ScaffoldMessenger.of(context);
-    final l10n = context.l10n;
-
-    try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['json'],
-      );
-
-      if (result == null || result.files.isEmpty) return;
-
-      final filePath = result.files.single.path;
-      if (filePath == null) return;
-
-      final jsonString = await File(filePath).readAsString();
-
-      const importer = SessionImporter();
-      final importResult = importer.fromJson(jsonString);
-
-      if (!importResult.isValid) {
-        messenger.showSnackBar(
-          SnackBar(
-            content: Text(l10n.importFailed(importResult.errors.join(', '))),
-          ),
-        );
-        return;
-      }
-
-      final exported = importResult.session!;
-
-      // Parse target type
-      final targetType = switch (exported.session.targetType) {
-        'score' => TargetType.score,
-        'rounds' => TargetType.rounds,
-        _ => TargetType.freeplay,
-      };
-
-      // Parse game status
-      final status = switch (exported.session.status) {
-        'active' => GameStatus.active,
-        'paused' => GameStatus.paused,
-        _ => GameStatus.completed,
-      };
-
-      final sessionCompanion = GameSessionsCompanion.insert(
-        id: exported.session.id,
-        title: Value(exported.session.title),
-        status: status,
-        targetType: targetType,
-        targetScore: Value(exported.session.targetScore),
-      );
-
-      final playerCompanions = exported.players.map((p) {
-        return PlayersCompanion.insert(
-          id: p.id,
-          sessionId: exported.session.id,
-          name: p.name,
-          seatOrder: p.seatOrder,
-          colorKey: p.colorKey,
-          currentScore: Value(p.currentScore),
-        );
-      }).toList();
-
-      final dao = ref.read(sessionDaoProvider);
-      await dao.createSession(sessionCompanion, playerCompanions);
-
-      // Show warnings if any
-      if (importResult.warnings.isNotEmpty) {
-        messenger.showSnackBar(
-          SnackBar(
-            content: Text(
-              l10n.importWithWarnings(importResult.warnings.join(', ')),
-            ),
-            duration: const Duration(seconds: 4),
-          ),
-        );
-      } else {
-        messenger.showSnackBar(SnackBar(content: Text(l10n.importSuccess)));
-      }
-    } catch (e) {
-      messenger.showSnackBar(SnackBar(content: Text(l10n.importFailed('$e'))));
-    }
   }
 
   Future<void> _deleteSession(WidgetRef ref, String sessionId) async {
@@ -344,157 +236,154 @@ class HomeScreen extends ConsumerWidget {
   }
 }
 
-/// Subtle sparkle characters positioned absolutely on the background.
-class _SparkleDecorations extends StatelessWidget {
-  const _SparkleDecorations();
+// ── Top bar ──────────────────────────────────────────────────────────────────
 
-  @override
-  Widget build(BuildContext context) {
-    return IgnorePointer(
-      child: Stack(
-        children: const [
-          Positioned(
-            top: 40,
-            right: 30,
-            child: _Sparkle(char: '\u2605', color: ColorTokens.goldAccent, opacity: 0.12, size: 18),
-          ),
-          Positioned(
-            top: 120,
-            left: 20,
-            child: _Sparkle(char: '\u2726', color: ColorTokens.dustyRose, opacity: 0.15, size: 14),
-          ),
-          Positioned(
-            top: 280,
-            right: 50,
-            child: _Sparkle(char: '\u2726', color: ColorTokens.goldAccent, opacity: 0.10, size: 12),
-          ),
-          Positioned(
-            bottom: 200,
-            left: 40,
-            child: _Sparkle(char: '\u2605', color: ColorTokens.goldAccent, opacity: 0.12, size: 16),
-          ),
-          Positioned(
-            bottom: 80,
-            right: 60,
-            child: _Sparkle(char: '\u2726', color: ColorTokens.dustyRose, opacity: 0.10, size: 10),
-          ),
-        ],
-      ),
-    );
-  }
-}
+/// Gold title left-aligned, two icon buttons (stats, settings) top-right
+/// in 40x40 rounded squares.
+class _HomeTopBar extends StatelessWidget {
+  const _HomeTopBar({required this.l10n});
 
-class _Sparkle extends StatelessWidget {
-  const _Sparkle({
-    required this.char,
-    required this.color,
-    required this.opacity,
-    required this.size,
-  });
-
-  final String char;
-  final Color color;
-  final double opacity;
-  final double size;
-
-  @override
-  Widget build(BuildContext context) {
-    return Opacity(
-      opacity: opacity,
-      child: Text(
-        char,
-        style: TextStyle(fontSize: size, color: color),
-      ),
-    );
-  }
-}
-
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({required this.title});
-
-  final String title;
+  final dynamic l10n;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: SpacingTokens.xs),
-      child: Text(
-        title.toUpperCase(),
-        style: context.textTheme.labelSmall?.copyWith(
-          color: ColorTokens.goldAccent,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 1.5,
-          fontSize: 11,
-        ),
+      padding: const EdgeInsets.symmetric(
+        horizontal: SpacingTokens.md,
+        vertical: SpacingTokens.sm,
       ),
-    );
-  }
-}
-
-/// Gradient FAB with burgundy-to-gold gradient.
-class _GradientFAB extends StatelessWidget {
-  const _GradientFAB({required this.onPressed, required this.label});
-
-  final VoidCallback onPressed;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [ColorTokens.burgundy, ColorTokens.goldAccent],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: ColorTokens.burgundy.withValues(alpha: 0.4),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onPressed,
-          borderRadius: BorderRadius.circular(16),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: SpacingTokens.lg,
-              vertical: SpacingTokens.md,
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Title + subtitle, left-aligned
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const CustomIcon('new_game', size: 20, color: Colors.white),
-                const SizedBox(width: SpacingTokens.sm),
                 Text(
-                  label,
-                  style: context.textTheme.labelLarge?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
+                  l10n.appTitle,
+                  style: const TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w800,
+                    color: ColorTokens.goldAccent,
+                    fontFamily: 'Serif',
+                    height: 1.2,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Score your table like an enchanted ledger',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                    color: ColorTokens.mutedText.withValues(alpha: 0.8),
                   ),
                 ),
               ],
             ),
           ),
+
+          // Icon buttons in rounded squares
+          const SizedBox(width: SpacingTokens.sm),
+          _IconSquareButton(
+            iconName: 'stats',
+            onTap: () => context.push('/stats'),
+          ),
+          const SizedBox(width: SpacingTokens.sm),
+          _IconSquareButton(
+            iconName: 'settings',
+            onTap: () => context.push('/settings'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 40x40 rounded square icon button with subtle surface color.
+class _IconSquareButton extends StatelessWidget {
+  const _IconSquareButton({required this.iconName, required this.onTap});
+
+  final String iconName;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: ColorTokens.goldAccent.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Center(
+          child: CustomIcon(
+            iconName,
+            size: 20,
+            color: ColorTokens.goldAccent,
+          ),
         ),
       ),
     );
   }
 }
 
-/// Quick Start section — shows an ActionChip when presets exist.
-class _QuickStartSection extends ConsumerWidget {
-  const _QuickStartSection();
+// ── Section header ───────────────────────────────────────────────────────────
+
+/// Gold uppercase section header with optional right-aligned action text.
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({
+    required this.title,
+    this.action,
+    this.onAction,
+  });
+
+  final String title;
+  final String? action;
+  final VoidCallback? onAction;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Text(
+          title.toUpperCase(),
+          style: const TextStyle(
+            color: ColorTokens.goldAccent,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 1.5,
+            fontSize: 10,
+          ),
+        ),
+        const Spacer(),
+        if (action != null)
+          GestureDetector(
+            onTap: onAction,
+            child: Text(
+              action!,
+              style: TextStyle(
+                color: ColorTokens.mutedText.withValues(alpha: 0.7),
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+// ── Quick Start banner ───────────────────────────────────────────────────────
+
+/// Gradient purple card with "QUICK START" header, description, and icon.
+class _QuickStartBanner extends ConsumerWidget {
+  const _QuickStartBanner();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final presetsAsync = ref.watch(presetsProvider);
-    final l10n = context.l10n;
 
     return presetsAsync.when(
       loading: () => const SizedBox.shrink(),
@@ -504,12 +393,65 @@ class _QuickStartSection extends ConsumerWidget {
 
         return Padding(
           padding: const EdgeInsets.only(bottom: SpacingTokens.md),
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: ActionChip(
-              avatar: const Icon(Icons.bolt_rounded, size: 18),
-              label: Text(l10n.quickStart),
-              onPressed: () => _showPresetPicker(context, ref, presets),
+          child: GestureDetector(
+            onTap: () => _showPresetPicker(context, ref, presets),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(SpacingTokens.md),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    ColorTokens.darkCardVariant,
+                    ColorTokens.darkCard,
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: ColorTokens.goldAccent.withValues(alpha: 0.15),
+                  width: 1,
+                ),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'QUICK START',
+                          style: TextStyle(
+                            color: ColorTokens.goldAccent,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 1.5,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        const Text(
+                          'Begin a new tale with your favorite group',
+                          style: TextStyle(
+                            color: ColorTokens.parchment,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Resume last setup in seconds',
+                          style: TextStyle(
+                            color: ColorTokens.mutedText.withValues(alpha: 0.7),
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: SpacingTokens.sm),
+                  const CustomIcon('new_game', size: 28, color: ColorTokens.parchment),
+                ],
+              ),
             ),
           ),
         );
@@ -596,38 +538,154 @@ class _QuickStartSection extends ConsumerWidget {
   }
 }
 
-/// A 2-column grid of session cards for tablet layouts.
-class _SessionGrid extends StatelessWidget {
-  const _SessionGrid({
-    required this.sessions,
-    required this.onTap,
-    required this.onDismissed,
+// ── Small gradient button ────────────────────────────────────────────────────
+
+/// Small gradient "New Game" button for bottom-right positioning.
+class _SmallGradientButton extends StatelessWidget {
+  const _SmallGradientButton({
+    required this.label,
+    required this.onPressed,
   });
 
-  final List<GameSession> sessions;
-  final void Function(GameSession session) onTap;
-  final void Function(GameSession session) onDismissed;
+  final String label;
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: SpacingTokens.sm,
-        mainAxisSpacing: SpacingTokens.sm,
-        childAspectRatio: 2.5,
+    return Container(
+      height: 44,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(14),
+        gradient: const LinearGradient(
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+          colors: [ColorTokens.burgundy, ColorTokens.goldAccent],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: ColorTokens.burgundy.withValues(alpha: 0.4),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-      itemCount: sessions.length,
-      itemBuilder: (context, index) {
-        final session = sessions[index];
-        return SessionCard(
-          session: session,
-          onTap: () => onTap(session),
-          onDismissed: () => onDismissed(session),
-        );
-      },
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(14),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: SpacingTokens.lg,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const CustomIcon('new_game', size: 18, color: Colors.white),
+                const SizedBox(width: SpacingTokens.sm),
+                Text(
+                  label,
+                  style: context.textTheme.labelLarge?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Sparkle decorations ──────────────────────────────────────────────────────
+
+class _SparkleDecorations extends StatelessWidget {
+  const _SparkleDecorations();
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      child: Stack(
+        children: const [
+          Positioned(
+            top: 40,
+            right: 30,
+            child: _Sparkle(
+              char: '\u2605',
+              color: ColorTokens.goldAccent,
+              opacity: 0.12,
+              size: 18,
+            ),
+          ),
+          Positioned(
+            top: 120,
+            left: 20,
+            child: _Sparkle(
+              char: '\u2726',
+              color: ColorTokens.dustyRose,
+              opacity: 0.15,
+              size: 14,
+            ),
+          ),
+          Positioned(
+            top: 280,
+            right: 50,
+            child: _Sparkle(
+              char: '\u2726',
+              color: ColorTokens.goldAccent,
+              opacity: 0.10,
+              size: 12,
+            ),
+          ),
+          Positioned(
+            bottom: 200,
+            left: 40,
+            child: _Sparkle(
+              char: '\u2605',
+              color: ColorTokens.goldAccent,
+              opacity: 0.12,
+              size: 16,
+            ),
+          ),
+          Positioned(
+            bottom: 80,
+            right: 60,
+            child: _Sparkle(
+              char: '\u2726',
+              color: ColorTokens.dustyRose,
+              opacity: 0.10,
+              size: 10,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Sparkle extends StatelessWidget {
+  const _Sparkle({
+    required this.char,
+    required this.color,
+    required this.opacity,
+    required this.size,
+  });
+
+  final String char;
+  final Color color;
+  final double opacity;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return Opacity(
+      opacity: opacity,
+      child: Text(
+        char,
+        style: TextStyle(fontSize: size, color: color),
+      ),
     );
   }
 }

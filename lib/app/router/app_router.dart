@@ -7,6 +7,7 @@ import 'package:story_score/features/game_setup/screens/game_setup_screen.dart';
 import 'package:story_score/features/history/screens/history_screen.dart';
 import 'package:story_score/features/home/screens/home_screen.dart';
 import 'package:story_score/features/onboarding/screens/onboarding_flow.dart';
+import 'package:story_score/features/splash/screens/splash_screen.dart';
 import 'package:story_score/features/premium/screens/premium_screen.dart';
 import 'package:story_score/features/presets/screens/preset_management_screen.dart';
 import 'package:story_score/features/round/screens/round_detail_screen.dart';
@@ -22,8 +23,11 @@ final routerProvider = Provider<GoRouter>((ref) {
     initialLocation: '/',
     redirect: _onboardingGuard,
     routes: [
+      // ── Splash ─────────────────────────────────────────────────────────────
+      GoRoute(path: '/', builder: (context, state) => const SplashScreen()),
+
       // ── Home ──────────────────────────────────────────────────────────────
-      GoRoute(path: '/', builder: (context, state) => const HomeScreen()),
+      GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
 
       // ── Onboarding ────────────────────────────────────────────────────────
       GoRoute(
