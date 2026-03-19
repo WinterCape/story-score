@@ -59,3 +59,8 @@ android/key.properties
 
 # Generated icons/splash
 # (keep the generated files, but ignore temp build artifacts)
+
+# Design reference (not shipped in app)
+docs/design-reference/
+docs/superpowers/
+scripts/
