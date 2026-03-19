@@ -78,7 +78,7 @@ class SettingsScreen extends ConsumerWidget {
                 SizedBox(height: SpacingTokens.lg),
 
                 // ── APPEARANCE ──
-                const _SectionHeader('APPEARANCE'),
+                _SectionHeader(l10n.appearance),
                 SizedBox(height: SpacingTokens.sm),
                 _SettingsCard(
                   children: [
@@ -112,7 +112,7 @@ class SettingsScreen extends ConsumerWidget {
                         children: [
                           Text(
                             settings.selectedTheme.isEmpty
-                                ? 'Storybook Gold'
+                                ? l10n.storybookGold
                                 : _capitalizeFirst(settings.selectedTheme),
                             style: TextStyle(
                               color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -136,7 +136,7 @@ class SettingsScreen extends ConsumerWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            _localeLabel(settings.locale),
+                            _localeLabel(context, settings.locale),
                             style: TextStyle(
                               color: Theme.of(context).colorScheme.onSurfaceVariant,
                               fontSize: 14,
@@ -158,7 +158,7 @@ class SettingsScreen extends ConsumerWidget {
                 SizedBox(height: SpacingTokens.lg),
 
                 // ── GAMEPLAY ──
-                const _SectionHeader('GAMEPLAY'),
+                _SectionHeader(l10n.gameplay),
                 SizedBox(height: SpacingTokens.sm),
                 _SettingsCard(
                   children: [
@@ -209,14 +209,14 @@ class SettingsScreen extends ConsumerWidget {
                 SizedBox(height: SpacingTokens.lg),
 
                 // ── DATA ──
-                const _SectionHeader('DATA'),
+                _SectionHeader(l10n.dataSection),
                 SizedBox(height: SpacingTokens.sm),
                 _SettingsCard(
                   children: [
                     _SettingsRow(
                       title: l10n.playerPresets,
                       trailing: Text(
-                        '3 saved',
+                        l10n.nSaved(3),
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontSize: 14,
@@ -226,9 +226,9 @@ class SettingsScreen extends ConsumerWidget {
                     ),
                     const _SettingsDivider(),
                     _SettingsRow(
-                      title: 'Export / Import',
+                      title: l10n.exportImport,
                       trailing: Text(
-                        'Manage data',
+                        l10n.manageData,
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontSize: 14,
@@ -244,7 +244,7 @@ class SettingsScreen extends ConsumerWidget {
                 SizedBox(height: SpacingTokens.lg),
 
                 // ── PREMIUM ──
-                const _SectionHeader('PREMIUM'),
+                _SectionHeader(l10n.premiumSection),
                 SizedBox(height: SpacingTokens.sm),
                 _SettingsCard(
                   children: [
@@ -259,7 +259,7 @@ class SettingsScreen extends ConsumerWidget {
                         child: Row(
                           children: [
                             Text(
-                              'Supporter Pack',
+                              l10n.supporterPack,
                               style: TextStyle(
                                 fontFamily: 'Nunito',
                                 fontSize: 15,
@@ -274,7 +274,7 @@ class SettingsScreen extends ConsumerWidget {
                             ),
                             Spacer(),
                             Text(
-                              'Unlock more magic',
+                              l10n.unlockMoreMagic,
                               style: TextStyle(
                                 color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 fontSize: 14,
@@ -290,25 +290,19 @@ class SettingsScreen extends ConsumerWidget {
                 SizedBox(height: SpacingTokens.lg),
 
                 // ── ABOUT ──
-                const _SectionHeader('ABOUT'),
+                _SectionHeader(l10n.about),
                 SizedBox(height: SpacingTokens.sm),
                 _SettingsCard(
                   children: [
                     _SettingsRow(
-                      title: 'Version',
-                      trailing: Text(
-                        '1.0.0',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          fontSize: 14,
-                        ),
-                      ),
+                      title: l10n.version('1.0.0'),
+                      trailing: SizedBox.shrink(),
                     ),
                     const _SettingsDivider(),
                     _SettingsRow(
-                      title: 'Privacy & Support',
+                      title: l10n.privacyAndSupport,
                       trailing: Text(
-                        'View links',
+                        l10n.viewLinks,
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontSize: 14,
@@ -331,10 +325,11 @@ class SettingsScreen extends ConsumerWidget {
   }
 
   static String _themeModeLabel(BuildContext context, ThemeMode mode) {
+    final l10n = context.l10n;
     return switch (mode) {
-      ThemeMode.system => 'System',
-      ThemeMode.light => 'Light',
-      ThemeMode.dark => 'Dark',
+      ThemeMode.system => l10n.systemTheme,
+      ThemeMode.light => l10n.lightTheme,
+      ThemeMode.dark => l10n.darkTheme,
     };
   }
 
@@ -369,7 +364,7 @@ class SettingsScreen extends ConsumerWidget {
                 ),
                 SizedBox(height: 20),
                 Text(
-                  'CHOOSE THEME',
+                  context.l10n.chooseTheme,
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.primary,
                     fontSize: 10,
@@ -380,8 +375,8 @@ class SettingsScreen extends ConsumerWidget {
                 SizedBox(height: 16),
                 _ThemeModeOption(
                   icon: Icons.phone_android_rounded,
-                  label: 'System',
-                  description: 'Follow device settings',
+                  label: context.l10n.systemTheme,
+                  description: context.l10n.followDeviceSettings,
                   isSelected: currentMode == ThemeMode.system,
                   onTap: () {
                     ref.read(appSettingsProvider.notifier).setThemeMode(ThemeMode.system);
@@ -391,8 +386,8 @@ class SettingsScreen extends ConsumerWidget {
                 SizedBox(height: 8),
                 _ThemeModeOption(
                   icon: Icons.light_mode_rounded,
-                  label: 'Light',
-                  description: 'Warm parchment theme',
+                  label: context.l10n.lightTheme,
+                  description: context.l10n.warmParchmentTheme,
                   isSelected: currentMode == ThemeMode.light,
                   onTap: () {
                     ref.read(appSettingsProvider.notifier).setThemeMode(ThemeMode.light);
@@ -402,8 +397,8 @@ class SettingsScreen extends ConsumerWidget {
                 SizedBox(height: 8),
                 _ThemeModeOption(
                   icon: Icons.dark_mode_rounded,
-                  label: 'Dark',
-                  description: 'Enchanted night theme',
+                  label: context.l10n.darkTheme,
+                  description: context.l10n.enchantedNightTheme,
                   isSelected: currentMode == ThemeMode.dark,
                   onTap: () {
                     ref.read(appSettingsProvider.notifier).setThemeMode(ThemeMode.dark);
@@ -424,12 +419,13 @@ class SettingsScreen extends ConsumerWidget {
     WidgetRef ref,
     String currentTheme,
   ) {
+    final l10n = context.l10n;
     final themes = [
-      ('', 'Storybook Gold', 'Default warm enchanted theme'),
-      ('ocean', 'Ocean Depths', 'Deep blue ocean theme'),
-      ('ember', 'Ember', 'Warm fire theme'),
-      ('frost', 'Frost', 'Cool ice theme'),
-      ('forest', 'Enchanted Forest', 'Mystical green theme'),
+      ('', l10n.storybookGold, l10n.storybookGoldDescription),
+      ('ocean', l10n.oceanDepths, l10n.oceanDepthsDescription),
+      ('ember', l10n.emberTheme, l10n.emberThemeDescription),
+      ('frost', l10n.frostTheme, l10n.frostThemeDescription),
+      ('forest', l10n.enchantedForest, l10n.enchantedForestDescription),
     ];
 
     final isSupporter = ref.read(isSupporterProvider);
@@ -461,7 +457,7 @@ class SettingsScreen extends ConsumerWidget {
                 ),
                 SizedBox(height: 20),
                 Text(
-                  'COLOR THEME',
+                  l10n.colorThemeHeader,
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.primary,
                     fontSize: 10,
@@ -534,7 +530,7 @@ class SettingsScreen extends ConsumerWidget {
                 ),
                 SizedBox(height: 20),
                 Text(
-                  'LANGUAGE',
+                  context.l10n.languageHeader,
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.primary,
                     fontSize: 10,
@@ -545,8 +541,8 @@ class SettingsScreen extends ConsumerWidget {
                 SizedBox(height: 16),
                 _ThemeModeOption(
                   icon: Icons.phone_android_rounded,
-                  label: 'System',
-                  description: 'Follow device language',
+                  label: context.l10n.systemTheme,
+                  description: context.l10n.followDeviceLanguage,
                   isSelected: currentLocale == null,
                   onTap: () {
                     ref.read(appSettingsProvider.notifier).setLocale(null);
@@ -556,8 +552,8 @@ class SettingsScreen extends ConsumerWidget {
                 SizedBox(height: 8),
                 _ThemeModeOption(
                   icon: Icons.language_rounded,
-                  label: 'English',
-                  description: 'English',
+                  label: context.l10n.english,
+                  description: context.l10n.english,
                   isSelected: currentLocale == 'en',
                   onTap: () {
                     ref.read(appSettingsProvider.notifier).setLocale('en');
@@ -568,7 +564,7 @@ class SettingsScreen extends ConsumerWidget {
                 _ThemeModeOption(
                   icon: Icons.language_rounded,
                   label: 'Română',
-                  description: 'Romanian',
+                  description: context.l10n.romanian,
                   isSelected: currentLocale == 'ro',
                   onTap: () {
                     ref.read(appSettingsProvider.notifier).setLocale('ro');
@@ -584,11 +580,12 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  static String _localeLabel(String? locale) {
+  String _localeLabel(BuildContext context, String? locale) {
+    final l10n = context.l10n;
     return switch (locale) {
-      null => 'System',
-      'en' => 'English',
-      'ro' => 'Romanian',
+      null => l10n.systemTheme,
+      'en' => l10n.english,
+      'ro' => l10n.romanian,
       _ => locale,
     };
   }

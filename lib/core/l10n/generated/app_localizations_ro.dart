@@ -722,4 +722,90 @@ class AppLocalizationsRo extends AppLocalizations {
   @override
   String get scoreRoundDisabledHint =>
       'Scor rundă, dezactivat, toți jucătorii trebuie să voteze mai întâi';
+
+  @override
+  String get chooseTheme => 'ALEGE TEMA';
+
+  @override
+  String get colorThemeHeader => 'TEMA CULORILOR';
+
+  @override
+  String get languageHeader => 'LIMBĂ';
+
+  @override
+  String get systemTheme => 'Sistem';
+
+  @override
+  String get lightTheme => 'Luminos';
+
+  @override
+  String get darkTheme => 'Întunecat';
+
+  @override
+  String get followDeviceSettings => 'Urmează setările dispozitivului';
+
+  @override
+  String get warmParchmentTheme => 'Temă caldă pergament';
+
+  @override
+  String get enchantedNightTheme => 'Temă noapte fermecată';
+
+  @override
+  String get followDeviceLanguage => 'Urmează limba dispozitivului';
+
+  @override
+  String get storybookGold => 'Aur de Poveste';
+
+  @override
+  String get storybookGoldDescription => 'Temă caldă fermecată implicită';
+
+  @override
+  String get oceanDepths => 'Adâncurile Oceanului';
+
+  @override
+  String get oceanDepthsDescription => 'Temă albastru ocean profund';
+
+  @override
+  String get emberTheme => 'Jăratic';
+
+  @override
+  String get emberThemeDescription => 'Temă caldă de foc';
+
+  @override
+  String get frostTheme => 'Gheață';
+
+  @override
+  String get frostThemeDescription => 'Temă rece de gheață';
+
+  @override
+  String get enchantedForest => 'Pădurea Fermecată';
+
+  @override
+  String get enchantedForestDescription => 'Temă verde mistică';
+
+  @override
+  String get exportImport => 'Export / Import';
+
+  @override
+  String get manageData => 'Gestionează date';
+
+  @override
+  String get unlockMoreMagic => 'Deblochează mai multă magie';
+
+  @override
+  String get privacyAndSupport => 'Confidențialitate & Suport';
+
+  @override
+  String get viewLinks => 'Vezi link-uri';
+
+  @override
+  String nSaved(int count) {
+    return '$count salvate';
+  }
+
+  @override
+  String get dataSection => 'DATE';
+
+  @override
+  String get premiumSection => 'PREMIUM';
 }

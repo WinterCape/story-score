@@ -1345,6 +1345,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Score round, disabled, all players must vote first'**
   String get scoreRoundDisabledHint;
+
+  /// Bottom sheet header for theme mode picker
+  ///
+  /// In en, this message translates to:
+  /// **'CHOOSE THEME'**
+  String get chooseTheme;
+
+  /// Bottom sheet header for color theme picker
+  ///
+  /// In en, this message translates to:
+  /// **'COLOR THEME'**
+  String get colorThemeHeader;
+
+  /// Bottom sheet header for language picker
+  ///
+  /// In en, this message translates to:
+  /// **'LANGUAGE'**
+  String get languageHeader;
+
+  /// System theme mode option
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get systemTheme;
+
+  /// Light theme mode option
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get lightTheme;
+
+  /// Dark theme mode option
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get darkTheme;
+
+  /// System theme description
+  ///
+  /// In en, this message translates to:
+  /// **'Follow device settings'**
+  String get followDeviceSettings;
+
+  /// Light theme description
+  ///
+  /// In en, this message translates to:
+  /// **'Warm parchment theme'**
+  String get warmParchmentTheme;
+
+  /// Dark theme description
+  ///
+  /// In en, this message translates to:
+  /// **'Enchanted night theme'**
+  String get enchantedNightTheme;
+
+  /// System language description
+  ///
+  /// In en, this message translates to:
+  /// **'Follow device language'**
+  String get followDeviceLanguage;
+
+  /// Default color theme name
+  ///
+  /// In en, this message translates to:
+  /// **'Storybook Gold'**
+  String get storybookGold;
+
+  /// Default color theme description
+  ///
+  /// In en, this message translates to:
+  /// **'Default warm enchanted theme'**
+  String get storybookGoldDescription;
+
+  /// Ocean color theme name
+  ///
+  /// In en, this message translates to:
+  /// **'Ocean Depths'**
+  String get oceanDepths;
+
+  /// Ocean color theme description
+  ///
+  /// In en, this message translates to:
+  /// **'Deep blue ocean theme'**
+  String get oceanDepthsDescription;
+
+  /// Ember color theme name
+  ///
+  /// In en, this message translates to:
+  /// **'Ember'**
+  String get emberTheme;
+
+  /// Ember color theme description
+  ///
+  /// In en, this message translates to:
+  /// **'Warm fire theme'**
+  String get emberThemeDescription;
+
+  /// Frost color theme name
+  ///
+  /// In en, this message translates to:
+  /// **'Frost'**
+  String get frostTheme;
+
+  /// Frost color theme description
+  ///
+  /// In en, this message translates to:
+  /// **'Cool ice theme'**
+  String get frostThemeDescription;
+
+  /// Forest color theme name
+  ///
+  /// In en, this message translates to:
+  /// **'Enchanted Forest'**
+  String get enchantedForest;
+
+  /// Forest color theme description
+  ///
+  /// In en, this message translates to:
+  /// **'Mystical green theme'**
+  String get enchantedForestDescription;
+
+  /// Settings row label for data export/import
+  ///
+  /// In en, this message translates to:
+  /// **'Export / Import'**
+  String get exportImport;
+
+  /// Settings row trailing text for export/import
+  ///
+  /// In en, this message translates to:
+  /// **'Manage data'**
+  String get manageData;
+
+  /// Supporter pack teaser text in settings
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock more magic'**
+  String get unlockMoreMagic;
+
+  /// Settings row label for privacy/support links
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy & Support'**
+  String get privacyAndSupport;
+
+  /// Settings row trailing text for privacy/support
+  ///
+  /// In en, this message translates to:
+  /// **'View links'**
+  String get viewLinks;
+
+  /// Trailing text showing number of saved presets
+  ///
+  /// In en, this message translates to:
+  /// **'{count} saved'**
+  String nSaved(int count);
+
+  /// Settings section header for data
+  ///
+  /// In en, this message translates to:
+  /// **'DATA'**
+  String get dataSection;
+
+  /// Settings section header for premium
+  ///
+  /// In en, this message translates to:
+  /// **'PREMIUM'**
+  String get premiumSection;
 }
 
 class _AppLocalizationsDelegate

@@ -623,5 +623,89 @@
   "@startNewRound": { "description": "Accessibility label for new round FAB" },
 
   "scoreRoundDisabledHint": "Score round, disabled, all players must vote first",
-  "@scoreRoundDisabledHint": { "description": "Accessibility label for disabled score round button" }
+  "@scoreRoundDisabledHint": { "description": "Accessibility label for disabled score round button" },
+
+  "chooseTheme": "CHOOSE THEME",
+  "@chooseTheme": { "description": "Bottom sheet header for theme mode picker" },
+
+  "colorThemeHeader": "COLOR THEME",
+  "@colorThemeHeader": { "description": "Bottom sheet header for color theme picker" },
+
+  "languageHeader": "LANGUAGE",
+  "@languageHeader": { "description": "Bottom sheet header for language picker" },
+
+  "systemTheme": "System",
+  "@systemTheme": { "description": "System theme mode option" },
+
+  "lightTheme": "Light",
+  "@lightTheme": { "description": "Light theme mode option" },
+
+  "darkTheme": "Dark",
+  "@darkTheme": { "description": "Dark theme mode option" },
+
+  "followDeviceSettings": "Follow device settings",
+  "@followDeviceSettings": { "description": "System theme description" },
+
+  "warmParchmentTheme": "Warm parchment theme",
+  "@warmParchmentTheme": { "description": "Light theme description" },
+
+  "enchantedNightTheme": "Enchanted night theme",
+  "@enchantedNightTheme": { "description": "Dark theme description" },
+
+  "followDeviceLanguage": "Follow device language",
+  "@followDeviceLanguage": { "description": "System language description" },
+
+  "storybookGold": "Storybook Gold",
+  "@storybookGold": { "description": "Default color theme name" },
+
+  "storybookGoldDescription": "Default warm enchanted theme",
+  "@storybookGoldDescription": { "description": "Default color theme description" },
+
+  "oceanDepths": "Ocean Depths",
+  "@oceanDepths": { "description": "Ocean color theme name" },
+
+  "oceanDepthsDescription": "Deep blue ocean theme",
+  "@oceanDepthsDescription": { "description": "Ocean color theme description" },
+
+  "emberTheme": "Ember",
+  "@emberTheme": { "description": "Ember color theme name" },
+
+  "emberThemeDescription": "Warm fire theme",
+  "@emberThemeDescription": { "description": "Ember color theme description" },
+
+  "frostTheme": "Frost",
+  "@frostTheme": { "description": "Frost color theme name" },
+
+  "frostThemeDescription": "Cool ice theme",
+  "@frostThemeDescription": { "description": "Frost color theme description" },
+
+  "enchantedForest": "Enchanted Forest",
+  "@enchantedForest": { "description": "Forest color theme name" },
+
+  "enchantedForestDescription": "Mystical green theme",
+  "@enchantedForestDescription": { "description": "Forest color theme description" },
+
+  "exportImport": "Export / Import",
+  "@exportImport": { "description": "Settings row label for data export/import" },
+
+  "manageData": "Manage data",
+  "@manageData": { "description": "Settings row trailing text for export/import" },
+
+  "unlockMoreMagic": "Unlock more magic",
+  "@unlockMoreMagic": { "description": "Supporter pack teaser text in settings" },
+
+  "privacyAndSupport": "Privacy & Support",
+  "@privacyAndSupport": { "description": "Settings row label for privacy/support links" },
+
+  "viewLinks": "View links",
+  "@viewLinks": { "description": "Settings row trailing text for privacy/support" },
+
+  "nSaved": "{count} saved",
+  "@nSaved": { "description": "Trailing text showing number of saved presets", "placeholders": { "count": { "type": "int" } } },
+
+  "dataSection": "DATA",
+  "@dataSection": { "description": "Settings section header for data" },
+
+  "premiumSection": "PREMIUM",
+  "@premiumSection": { "description": "Settings section header for premium" }
 }

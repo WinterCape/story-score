@@ -721,4 +721,90 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get scoreRoundDisabledHint =>
       'Score round, disabled, all players must vote first';
+
+  @override
+  String get chooseTheme => 'CHOOSE THEME';
+
+  @override
+  String get colorThemeHeader => 'COLOR THEME';
+
+  @override
+  String get languageHeader => 'LANGUAGE';
+
+  @override
+  String get systemTheme => 'System';
+
+  @override
+  String get lightTheme => 'Light';
+
+  @override
+  String get darkTheme => 'Dark';
+
+  @override
+  String get followDeviceSettings => 'Follow device settings';
+
+  @override
+  String get warmParchmentTheme => 'Warm parchment theme';
+
+  @override
+  String get enchantedNightTheme => 'Enchanted night theme';
+
+  @override
+  String get followDeviceLanguage => 'Follow device language';
+
+  @override
+  String get storybookGold => 'Storybook Gold';
+
+  @override
+  String get storybookGoldDescription => 'Default warm enchanted theme';
+
+  @override
+  String get oceanDepths => 'Ocean Depths';
+
+  @override
+  String get oceanDepthsDescription => 'Deep blue ocean theme';
+
+  @override
+  String get emberTheme => 'Ember';
+
+  @override
+  String get emberThemeDescription => 'Warm fire theme';
+
+  @override
+  String get frostTheme => 'Frost';
+
+  @override
+  String get frostThemeDescription => 'Cool ice theme';
+
+  @override
+  String get enchantedForest => 'Enchanted Forest';
+
+  @override
+  String get enchantedForestDescription => 'Mystical green theme';
+
+  @override
+  String get exportImport => 'Export / Import';
+
+  @override
+  String get manageData => 'Manage data';
+
+  @override
+  String get unlockMoreMagic => 'Unlock more magic';
+
+  @override
+  String get privacyAndSupport => 'Privacy & Support';
+
+  @override
+  String get viewLinks => 'View links';
+
+  @override
+  String nSaved(int count) {
+    return '$count saved';
+  }
+
+  @override
+  String get dataSection => 'DATA';
+
+  @override
+  String get premiumSection => 'PREMIUM';
 }
