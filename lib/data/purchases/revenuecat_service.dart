@@ -1,10 +1,18 @@
+import 'package:flutter/foundation.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
 /// Configuration constants for RevenueCat integration.
+///
+/// Currently targeting Google Play only. Apple App Store keys will be
+/// added once the Android release is stable.
 abstract final class RevenueCatConfig {
-  // Replace with real key from RevenueCat dashboard
   static const googleApiKey = 'YOUR_REVENUECAT_GOOGLE_API_KEY';
-  // static const appleApiKey = 'YOUR_REVENUECAT_APPLE_API_KEY'; // Add later for iOS
+
+  /// Sandbox / test key for development.
+  static const testApiKey = 'test_lHXSUCArrMOmwbSuwKsQUoAqyVn';
+
+  /// Uses test key in debug mode; Google key in release.
+  static String get apiKey => kDebugMode ? testApiKey : googleApiKey;
 
   static const entitlementId = 'supporter';
   static const supporterPackageId =
@@ -18,8 +26,10 @@ abstract final class RevenueCatConfig {
 class RevenueCatService {
   /// Initialize RevenueCat SDK. Call once at app start.
   static Future<void> init() async {
-    await Purchases.setLogLevel(LogLevel.debug); // Remove in production
-    final configuration = PurchasesConfiguration(RevenueCatConfig.googleApiKey);
+    if (kDebugMode) {
+      await Purchases.setLogLevel(LogLevel.debug);
+    }
+    final configuration = PurchasesConfiguration(RevenueCatConfig.apiKey);
     await Purchases.configure(configuration);
   }
 
