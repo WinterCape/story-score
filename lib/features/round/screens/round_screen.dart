@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:story_score/app/providers.dart';
-import 'package:story_score/app/theme/color_tokens.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
 import 'package:story_score/core/utils/haptics.dart';
 import 'package:story_score/data/database/app_database.dart';
@@ -112,8 +111,37 @@ class _RoundScreenState extends ConsumerState<RoundScreen> {
               appBar: AppBar(
                 leading: IconButton(
                   icon: const Icon(Icons.arrow_back_rounded),
-                  onPressed: () =>
-                      context.go('/game/${widget.sessionId}/scoreboard'),
+                  onPressed: () {
+                    if (voteState.votes.isNotEmpty) {
+                      showDialog<bool>(
+                        context: context,
+                        builder: (dialogContext) => AlertDialog(
+                          title: Text(l10n.discardVotes),
+                          content: Text(l10n.discardVotesConfirmation),
+                          actions: [
+                            TextButton(
+                              onPressed: () =>
+                                  Navigator.of(dialogContext).pop(false),
+                              child: Text(l10n.cancel),
+                            ),
+                            FilledButton(
+                              onPressed: () =>
+                                  Navigator.of(dialogContext).pop(true),
+                              child: Text(l10n.discard),
+                            ),
+                          ],
+                        ),
+                      ).then((discard) {
+                        if (discard == true && context.mounted) {
+                          context.go(
+                              '/game/${widget.sessionId}/scoreboard');
+                        }
+                      });
+                    } else {
+                      context.go(
+                          '/game/${widget.sessionId}/scoreboard');
+                    }
+                  },
                 ),
                 title: Text(l10n.round(session.roundCount + 1)),
               ),
@@ -457,27 +485,28 @@ class _StorytellerAnnouncement extends StatelessWidget {
 class _CrownCardIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final st = context.storyTheme;
     return Container(
       width: 44,
       height: 56,
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            ColorTokens.lightBackground,
-            ColorTokens.lightSurface,
-            Color(0xFFE8D0A0),
+            st.surfaceColor,
+            st.parchment,
+            st.goldAccent.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(7),
         border: Border.all(
-          color: context.storyTheme.goldAccent,
+          color: st.goldAccent,
           width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: context.storyTheme.goldAccent.withValues(alpha: 0.2),
+            color: st.goldAccent.withValues(alpha: 0.2),
             blurRadius: 8,
             spreadRadius: 1,
           ),

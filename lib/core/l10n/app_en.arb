@@ -172,6 +172,15 @@
   "delete": "Delete",
   "@delete": { "description": "Delete button label" },
 
+  "discard": "Discard",
+  "@discard": { "description": "Discard button label" },
+
+  "discardVotes": "Discard votes?",
+  "@discardVotes": { "description": "Title for discard votes confirmation dialog" },
+
+  "discardVotesConfirmation": "You have votes in progress. Going back will discard them.",
+  "@discardVotesConfirmation": { "description": "Body text for discard votes confirmation dialog" },
+
   "confirm": "Confirm",
   "@confirm": { "description": "Confirm button label" },
 

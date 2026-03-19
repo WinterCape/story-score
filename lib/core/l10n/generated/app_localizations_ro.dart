@@ -190,6 +190,16 @@ class AppLocalizationsRo extends AppLocalizations {
   String get delete => 'Șterge';
 
   @override
+  String get discard => 'Renunță';
+
+  @override
+  String get discardVotes => 'Renunți la voturi?';
+
+  @override
+  String get discardVotesConfirmation =>
+      'Ai voturi în curs. Dacă te întorci, acestea vor fi pierdute.';
+
+  @override
   String get confirm => 'Confirmă';
 
   @override

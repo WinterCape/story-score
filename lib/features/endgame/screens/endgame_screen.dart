@@ -59,7 +59,7 @@ class _EndgameScreenState extends ConsumerState<EndgameScreen> {
             colors: [
               storyTheme.backgroundGradient.colors.first,
               storyTheme.surfaceColor,
-              storyTheme.burgundy,
+              storyTheme.burgundy.withValues(alpha: 0.6),
             ],
             stops: const [0.0, 0.6, 1.0],
           ),
@@ -71,7 +71,7 @@ class _EndgameScreenState extends ConsumerState<EndgameScreen> {
               return const Center(child: CircularProgressIndicator());
             }
 
-            final l10n = AppLocalizations.of(context)!;
+            final l10n = context.l10n;
             final players = [...playersSnap.data!]
               ..sort((a, b) => b.currentScore.compareTo(a.currentScore));
 

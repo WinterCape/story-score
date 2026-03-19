@@ -21,7 +21,6 @@ import 'package:story_score/features/stats/screens/stats_screen.dart';
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: '/',
-    redirect: _onboardingGuard,
     routes: [
       // ── Splash ─────────────────────────────────────────────────────────────
       GoRoute(path: '/', builder: (context, state) => const SplashScreen()),
@@ -109,12 +108,24 @@ final routerProvider = Provider<GoRouter>((ref) {
         },
       ),
     ],
+    errorBuilder: (context, state) => Scaffold(
+      appBar: AppBar(title: const Text('Page not found')),
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.error_outline_rounded, size: 64),
+            const SizedBox(height: 16),
+            const Text('This page does not exist.'),
+            const SizedBox(height: 16),
+            FilledButton(
+              onPressed: () => context.go('/home'),
+              child: const Text('Go Home'),
+            ),
+          ],
+        ),
+      ),
+    ),
   );
 });
 
-// ── Redirect guard ───────────────────────────────────────────────────────────
-
-String? _onboardingGuard(BuildContext context, GoRouterState state) {
-  // Placeholder — always allows navigation for now.
-  return null;
-}

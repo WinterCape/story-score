@@ -28,8 +28,11 @@ class ScoreboardScreen extends ConsumerStatefulWidget {
 
 class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
   /// Tracks player IDs that have already triggered the target-reached modal,
-  /// so we only show it once per threshold crossing.
-  final Set<String> _targetReachedShownFor = {};
+  /// so we only show it once per threshold crossing per visit.
+  Set<String> _targetReachedShownFor = {};
+
+  /// Last known round count — reset shown set when a new round is scored.
+  int _lastKnownRoundCount = -1;
 
   String get sessionId => widget.sessionId;
 
@@ -40,6 +43,13 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
   ) {
     final target = session.targetScore;
     if (target == null || target <= 0) return;
+
+    // Reset shown set when a new round has been scored, so the dialog
+    // can fire again for newly qualifying players.
+    if (session.roundCount != _lastKnownRoundCount) {
+      _lastKnownRoundCount = session.roundCount;
+      _targetReachedShownFor = {};
+    }
 
     for (final player in players) {
       if (player.currentScore >= target &&

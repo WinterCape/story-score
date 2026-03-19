@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:story_score/app/theme/color_tokens.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
 import 'package:story_score/core/constants/player_colors.dart';
+import 'package:story_score/shared/extensions/context_extensions.dart';
 import 'package:story_score/shared/widgets/custom_icon.dart';
 
 /// A single player row in the reorderable list matching the design mockup.
@@ -27,6 +27,7 @@ class PlayerTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = PlayerColors.colorFor(colorKey);
+    final st = context.storyTheme;
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: SpacingTokens.xs),
@@ -35,18 +36,18 @@ class PlayerTile extends StatelessWidget {
         vertical: SpacingTokens.sm + 2,
       ),
       decoration: BoxDecoration(
-        color: ColorTokens.darkCard.withValues(alpha: 0.6),
+        color: st.cardColor.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: ColorTokens.goldAccent.withValues(alpha: 0.1),
+          color: st.goldAccent.withValues(alpha: 0.1),
         ),
       ),
       child: Row(
         children: [
           // Drag handle
-          const Icon(
+          Icon(
             Icons.drag_indicator_rounded,
-            color: ColorTokens.mutedText,
+            color: st.secondaryText,
             size: 20,
           ),
           const SizedBox(width: SpacingTokens.sm),
@@ -91,21 +92,21 @@ class PlayerTile extends StatelessWidget {
               children: [
                 Text(
                   name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'Nunito',
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
-                    color: ColorTokens.parchment,
+                    color: st.primaryText,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
                   'Seat ${seatNumber + 1}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'Nunito',
                     fontSize: 12,
                     fontWeight: FontWeight.w400,
-                    color: ColorTokens.mutedText,
+                    color: st.secondaryText,
                   ),
                 ),
               ],

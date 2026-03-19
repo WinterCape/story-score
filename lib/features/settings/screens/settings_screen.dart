@@ -67,9 +67,7 @@ class SettingsScreen extends ConsumerWidget {
                     SizedBox(width: SpacingTokens.md),
                     Text(
                       l10n.settings,
-                      style: TextStyle(
-                        fontFamily: 'Nunito',
-                        fontSize: 28,
+                      style: context.textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.w800,
                         color: Theme.of(context).colorScheme.onSurface,
                       ),

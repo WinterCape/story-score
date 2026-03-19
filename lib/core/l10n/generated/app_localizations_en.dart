@@ -190,6 +190,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get delete => 'Delete';
 
   @override
+  String get discard => 'Discard';
+
+  @override
+  String get discardVotes => 'Discard votes?';
+
+  @override
+  String get discardVotesConfirmation =>
+      'You have votes in progress. Going back will discard them.';
+
+  @override
   String get confirm => 'Confirm';
 
   @override

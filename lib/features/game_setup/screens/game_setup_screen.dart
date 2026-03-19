@@ -343,9 +343,21 @@ class _GameSetupScreenState extends ConsumerState<GameSetupScreen> {
                               onChanged: (v) {
                                 final parsed = int.tryParse(v);
                                 if (parsed != null) {
+                                  final clamped = parsed.clamp(1, 200);
                                   ref
                                       .read(gameSetupProvider.notifier)
-                                      .setTargetScore(parsed);
+                                      .setTargetScore(clamped);
+                                  if (parsed != clamped) {
+                                    _targetScoreController.text =
+                                        clamped.toString();
+                                    _targetScoreController.selection =
+                                        TextSelection.fromPosition(
+                                      TextPosition(
+                                        offset:
+                                            _targetScoreController.text.length,
+                                      ),
+                                    );
+                                  }
                                 }
                               },
                             ),

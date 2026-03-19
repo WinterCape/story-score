@@ -440,6 +440,24 @@ abstract class AppLocalizations {
   /// **'Delete'**
   String get delete;
 
+  /// Discard button label
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get discard;
+
+  /// Title for discard votes confirmation dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Discard votes?'**
+  String get discardVotes;
+
+  /// Body text for discard votes confirmation dialog
+  ///
+  /// In en, this message translates to:
+  /// **'You have votes in progress. Going back will discard them.'**
+  String get discardVotesConfirmation;
+
   /// Confirm button label
   ///
   /// In en, this message translates to:
