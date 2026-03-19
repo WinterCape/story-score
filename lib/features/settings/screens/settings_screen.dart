@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:story_score/app/theme/color_tokens.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
 import 'package:story_score/app/theme/theme_extensions.dart';
 import 'package:story_score/core/constants/app_assets.dart';
@@ -19,18 +18,11 @@ class SettingsScreen extends ConsumerWidget {
     final isSupporter = ref.watch(isSupporterProvider);
     final l10n = context.l10n;
 
+    final storyTheme = Theme.of(context).extension<StoryScoreThemeExtension>()!;
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Theme.of(context).scaffoldBackgroundColor,
-              Theme.of(context).colorScheme.surface,
-              Theme.of(context).cardColor,
-            ],
-          ),
+          gradient: storyTheme.backgroundGradient,
         ),
         child: SafeArea(
           child: settingsAsync.when(
@@ -435,11 +427,11 @@ class SettingsScreen extends ConsumerWidget {
     String currentTheme,
   ) {
     final themes = [
-      ('', 'Storybook Gold', 'Default warm enchanted theme', [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.secondary, Theme.of(context).colorScheme.onSurface]),
-      ('ocean', 'Ocean Depths', 'Deep blue ocean theme', [const Color(0xFF1A6B8A), const Color(0xFF0A3D5C), const Color(0xFF7BC8E8)]),
-      ('ember', 'Ember', 'Warm fire theme', [const Color(0xFFE85830), const Color(0xFFA01820), const Color(0xFFFFB060)]),
-      ('frost', 'Frost', 'Cool ice theme', [const Color(0xFF6AA8D8), const Color(0xFF3A6898), const Color(0xFFD0E8F8)]),
-      ('forest', 'Enchanted Forest', 'Mystical green theme', [const Color(0xFF2A8A4A), const Color(0xFF1A5A2A), const Color(0xFFA8D8A0)]),
+      ('', 'Storybook Gold', 'Default warm enchanted theme'),
+      ('ocean', 'Ocean Depths', 'Deep blue ocean theme'),
+      ('ember', 'Ember', 'Warm fire theme'),
+      ('frost', 'Frost', 'Cool ice theme'),
+      ('forest', 'Enchanted Forest', 'Mystical green theme'),
     ];
 
     final isSupporter = ref.read(isSupporterProvider);
@@ -447,6 +439,7 @@ class SettingsScreen extends ConsumerWidget {
     showModalBottomSheet<void>(
       context: context,
       backgroundColor: Theme.of(context).cardColor,
+      isScrollControlled: true,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
       ),
@@ -454,6 +447,7 @@ class SettingsScreen extends ConsumerWidget {
         return SafeArea(
           child: Padding(
             padding: EdgeInsets.fromLTRB(24, 24, 24, 16),
+            child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -479,7 +473,7 @@ class SettingsScreen extends ConsumerWidget {
                 ),
                 SizedBox(height: 16),
                 ...themes.map((t) {
-                  final (id, label, desc, colors) = t;
+                  final (id, label, desc) = t;
                   final isPremium = id.isNotEmpty;
                   final isLocked = isPremium && !isSupporter;
                   final isSelected = currentTheme == id || (currentTheme.isEmpty && id.isEmpty);
@@ -504,6 +498,7 @@ class SettingsScreen extends ConsumerWidget {
                   );
                 }),
               ],
+            ),
             ),
           ),
         );
