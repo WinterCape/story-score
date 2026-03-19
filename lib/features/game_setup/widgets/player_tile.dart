@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:story_score/app/theme/color_tokens.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
 import 'package:story_score/core/constants/player_colors.dart';
-import 'package:story_score/shared/extensions/context_extensions.dart';
+import 'package:story_score/shared/widgets/custom_icon.dart';
 
-/// A single player row in the reorderable list.
+/// A single player row in the reorderable list matching the design mockup.
 ///
-/// Shows a colored dot, the player's name, their seat number, and a
-/// remove button. Designed to sit inside a [ReorderableListView].
+/// Shows drag handle, colored avatar circle, player name (bold), "Seat N"
+/// subtitle, and a delete icon on the right.
 class PlayerTile extends StatelessWidget {
   const PlayerTile({
     super.key,
@@ -25,100 +26,100 @@ class PlayerTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = context.colorScheme;
-    final textTheme = context.textTheme;
     final color = PlayerColors.colorFor(colorKey);
 
-    return Card(
+    return Container(
       margin: const EdgeInsets.symmetric(vertical: SpacingTokens.xs),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(SpacingTokens.radiusMd),
+      padding: const EdgeInsets.symmetric(
+        horizontal: SpacingTokens.md,
+        vertical: SpacingTokens.sm + 2,
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: SpacingTokens.md,
-          vertical: SpacingTokens.sm,
+      decoration: BoxDecoration(
+        color: ColorTokens.darkCard.withValues(alpha: 0.6),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: ColorTokens.goldAccent.withValues(alpha: 0.1),
         ),
-        child: Row(
-          children: [
-            // Drag handle.
-            Icon(
-              Icons.drag_handle_rounded,
-              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
-              size: 20,
-            ),
-            const SizedBox(width: SpacingTokens.sm),
+      ),
+      child: Row(
+        children: [
+          // Drag handle
+          const Icon(
+            Icons.drag_indicator_rounded,
+            color: ColorTokens.mutedText,
+            size: 20,
+          ),
+          const SizedBox(width: SpacingTokens.sm),
 
-            // Color dot / emoji avatar.
-            Container(
-              width: 28,
-              height: 28,
-              decoration: BoxDecoration(
-                color: color,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: color.withValues(alpha: 0.3),
-                    blurRadius: 6,
-                    spreadRadius: 1,
+          // Colored avatar circle
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: color,
+              border: Border.all(
+                color: color.withValues(alpha: 0.5),
+                width: 2,
+              ),
+            ),
+            alignment: Alignment.center,
+            child: avatarStyle != 'initials' && avatarStyle.isNotEmpty
+                ? FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      avatarStyle,
+                      style: const TextStyle(fontSize: 18),
+                      textAlign: TextAlign.center,
+                    ),
+                  )
+                : Text(
+                    name.isNotEmpty ? name[0].toUpperCase() : '?',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 16,
+                    ),
                   ),
-                ],
-              ),
-              alignment: Alignment.center,
-              child: avatarStyle != 'initials' && avatarStyle.isNotEmpty
-                  ? FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        avatarStyle,
-                        style: const TextStyle(fontSize: 18),
-                        textAlign: TextAlign.center,
-                      ),
-                    )
-                  : null,
-            ),
-            const SizedBox(width: SpacingTokens.md),
+          ),
+          const SizedBox(width: SpacingTokens.md),
 
-            // Name.
-            Expanded(
-              child: Text(
-                name,
-                style: textTheme.titleMedium,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-
-            // Seat badge.
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: SpacingTokens.sm,
-                vertical: SpacingTokens.xs,
-              ),
-              decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(SpacingTokens.radiusSm),
-              ),
-              child: Text(
-                '#${seatNumber + 1}',
-                style: textTheme.labelSmall?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
+          // Name + Seat subtitle
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  name,
+                  style: const TextStyle(
+                    fontFamily: 'Nunito',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: ColorTokens.parchment,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
+                Text(
+                  'Seat ${seatNumber + 1}',
+                  style: const TextStyle(
+                    fontFamily: 'Nunito',
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                    color: ColorTokens.mutedText,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(width: SpacingTokens.sm),
+          ),
 
-            // Remove button.
-            IconButton(
-              onPressed: onRemove,
-              icon: Icon(
-                Icons.close_rounded,
-                size: 20,
-                color: colorScheme.error,
-              ),
-              visualDensity: VisualDensity.compact,
-              tooltip: 'Remove player',
-            ),
-          ],
-        ),
+          // Delete icon
+          IconButton(
+            onPressed: onRemove,
+            icon: const CustomIcon('delete', size: 20),
+            visualDensity: VisualDensity.compact,
+            tooltip: 'Remove player',
+          ),
+        ],
       ),
     );
   }
