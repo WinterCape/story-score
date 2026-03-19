@@ -9,7 +9,6 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:share_plus/share_plus.dart';
 
 import 'package:story_score/app/providers.dart';
-import 'package:story_score/app/theme/color_tokens.dart';
 import 'package:story_score/core/constants/app_assets.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
 import 'package:story_score/core/constants/player_colors.dart';
@@ -21,11 +20,14 @@ import 'package:story_score/data/export/session_exporter.dart';
 import 'package:story_score/domain/celebrations/celebration_engine.dart';
 import 'package:story_score/features/celebrations/celebration_controller.dart';
 import 'package:story_score/features/premium/providers/premium_providers.dart';
+import 'package:story_score/features/presets/providers/preset_providers.dart';
 import 'package:story_score/features/settings/providers/settings_providers.dart';
 import 'package:story_score/features/stats/providers/stats_providers.dart';
 import 'package:story_score/features/stats/widgets/score_progression_chart.dart';
+import 'package:story_score/features/stats/widgets/session_stats_section.dart';
 import 'package:story_score/core/l10n/generated/app_localizations.dart';
 import 'package:story_score/shared/extensions/context_extensions.dart';
+import 'package:story_score/shared/widgets/custom_icon.dart';
 
 class EndgameScreen extends ConsumerStatefulWidget {
   final String sessionId;
@@ -50,16 +52,16 @@ class _EndgameScreenState extends ConsumerState<EndgameScreen> {
 
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              ColorTokens.darkBackground,
-              ColorTokens.darkSurface,
-              ColorTokens.burgundy,
+              storyTheme.backgroundGradient.colors.first,
+              storyTheme.surfaceColor,
+              storyTheme.burgundy,
             ],
-            stops: [0.0, 0.6, 1.0],
+            stops: const [0.0, 0.6, 1.0],
           ),
         ),
         child: StreamBuilder<List<Player>>(
@@ -95,343 +97,501 @@ class _EndgameScreenState extends ConsumerState<EndgameScreen> {
             }
 
             return SafeArea(
-              child: Stack(
+              child: Column(
                 children: [
-                  // Sparkle particles scattered around
-                  Positioned(
-                    top: 60,
-                    left: 30,
-                    child: Opacity(
-                      opacity: 0.3,
-                      child: Image.asset(AppAssets.sparkle(1), width: 18),
-                    ),
-                  ),
-                  Positioned(
-                    top: 80,
-                    right: 50,
-                    child: Opacity(
-                      opacity: 0.3,
-                      child: Image.asset(AppAssets.sparkle(2), width: 16),
-                    ),
-                  ),
-                  Positioned(
-                    top: 160,
-                    left: 60,
-                    child: Opacity(
-                      opacity: 0.2,
-                      child: Image.asset(AppAssets.sparkle(3), width: 14),
-                    ),
-                  ),
-                  Positioned(
-                    top: 140,
-                    right: 30,
-                    child: Opacity(
-                      opacity: 0.25,
-                      child: Image.asset(AppAssets.sparkle(1), width: 16),
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 300,
-                    left: 40,
-                    child: Opacity(
-                      opacity: 0.1,
-                      child: Image.asset(AppAssets.sparkle(2), width: 20),
-                    ),
-                  ),
-
-                  // Main content
-                  CustomScrollView(
-                    slivers: [
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: SpacingTokens.lg,
+                  // Scrollable content
+                  Expanded(
+                    child: Stack(
+                      children: [
+                        // Sparkle particles
+                        Positioned(
+                          top: 60,
+                          left: 30,
+                          child: Opacity(
+                            opacity: 0.2,
+                            child: Image.asset(AppAssets.sparkle(1), width: 24),
                           ),
-                          child: Column(
-                            children: [
-                              const SizedBox(height: SpacingTokens.xxl),
+                        ),
+                        Positioned(
+                          top: 120,
+                          right: 40,
+                          child: Opacity(
+                            opacity: 0.2,
+                            child: Image.asset(AppAssets.sparkle(2), width: 20),
+                          ),
+                        ),
+                        Positioned(
+                          top: 200,
+                          left: 60,
+                          child: Opacity(
+                            opacity: 0.15,
+                            child: Image.asset(AppAssets.sparkle(3), width: 20),
+                          ),
+                        ),
+                        Positioned(
+                          bottom: 200,
+                          right: 50,
+                          child: Opacity(
+                            opacity: 0.15,
+                            child: Image.asset(AppAssets.sparkle(1), width: 22),
+                          ),
+                        ),
+                        Positioned(
+                          bottom: 300,
+                          left: 40,
+                          child: Opacity(
+                            opacity: 0.1,
+                            child: Image.asset(AppAssets.sparkle(2), width: 20),
+                          ),
+                        ),
 
-                              // Trophy badge centered
-                              Semantics(
-                                label: 'Trophy',
-                                excludeSemantics: true,
-                                child: _maybeAnimate(
-                                  skipAnimations: skipAnimations,
-                                  child: Image.asset(
-                                    AppAssets.trophyBadge,
-                                    width: 80,
-                                  ),
-                                  animate: (child) => child
-                                      .animate()
-                                      .scale(
-                                        duration: 600.ms,
-                                        curve: Curves.elasticOut,
-                                        begin: const Offset(0.5, 0.5),
-                                        end: const Offset(1.0, 1.0),
-                                      )
-                                      .then()
-                                      .scale(
-                                        duration: 1500.ms,
-                                        begin: const Offset(1.0, 1.0),
-                                        end: const Offset(1.06, 1.06),
-                                        curve: Curves.easeInOut,
-                                      )
-                                      .then()
-                                      .scale(
-                                        duration: 1500.ms,
-                                        begin: const Offset(1.06, 1.06),
-                                        end: const Offset(1.0, 1.0),
-                                        curve: Curves.easeInOut,
+                        // Main content
+                        CustomScrollView(
+                          slivers: [
+                            SliverAppBar(
+                              pinned: true,
+                              backgroundColor: Colors.transparent,
+                              title: Text(
+                                l10n.gameOver,
+                                style: TextStyle(color: storyTheme.primaryText),
+                              ),
+                              leading: IconButton(
+                                icon: Icon(
+                                  Icons.arrow_back_rounded,
+                                  color: storyTheme.primaryAccent,
+                                ),
+                                onPressed: () => context.go('/'),
+                              ),
+                            ),
+                            SliverToBoxAdapter(
+                              child: Padding(
+                                padding: const EdgeInsets.all(SpacingTokens.lg),
+                                child: Column(
+                                  children: [
+                                    const SizedBox(height: SpacingTokens.xxl),
+                                    // Trophy badge
+                                    Semantics(
+                                      label: 'Trophy',
+                                      excludeSemantics: true,
+                                      child: _maybeAnimate(
+                                        skipAnimations: skipAnimations,
+                                        child: Image.asset(
+                                          AppAssets.trophyBadge,
+                                          width: 80,
+                                        ),
+                                        animate: (child) => child
+                                            .animate()
+                                            .scale(
+                                              duration: 600.ms,
+                                              curve: Curves.elasticOut,
+                                              begin: const Offset(0.5, 0.5),
+                                              end: const Offset(1.0, 1.0),
+                                            )
+                                            .then()
+                                            .scale(
+                                              duration: 1500.ms,
+                                              begin: const Offset(1.0, 1.0),
+                                              end: const Offset(1.06, 1.06),
+                                              curve: Curves.easeInOut,
+                                            )
+                                            .then()
+                                            .scale(
+                                              duration: 1500.ms,
+                                              begin: const Offset(1.06, 1.06),
+                                              end: const Offset(1.0, 1.0),
+                                              curve: Curves.easeInOut,
+                                            ),
                                       ),
+                                    ),
+                                    const SizedBox(height: SpacingTokens.lg),
+                                    // "WINNER" label
+                                    _maybeAnimate(
+                                      skipAnimations: skipAnimations,
+                                      child: Text(
+                                        hasTie
+                                            ? l10n.itsATie.toUpperCase()
+                                            : l10n.winner.toUpperCase(),
+                                        style:
+                                            theme.textTheme.headlineMedium?.copyWith(
+                                          color: storyTheme.primaryAccent,
+                                          fontWeight: FontWeight.w800,
+                                          letterSpacing: 3,
+                                        ),
+                                      ),
+                                      animate: (child) => child
+                                          .animate()
+                                          .fadeIn(delay: 300.ms, duration: 500.ms)
+                                          .slideY(begin: 0.3, end: 0),
+                                    ),
+                                    const SizedBox(height: SpacingTokens.sm),
+                                    // Winner name
+                                    Semantics(
+                                      label:
+                                          'Winner: $winnerLabel with $topScore points',
+                                      child: _maybeAnimate(
+                                        skipAnimations: skipAnimations,
+                                        child: Text(
+                                          winnerLabel,
+                                          style:
+                                              theme.textTheme.titleLarge?.copyWith(
+                                            color: storyTheme.primaryText,
+                                            fontSize: 28,
+                                            fontWeight: FontWeight.w800,
+                                            shadows: [
+                                              Shadow(
+                                                color: storyTheme.primaryAccent
+                                                    .withValues(alpha: 0.5),
+                                                blurRadius: 12,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        animate: (child) => child
+                                            .animate()
+                                            .fadeIn(delay: 500.ms, duration: 500.ms)
+                                            .slideY(begin: 0.3, end: 0),
+                                      ),
+                                    ),
+                                    // Score
+                                    _maybeAnimate(
+                                      skipAnimations: skipAnimations,
+                                      child: Text(
+                                        l10n.points(topScore),
+                                        style:
+                                            theme.textTheme.displaySmall?.copyWith(
+                                          color: storyTheme.primaryAccent,
+                                          fontSize: 42,
+                                          fontWeight: FontWeight.w800,
+                                          shadows: [
+                                            Shadow(
+                                              color: storyTheme.primaryAccent
+                                                  .withValues(alpha: 0.4),
+                                              blurRadius: 16,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      animate: (child) =>
+                                          _AnimatedScoreCounter(
+                                        targetScore: topScore,
+                                        style:
+                                            theme.textTheme.displaySmall?.copyWith(
+                                          color: storyTheme.primaryAccent,
+                                          fontSize: 42,
+                                          fontWeight: FontWeight.w800,
+                                          shadows: [
+                                            Shadow(
+                                              color: storyTheme.primaryAccent
+                                                  .withValues(alpha: 0.4),
+                                              blurRadius: 16,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: SpacingTokens.lg),
+
+                                    // Ornate divider
+                                    Image.asset(
+                                      AppAssets.dividerOrnate,
+                                      width: 200,
+                                    ),
+
+                                    const SizedBox(height: SpacingTokens.lg),
+                                    _maybeAnimate(
+                                      skipAnimations: skipAnimations,
+                                      child: Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: Text(
+                                          l10n.finalStandings.toUpperCase(),
+                                          style: theme.textTheme.labelLarge?.copyWith(
+                                            color: storyTheme.primaryAccent,
+                                            letterSpacing: 1.5,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                      ),
+                                      animate: (child) => child.animate().fadeIn(
+                                            delay: 700.ms,
+                                            duration: 400.ms,
+                                          ),
+                                    ),
+                                    const SizedBox(height: SpacingTokens.md),
+                                  ],
                                 ),
                               ),
-                              const SizedBox(height: SpacingTokens.md),
+                            ),
+                            SliverList.builder(
+                              itemCount: players.length,
+                              itemBuilder: (context, index) {
+                                final player = players[index];
+                                final isWinner = player.currentScore == topScore;
 
-                              // "WINNER" gold uppercase label
-                              _maybeAnimate(
-                                skipAnimations: skipAnimations,
-                                child: Text(
-                                  hasTie
-                                      ? l10n.itsATie.toUpperCase()
-                                      : l10n.winner.toUpperCase(),
-                                  style: const TextStyle(
-                                    fontFamily: 'Nunito',
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w700,
-                                    letterSpacing: 3,
-                                    color: ColorTokens.goldAccent,
+                                final card = Semantics(
+                                  label:
+                                      '${_ordinal(index + 1)} place, ${player.name}, ${player.currentScore} points',
+                                  excludeSemantics: true,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: SpacingTokens.lg,
+                                      vertical: SpacingTokens.xs,
+                                    ),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        gradient: isWinner
+                                            ? LinearGradient(
+                                                colors: [
+                                                  storyTheme.goldAccent
+                                                      .withValues(alpha: 0.15),
+                                                  storyTheme.goldAccent
+                                                      .withValues(alpha: 0.05),
+                                                ],
+                                                begin: Alignment.centerLeft,
+                                                end: Alignment.centerRight,
+                                              )
+                                            : null,
+                                        color: isWinner ? null : Colors.transparent,
+                                        borderRadius: BorderRadius.circular(14),
+                                        border: isWinner
+                                            ? Border.all(
+                                                color: storyTheme.goldAccent
+                                                    .withValues(alpha: 0.3),
+                                              )
+                                            : null,
+                                      ),
+                                      child: ListTile(
+                                        leading: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            SizedBox(
+                                              width: 28,
+                                              child: Text(
+                                                '#${index + 1}',
+                                                style: theme.textTheme.titleMedium
+                                                    ?.copyWith(
+                                                  fontWeight: FontWeight.bold,
+                                                  color: isWinner
+                                                      ? storyTheme.primaryAccent
+                                                      : storyTheme.dustyRose,
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(width: SpacingTokens.sm),
+                                            Container(
+                                              width: 32,
+                                              height: 32,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                gradient: LinearGradient(
+                                                  colors: [
+                                                    PlayerColors.colorFor(
+                                                      player.colorKey,
+                                                    ),
+                                                    PlayerColors.colorFor(
+                                                      player.colorKey,
+                                                    ).withValues(alpha: 0.7),
+                                                  ],
+                                                ),
+                                                border: Border.all(
+                                                  color: PlayerColors.colorFor(
+                                                    player.colorKey,
+                                                  ).withValues(alpha: 0.5),
+                                                  width: 2,
+                                                ),
+                                              ),
+                                              alignment: Alignment.center,
+                                              child: player.avatarStyle !=
+                                                          'initials' &&
+                                                      player
+                                                          .avatarStyle.isNotEmpty
+                                                  ? Text(
+                                                      player.avatarStyle,
+                                                      style: const TextStyle(
+                                                        fontSize: 16,
+                                                      ),
+                                                    )
+                                                  : Text(
+                                                      player.name.isNotEmpty
+                                                          ? player.name[0]
+                                                              .toUpperCase()
+                                                          : '?',
+                                                      style: const TextStyle(
+                                                        color: Colors.white,
+                                                        fontWeight: FontWeight.bold,
+                                                        fontSize: 14,
+                                                      ),
+                                                    ),
+                                            ),
+                                          ],
+                                        ),
+                                        title: Text(
+                                          player.name,
+                                          style: TextStyle(
+                                            fontWeight: isWinner
+                                                ? FontWeight.bold
+                                                : FontWeight.normal,
+                                            color: storyTheme.primaryText,
+                                          ),
+                                        ),
+                                        trailing: Text(
+                                          '${player.currentScore}',
+                                          style:
+                                              theme.textTheme.titleLarge?.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                            color: isWinner
+                                                ? storyTheme.primaryAccent
+                                                : storyTheme.primaryText,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
                                   ),
-                                ),
-                                animate: (child) => child
+                                );
+
+                                if (skipAnimations) return card;
+
+                                return card
                                     .animate()
-                                    .fadeIn(delay: 300.ms, duration: 500.ms)
-                                    .slideY(begin: 0.3, end: 0),
-                              ),
-                              const SizedBox(height: SpacingTokens.xs),
-
-                              // Winner name large parchment text
-                              Semantics(
-                                label:
-                                    'Winner: $winnerLabel with $topScore points',
-                                child: _maybeAnimate(
-                                  skipAnimations: skipAnimations,
-                                  child: Text(
-                                    winnerLabel,
-                                    style: const TextStyle(
-                                      fontFamily: 'Nunito',
-                                      fontSize: 32,
-                                      fontWeight: FontWeight.w800,
-                                      color: ColorTokens.parchment,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  animate: (child) => child
-                                      .animate()
-                                      .fadeIn(delay: 500.ms, duration: 500.ms)
-                                      .slideY(begin: 0.3, end: 0),
-                                ),
-                              ),
-
-                              // Score: very large gold number
-                              _maybeAnimate(
-                                skipAnimations: skipAnimations,
-                                child: Text(
-                                  '$topScore',
-                                  style: const TextStyle(
-                                    fontFamily: 'Nunito',
-                                    fontSize: 58,
-                                    fontWeight: FontWeight.w800,
-                                    color: ColorTokens.goldAccent,
-                                    height: 1.1,
-                                  ),
-                                ),
-                                animate: (child) =>
-                                    _AnimatedScoreCounter(
-                                  targetScore: topScore,
-                                  style: const TextStyle(
-                                    fontFamily: 'Nunito',
-                                    fontSize: 58,
-                                    fontWeight: FontWeight.w800,
-                                    color: ColorTokens.goldAccent,
-                                    height: 1.1,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: SpacingTokens.md),
-
-                              // Ornate gold divider
-                              Image.asset(
-                                AppAssets.dividerOrnate,
-                                width: 200,
-                              ),
-
-                              const SizedBox(height: SpacingTokens.lg),
-
-                              // "FINAL STANDINGS" section header
-                              _maybeAnimate(
-                                skipAnimations: skipAnimations,
-                                child: Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    l10n.finalStandings.toUpperCase(),
-                                    style: const TextStyle(
-                                      fontFamily: 'Nunito',
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w700,
-                                      letterSpacing: 1.5,
-                                      color: ColorTokens.goldAccent,
-                                    ),
-                                  ),
-                                ),
-                                animate: (child) => child.animate().fadeIn(
-                                      delay: 700.ms,
+                                    .fadeIn(
+                                      delay: (800 + index * 100).ms,
                                       duration: 400.ms,
-                                    ),
+                                    )
+                                    .slideX(begin: 0.1, end: 0);
+                              },
+                            ),
+                            // Session Stats (free) + Score Progression (premium)
+                            SliverToBoxAdapter(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: SpacingTokens.lg,
+                                ),
+                                child:
+                                    _SessionStatsBlock(sessionId: sessionId),
                               ),
-                              const SizedBox(height: SpacingTokens.sm),
-                            ],
-                          ),
+                            ),
+                            // Bottom padding for scroll clearance
+                            const SliverToBoxAdapter(
+                              child: SizedBox(height: SpacingTokens.lg),
+                            ),
+                          ],
                         ),
-                      ),
+                      ],
+                    ),
+                  ),
 
-                      // Standings list
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: SpacingTokens.lg,
-                          ),
-                          child: Container(
+                  // Persistent bottom buttons
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      SpacingTokens.lg,
+                      SpacingTokens.sm,
+                      SpacingTokens.lg,
+                      SpacingTokens.md,
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // New Game button with gradient
+                        SizedBox(
+                          width: double.infinity,
+                          child: DecoratedBox(
                             decoration: BoxDecoration(
-                              color: ColorTokens.darkCard.withValues(alpha: 0.5),
-                              borderRadius: BorderRadius.circular(14),
-                              border: Border.all(
-                                color: ColorTokens.goldAccent.withValues(alpha: 0.15),
+                              gradient: storyTheme.accentGradient,
+                              borderRadius: BorderRadius.circular(
+                                SpacingTokens.radiusMd,
                               ),
                             ),
-                            child: Column(
-                              children: [
-                                for (int index = 0;
-                                    index < players.length;
-                                    index++)
-                                  _buildStandingRow(
-                                    context,
-                                    theme,
-                                    players[index],
-                                    index,
-                                    topScore,
-                                    skipAnimations,
-                                  ),
-                              ],
+                            child: FilledButton.icon(
+                              onPressed: () => context.go('/game/new'),
+                              icon: const Icon(Icons.replay_rounded),
+                              label: Text(l10n.newGame),
+                              style: FilledButton.styleFrom(
+                                backgroundColor: Colors.transparent,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: SpacingTokens.md,
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-
-                      // Session Stats + Score Progression
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: SpacingTokens.lg,
-                          ),
-                          child:
-                              _SessionStatsBlock(sessionId: sessionId),
+                        const SizedBox(height: SpacingTokens.sm),
+                        // Share + Home row
+                        Row(
+                          children: [
+                            Expanded(
+                              child: OutlinedButton.icon(
+                                onPressed: () =>
+                                    _shareResults(context, ref),
+                                icon: const CustomIcon('share', size: 20),
+                                label: Text(l10n.shareResults),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: storyTheme.primaryAccent,
+                                  side: BorderSide(
+                                    color: storyTheme.primaryAccent,
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: SpacingTokens.md,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: SpacingTokens.sm),
+                            Expanded(
+                              child: OutlinedButton.icon(
+                                onPressed: () {
+                                  sessionDao.updateSession(
+                                    sessionId,
+                                    GameSessionsCompanion(
+                                      status: Value(GameStatus.completed),
+                                      updatedAt: Value(DateTime.now()),
+                                    ),
+                                  );
+                                  context.go('/');
+                                },
+                                icon: const Icon(Icons.home_rounded),
+                                label: Text(l10n.backToHome),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: storyTheme.primaryText,
+                                  side: BorderSide(
+                                    color: storyTheme.primaryText
+                                        .withValues(alpha: 0.3),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: SpacingTokens.md,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-
-                      // Bottom action buttons: 3 in a row
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(
-                            SpacingTokens.lg,
-                            SpacingTokens.lg,
-                            SpacingTokens.lg,
-                            SpacingTokens.xxl,
+                        // Save as Preset (premium-gated)
+                        if (ref.watch(isSupporterProvider) &&
+                            players.length >= 3) ...[
+                          const SizedBox(height: SpacingTokens.sm),
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton.icon(
+                              onPressed: () =>
+                                  _saveAsPreset(context, ref, players),
+                              icon: const Icon(
+                                Icons.bookmark_add_outlined,
+                              ),
+                              label: Text(l10n.saveAsPreset),
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: storyTheme.primaryText,
+                                side: BorderSide(
+                                  color: storyTheme.primaryText
+                                      .withValues(alpha: 0.3),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: SpacingTokens.md,
+                                ),
+                              ),
+                            ),
                           ),
-                          child: Row(
-                            children: [
-                              // New Game - gradient
-                              Expanded(
-                                child: SizedBox(
-                                  height: 50,
-                                  child: DecoratedBox(
-                                    decoration: BoxDecoration(
-                                      gradient: storyTheme.accentGradient,
-                                      borderRadius: BorderRadius.circular(14),
-                                    ),
-                                    child: FilledButton(
-                                      onPressed: () => context.go('/game/new'),
-                                      style: FilledButton.styleFrom(
-                                        backgroundColor: Colors.transparent,
-                                        foregroundColor: Colors.white,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(14),
-                                        ),
-                                        padding: EdgeInsets.zero,
-                                      ),
-                                      child: Text(l10n.newGame),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: SpacingTokens.sm),
-                              // Share - outlined
-                              Expanded(
-                                child: SizedBox(
-                                  height: 50,
-                                  child: OutlinedButton(
-                                    onPressed: () =>
-                                        _shareResults(context, ref),
-                                    style: OutlinedButton.styleFrom(
-                                      foregroundColor: ColorTokens.parchment,
-                                      side: BorderSide(
-                                        color: ColorTokens.parchment
-                                            .withValues(alpha: 0.4),
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(14),
-                                      ),
-                                      padding: EdgeInsets.zero,
-                                    ),
-                                    child: Text(l10n.shareResults),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: SpacingTokens.sm),
-                              // Save - outlined
-                              Expanded(
-                                child: SizedBox(
-                                  height: 50,
-                                  child: OutlinedButton(
-                                    onPressed: () {
-                                      sessionDao.updateSession(
-                                        sessionId,
-                                        GameSessionsCompanion(
-                                          status: Value(GameStatus.completed),
-                                          updatedAt: Value(DateTime.now()),
-                                        ),
-                                      );
-                                      context.go('/');
-                                    },
-                                    style: OutlinedButton.styleFrom(
-                                      foregroundColor: ColorTokens.parchment,
-                                      side: BorderSide(
-                                        color: ColorTokens.parchment
-                                            .withValues(alpha: 0.4),
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(14),
-                                      ),
-                                      padding: EdgeInsets.zero,
-                                    ),
-                                    child: Text(l10n.save),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
+                        ],
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -442,116 +602,71 @@ class _EndgameScreenState extends ConsumerState<EndgameScreen> {
     );
   }
 
-  Widget _buildStandingRow(
+  Future<void> _saveAsPreset(
     BuildContext context,
-    ThemeData theme,
-    Player player,
-    int index,
-    int topScore,
-    bool skipAnimations,
-  ) {
-    final isWinner = player.currentScore == topScore;
-    final playerColor = PlayerColors.colorFor(player.colorKey);
-
-    final row = Semantics(
-      label:
-          '${_ordinal(index + 1)} place, ${player.name}, ${player.currentScore} points',
-      excludeSemantics: true,
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: isWinner
-              ? LinearGradient(
-                  colors: [
-                    ColorTokens.goldAccent.withValues(alpha: 0.2),
-                    ColorTokens.goldAccent.withValues(alpha: 0.08),
-                  ],
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                )
-              : null,
-          borderRadius: index == 0
-              ? const BorderRadius.vertical(top: Radius.circular(14))
-              : null,
+    WidgetRef ref,
+    List<Player> players,
+  ) async {
+    final l10n = AppLocalizations.of(context)!;
+    final nameController = TextEditingController();
+    final name = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.saveAsPreset),
+        content: TextField(
+          controller: nameController,
+          autofocus: true,
+          maxLength: 30,
+          textCapitalization: TextCapitalization.words,
+          decoration: InputDecoration(
+            hintText: l10n.presetName,
+            counterText: '',
+          ),
         ),
-        padding: const EdgeInsets.symmetric(
-          horizontal: SpacingTokens.md,
-          vertical: SpacingTokens.sm + 2,
-        ),
-        child: Row(
-          children: [
-            // Colored avatar circle
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: LinearGradient(
-                  colors: [
-                    playerColor,
-                    playerColor.withValues(alpha: 0.7),
-                  ],
-                ),
-                border: Border.all(
-                  color: playerColor.withValues(alpha: 0.5),
-                  width: 2,
-                ),
-              ),
-              alignment: Alignment.center,
-              child: player.avatarStyle != 'initials' &&
-                      player.avatarStyle.isNotEmpty
-                  ? Text(
-                      player.avatarStyle,
-                      style: const TextStyle(fontSize: 16),
-                    )
-                  : Text(
-                      player.name.isNotEmpty
-                          ? player.name[0].toUpperCase()
-                          : '?',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                      ),
-                    ),
-            ),
-            const SizedBox(width: SpacingTokens.md),
-            // "#1 Name"
-            Expanded(
-              child: Text(
-                '#${index + 1} ${player.name}',
-                style: TextStyle(
-                  fontFamily: 'Nunito',
-                  fontSize: 15,
-                  fontWeight:
-                      isWinner ? FontWeight.w700 : FontWeight.w500,
-                  color: isWinner
-                      ? ColorTokens.parchment
-                      : ColorTokens.parchment,
-                ),
-              ),
-            ),
-            // Score right
-            Text(
-              '${player.currentScore}',
-              style: TextStyle(
-                fontFamily: 'Nunito',
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: isWinner
-                    ? ColorTokens.goldAccent
-                    : ColorTokens.parchment,
-              ),
-            ),
-          ],
-        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () =>
+                Navigator.of(dialogContext).pop(nameController.text.trim()),
+            child: Text(l10n.save),
+          ),
+        ],
       ),
     );
+    nameController.dispose();
 
-    if (skipAnimations) return row;
-    return row
-        .animate()
-        .fadeIn(delay: (800 + index * 100).ms, duration: 400.ms)
-        .slideX(begin: 0.1, end: 0);
+    if (name == null || name.isEmpty || !mounted) return;
+    if (!context.mounted) return;
+
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final dao = ref.read(presetDaoProvider);
+      await savePreset(
+        dao: dao,
+        name: name,
+        players: players
+            .map(
+              (p) => (
+                name: p.name,
+                colorKey: p.colorKey,
+                avatarStyle: p.avatarStyle,
+                seatOrder: p.seatOrder,
+              ),
+            )
+            .toList(),
+      );
+      Haptics.selection();
+      if (!mounted) return;
+      messenger.showSnackBar(SnackBar(content: Text(l10n.savedPreset(name))));
+    } catch (e) {
+      if (!mounted) return;
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.failedToSavePreset('$e'))),
+      );
+    }
   }
 
   Future<void> _shareResults(BuildContext context, WidgetRef ref) async {
@@ -631,8 +746,7 @@ class _EndgameScreenState extends ConsumerState<EndgameScreen> {
   }
 }
 
-/// Displays session stats as a 3-column grid (MVP / ACCURACY / BEST ROUND)
-/// and score progression chart (premium-gated).
+/// Displays session stats (free) and score progression chart (premium-gated).
 class _SessionStatsBlock extends ConsumerWidget {
   const _SessionStatsBlock({required this.sessionId});
   final String sessionId;
@@ -643,65 +757,27 @@ class _SessionStatsBlock extends ConsumerWidget {
     final progressionAsync = ref.watch(scoreProgressionProvider(sessionId));
     final isSupporter = ref.watch(isSupporterProvider);
     final storyTheme = context.storyTheme;
+    final textTheme = context.textTheme;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: SpacingTokens.lg),
-
-        // "SESSION STATS" section header
-        const Text(
-          'SESSION STATS',
-          style: TextStyle(
-            fontFamily: 'Nunito',
-            fontSize: 10,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 1.5,
-            color: ColorTokens.goldAccent,
-          ),
-        ),
-        const SizedBox(height: SpacingTokens.sm),
-
-        // 3-column stats grid
+        // Session stats -- free for all users
         statsAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (_, _) => const SizedBox.shrink(),
-          data: (stats) => Container(
-            padding: const EdgeInsets.all(SpacingTokens.md),
-            decoration: BoxDecoration(
-              color: ColorTokens.darkCard.withValues(alpha: 0.5),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: ColorTokens.goldAccent.withValues(alpha: 0.15),
-              ),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: _StatColumn(
-                    label: 'MVP',
-                    value: stats.mvpName.isNotEmpty ? stats.mvpName : '--',
-                  ),
-                ),
-                Expanded(
-                  child: _StatColumn(
-                    label: 'ACCURACY',
-                    value: '${(stats.guessAccuracy * 100).round()}%',
-                  ),
-                ),
-                Expanded(
-                  child: _StatColumn(
-                    label: 'BEST ROUND',
-                    value: stats.bestRound > 0 ? '+${stats.bestRound}' : '--',
-                  ),
-                ),
-              ],
-            ),
-          ),
+          data: (stats) => SessionStatsSection(stats: stats),
         ),
         const SizedBox(height: SpacingTokens.lg),
-
         // Score progression chart -- premium-gated
+        Text(
+          AppLocalizations.of(context)?.scoreProgression ?? 'Score Progression',
+          style: textTheme.titleMedium?.copyWith(
+            color: storyTheme.primaryText,
+          ),
+        ),
+        const SizedBox(height: SpacingTokens.sm),
         if (isSupporter)
           progressionAsync.when(
             loading: () => const SizedBox(
@@ -740,11 +816,9 @@ class _SessionStatsBlock extends ConsumerWidget {
                       Text(
                         AppLocalizations.of(context)?.supporterPack ??
                             'Supporter Pack',
-                        style: TextStyle(
-                          fontFamily: 'Nunito',
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
+                        style: textTheme.bodySmall?.copyWith(
                           color: storyTheme.goldAccent,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ],
@@ -753,43 +827,6 @@ class _SessionStatsBlock extends ConsumerWidget {
               ),
             ],
           ),
-      ],
-    );
-  }
-}
-
-/// A single stat column for the 3-column grid.
-class _StatColumn extends StatelessWidget {
-  const _StatColumn({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontFamily: 'Nunito',
-            fontSize: 10,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 1.5,
-            color: ColorTokens.goldAccent,
-          ),
-        ),
-        const SizedBox(height: SpacingTokens.xs),
-        Text(
-          value,
-          style: const TextStyle(
-            fontFamily: 'Nunito',
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: ColorTokens.parchment,
-          ),
-          textAlign: TextAlign.center,
-        ),
       ],
     );
   }
@@ -839,7 +876,10 @@ class _AnimatedScoreCounterState extends State<_AnimatedScoreCounter>
     return AnimatedBuilder(
       animation: _animation,
       builder: (context, _) {
-        return Text('${_animation.value}', style: widget.style);
+        final l10n = AppLocalizations.of(context);
+        final label =
+            l10n?.points(_animation.value) ?? '${_animation.value} points';
+        return Text(label, style: widget.style);
       },
     );
   }

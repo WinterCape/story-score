@@ -93,62 +93,73 @@ class SettingsScreen extends ConsumerWidget {
                   children: [
                     _SettingsRow(
                       title: l10n.theme,
-                      trailing: Text(
-                        _themeModeLabel(context, settings.themeMode),
-                        style: const TextStyle(
-                          color: ColorTokens.mutedText,
-                          fontSize: 14,
-                        ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            _themeModeLabel(context, settings.themeMode),
+                            style: const TextStyle(
+                              color: ColorTokens.mutedText,
+                              fontSize: 14,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          const Icon(
+                            Icons.expand_more_rounded,
+                            color: ColorTokens.mutedText,
+                            size: 18,
+                          ),
+                        ],
                       ),
-                      onTap: () {
-                        // Cycle theme mode
-                        final next = switch (settings.themeMode) {
-                          ThemeMode.dark => ThemeMode.light,
-                          ThemeMode.light => ThemeMode.system,
-                          ThemeMode.system => ThemeMode.dark,
-                        };
-                        ref
-                            .read(appSettingsProvider.notifier)
-                            .setThemeMode(next);
-                      },
+                      onTap: () => _showThemeModePicker(context, ref, settings.themeMode),
                     ),
                     const _SettingsDivider(),
                     _SettingsRow(
                       title: l10n.colorTheme,
-                      trailing: Text(
-                        settings.selectedTheme.isEmpty
-                            ? 'Storybook Gold'
-                            : _capitalizeFirst(settings.selectedTheme),
-                        style: const TextStyle(
-                          color: ColorTokens.mutedText,
-                          fontSize: 14,
-                        ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            settings.selectedTheme.isEmpty
+                                ? 'Storybook Gold'
+                                : _capitalizeFirst(settings.selectedTheme),
+                            style: const TextStyle(
+                              color: ColorTokens.mutedText,
+                              fontSize: 14,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          const Icon(
+                            Icons.expand_more_rounded,
+                            color: ColorTokens.mutedText,
+                            size: 18,
+                          ),
+                        ],
                       ),
-                      onTap: () {
-                        // Could navigate to theme picker
-                      },
+                      onTap: () => _showColorThemePicker(context, ref, settings.selectedTheme),
                     ),
                     const _SettingsDivider(),
                     _SettingsRow(
                       title: l10n.language,
-                      trailing: Text(
-                        _localeLabel(settings.locale),
-                        style: const TextStyle(
-                          color: ColorTokens.mutedText,
-                          fontSize: 14,
-                        ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            _localeLabel(settings.locale),
+                            style: const TextStyle(
+                              color: ColorTokens.mutedText,
+                              fontSize: 14,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          const Icon(
+                            Icons.expand_more_rounded,
+                            color: ColorTokens.mutedText,
+                            size: 18,
+                          ),
+                        ],
                       ),
-                      onTap: () {
-                        // Cycle locale
-                        final next = switch (settings.locale) {
-                          null => 'en',
-                          'en' => 'ro',
-                          _ => null,
-                        };
-                        ref
-                            .read(appSettingsProvider.notifier)
-                            .setLocale(next);
-                      },
+                      onTap: () => _showLanguagePicker(context, ref, settings.locale),
                     ),
                   ],
                 ),
@@ -332,8 +343,251 @@ class SettingsScreen extends ConsumerWidget {
     return switch (mode) {
       ThemeMode.system => 'System',
       ThemeMode.light => 'Light',
-      ThemeMode.dark => 'Dark / Light',
+      ThemeMode.dark => 'Dark',
     };
+  }
+
+  void _showThemeModePicker(
+    BuildContext context,
+    WidgetRef ref,
+    ThemeMode currentMode,
+  ) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: ColorTokens.darkCard,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+      ),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: ColorTokens.mutedText.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'CHOOSE THEME',
+                  style: TextStyle(
+                    color: ColorTokens.goldAccent,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _ThemeModeOption(
+                  icon: Icons.phone_android_rounded,
+                  label: 'System',
+                  description: 'Follow device settings',
+                  isSelected: currentMode == ThemeMode.system,
+                  onTap: () {
+                    ref.read(appSettingsProvider.notifier).setThemeMode(ThemeMode.system);
+                    Navigator.pop(sheetContext);
+                  },
+                ),
+                const SizedBox(height: 8),
+                _ThemeModeOption(
+                  icon: Icons.light_mode_rounded,
+                  label: 'Light',
+                  description: 'Warm parchment theme',
+                  isSelected: currentMode == ThemeMode.light,
+                  onTap: () {
+                    ref.read(appSettingsProvider.notifier).setThemeMode(ThemeMode.light);
+                    Navigator.pop(sheetContext);
+                  },
+                ),
+                const SizedBox(height: 8),
+                _ThemeModeOption(
+                  icon: Icons.dark_mode_rounded,
+                  label: 'Dark',
+                  description: 'Enchanted night theme',
+                  isSelected: currentMode == ThemeMode.dark,
+                  onTap: () {
+                    ref.read(appSettingsProvider.notifier).setThemeMode(ThemeMode.dark);
+                    Navigator.pop(sheetContext);
+                  },
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showColorThemePicker(
+    BuildContext context,
+    WidgetRef ref,
+    String currentTheme,
+  ) {
+    final themes = [
+      ('', 'Storybook Gold', 'Default warm enchanted theme', [ColorTokens.goldAccent, ColorTokens.burgundy, ColorTokens.parchment]),
+      ('ocean', 'Ocean Depths', 'Deep blue ocean theme', [const Color(0xFF1A6B8A), const Color(0xFF0A3D5C), const Color(0xFF7BC8E8)]),
+      ('ember', 'Ember', 'Warm fire theme', [const Color(0xFFE85830), const Color(0xFFA01820), const Color(0xFFFFB060)]),
+      ('frost', 'Frost', 'Cool ice theme', [const Color(0xFF6AA8D8), const Color(0xFF3A6898), const Color(0xFFD0E8F8)]),
+      ('forest', 'Enchanted Forest', 'Mystical green theme', [const Color(0xFF2A8A4A), const Color(0xFF1A5A2A), const Color(0xFFA8D8A0)]),
+    ];
+
+    final isSupporter = ref.read(isSupporterProvider);
+
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: ColorTokens.darkCard,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+      ),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40, height: 4,
+                    decoration: BoxDecoration(
+                      color: ColorTokens.mutedText.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'COLOR THEME',
+                  style: TextStyle(
+                    color: ColorTokens.goldAccent,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ...themes.map((t) {
+                  final (id, label, desc, colors) = t;
+                  final isPremium = id.isNotEmpty;
+                  final isLocked = isPremium && !isSupporter;
+                  final isSelected = currentTheme == id || (currentTheme.isEmpty && id.isEmpty);
+
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: _ThemeModeOption(
+                      icon: isLocked ? Icons.lock_rounded : Icons.palette_rounded,
+                      label: isLocked ? '$label 🔒' : label,
+                      description: isLocked ? 'Supporter Pack feature' : desc,
+                      isSelected: isSelected,
+                      onTap: () {
+                        if (isLocked) {
+                          Navigator.pop(sheetContext);
+                          context.push('/settings/premium');
+                        } else {
+                          ref.read(appSettingsProvider.notifier).setSelectedTheme(id);
+                          Navigator.pop(sheetContext);
+                        }
+                      },
+                    ),
+                  );
+                }),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showLanguagePicker(
+    BuildContext context,
+    WidgetRef ref,
+    String? currentLocale,
+  ) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: ColorTokens.darkCard,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+      ),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40, height: 4,
+                    decoration: BoxDecoration(
+                      color: ColorTokens.mutedText.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'LANGUAGE',
+                  style: TextStyle(
+                    color: ColorTokens.goldAccent,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _ThemeModeOption(
+                  icon: Icons.phone_android_rounded,
+                  label: 'System',
+                  description: 'Follow device language',
+                  isSelected: currentLocale == null,
+                  onTap: () {
+                    ref.read(appSettingsProvider.notifier).setLocale(null);
+                    Navigator.pop(sheetContext);
+                  },
+                ),
+                const SizedBox(height: 8),
+                _ThemeModeOption(
+                  icon: Icons.language_rounded,
+                  label: 'English',
+                  description: 'English',
+                  isSelected: currentLocale == 'en',
+                  onTap: () {
+                    ref.read(appSettingsProvider.notifier).setLocale('en');
+                    Navigator.pop(sheetContext);
+                  },
+                ),
+                const SizedBox(height: 8),
+                _ThemeModeOption(
+                  icon: Icons.language_rounded,
+                  label: 'Română',
+                  description: 'Romanian',
+                  isSelected: currentLocale == 'ro',
+                  onTap: () {
+                    ref.read(appSettingsProvider.notifier).setLocale('ro');
+                    Navigator.pop(sheetContext);
+                  },
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   static String _localeLabel(String? locale) {
@@ -502,6 +756,89 @@ class _SettingsDivider extends StatelessWidget {
       indent: SpacingTokens.md,
       endIndent: SpacingTokens.md,
       color: ColorTokens.mutedText.withValues(alpha: 0.15),
+    );
+  }
+}
+
+/// A selectable theme mode option for the bottom sheet picker.
+class _ThemeModeOption extends StatelessWidget {
+  const _ThemeModeOption({
+    required this.icon,
+    required this.label,
+    required this.description,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final String description;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? ColorTokens.goldAccent.withValues(alpha: 0.12)
+                : ColorTokens.mutedText.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: isSelected
+                  ? ColorTokens.goldAccent.withValues(alpha: 0.5)
+                  : Colors.transparent,
+              width: 1.5,
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                icon,
+                color: isSelected ? ColorTokens.goldAccent : ColorTokens.mutedText,
+                size: 22,
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: TextStyle(
+                        color: isSelected
+                            ? ColorTokens.parchment
+                            : ColorTokens.mutedText,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Text(
+                      description,
+                      style: TextStyle(
+                        color: ColorTokens.mutedText.withValues(alpha: 0.7),
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (isSelected)
+                const Icon(
+                  Icons.check_circle_rounded,
+                  color: ColorTokens.goldAccent,
+                  size: 20,
+                ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

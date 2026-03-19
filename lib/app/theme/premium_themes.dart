@@ -135,6 +135,19 @@ class PremiumThemePalette {
         'amber': Color(0xFFF59E0B),
         'plum': Color(0xFFA855F7),
       },
+      backgroundGradient: LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: isDark
+            ? [bgColor, surfColor, surfVariant]
+            : [bgColor, surfColor],
+      ),
+      primaryAccent: isDark ? accent : primary,
+      primaryText: onSurfColor,
+      secondaryText: onSurfVariantColor,
+      cardColor: surfColor,
+      cardVariant: surfVariant,
+      surfaceColor: surfColor,
     );
 
     return ThemeData(

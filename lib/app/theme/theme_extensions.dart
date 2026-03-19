@@ -17,6 +17,13 @@ class StoryScoreThemeExtension
     required this.accentGradient,
     required this.cardGradient,
     required this.playerColors,
+    required this.backgroundGradient,
+    required this.primaryAccent,
+    required this.primaryText,
+    required this.secondaryText,
+    required this.cardColor,
+    required this.cardVariant,
+    required this.surfaceColor,
   });
 
   /// Gold accent used for highlights, star ratings, premium badges.
@@ -46,6 +53,27 @@ class StoryScoreThemeExtension
   /// The 12 distinct player-assignment colors keyed by name.
   final Map<String, Color> playerColors;
 
+  /// Full-screen background gradient (dark: ink→plum→violet, light: linen→parchment).
+  final LinearGradient backgroundGradient;
+
+  /// Primary accent color (dark: gold, light: burgundy).
+  final Color primaryAccent;
+
+  /// Primary text color (dark: parchment, light: warm brown).
+  final Color primaryText;
+
+  /// Secondary / muted text color (dark: lavender mist, light: faded brown).
+  final Color secondaryText;
+
+  /// Card background color.
+  final Color cardColor;
+
+  /// Card variant / elevated card color.
+  final Color cardVariant;
+
+  /// Surface color (slightly elevated from background).
+  final Color surfaceColor;
+
   // ---------------------------------------------------------------------------
   // Pre-built instances for dark and light themes
   // ---------------------------------------------------------------------------
@@ -71,6 +99,21 @@ class StoryScoreThemeExtension
       colors: [ColorTokens.darkCard, ColorTokens.darkCardVariant],
     ),
     playerColors: ColorTokens.playerColorsByName,
+    backgroundGradient: LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [
+        ColorTokens.darkBackground,
+        ColorTokens.darkSurface,
+        ColorTokens.darkCard,
+      ],
+    ),
+    primaryAccent: ColorTokens.goldAccent,
+    primaryText: ColorTokens.parchment,
+    secondaryText: ColorTokens.mutedText,
+    cardColor: ColorTokens.darkCard,
+    cardVariant: ColorTokens.darkCardVariant,
+    surfaceColor: ColorTokens.darkSurface,
   );
 
   static const StoryScoreThemeExtension light = StoryScoreThemeExtension(
@@ -94,6 +137,20 @@ class StoryScoreThemeExtension
       colors: [ColorTokens.lightCard, ColorTokens.lightSurface],
     ),
     playerColors: ColorTokens.playerColorsByName,
+    backgroundGradient: LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [
+        ColorTokens.lightBackground,
+        ColorTokens.lightSurface,
+      ],
+    ),
+    primaryAccent: ColorTokens.lightPrimary,
+    primaryText: ColorTokens.lightOnSurface,
+    secondaryText: ColorTokens.lightOnSurfaceVariant,
+    cardColor: ColorTokens.lightCard,
+    cardVariant: ColorTokens.lightSurface,
+    surfaceColor: ColorTokens.lightSurface,
   );
 
   // ---------------------------------------------------------------------------
@@ -111,6 +168,13 @@ class StoryScoreThemeExtension
     LinearGradient? accentGradient,
     LinearGradient? cardGradient,
     Map<String, Color>? playerColors,
+    LinearGradient? backgroundGradient,
+    Color? primaryAccent,
+    Color? primaryText,
+    Color? secondaryText,
+    Color? cardColor,
+    Color? cardVariant,
+    Color? surfaceColor,
   }) {
     return StoryScoreThemeExtension(
       goldAccent: goldAccent ?? this.goldAccent,
@@ -122,6 +186,13 @@ class StoryScoreThemeExtension
       accentGradient: accentGradient ?? this.accentGradient,
       cardGradient: cardGradient ?? this.cardGradient,
       playerColors: playerColors ?? this.playerColors,
+      backgroundGradient: backgroundGradient ?? this.backgroundGradient,
+      primaryAccent: primaryAccent ?? this.primaryAccent,
+      primaryText: primaryText ?? this.primaryText,
+      secondaryText: secondaryText ?? this.secondaryText,
+      cardColor: cardColor ?? this.cardColor,
+      cardVariant: cardVariant ?? this.cardVariant,
+      surfaceColor: surfaceColor ?? this.surfaceColor,
     );
   }
 
@@ -146,6 +217,17 @@ class StoryScoreThemeExtension
       cardGradient: LinearGradient.lerp(cardGradient, other.cardGradient, t)!,
       // Colors are discrete — snap at the midpoint.
       playerColors: t < 0.5 ? playerColors : other.playerColors,
+      backgroundGradient: LinearGradient.lerp(
+        backgroundGradient,
+        other.backgroundGradient,
+        t,
+      )!,
+      primaryAccent: Color.lerp(primaryAccent, other.primaryAccent, t)!,
+      primaryText: Color.lerp(primaryText, other.primaryText, t)!,
+      secondaryText: Color.lerp(secondaryText, other.secondaryText, t)!,
+      cardColor: Color.lerp(cardColor, other.cardColor, t)!,
+      cardVariant: Color.lerp(cardVariant, other.cardVariant, t)!,
+      surfaceColor: Color.lerp(surfaceColor, other.surfaceColor, t)!,
     );
   }
 }
