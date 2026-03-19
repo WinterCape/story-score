@@ -38,3 +38,11 @@ final deleteRoundProvider =
       return ({required String roundId, required String sessionId}) =>
           processor.deleteRound(roundId: roundId, sessionId: sessionId);
     });
+
+/// Provides a function to reset a match: delete all rounds, zero scores.
+final resetMatchProvider = Provider<Future<void> Function(String sessionId)>(
+  (ref) {
+    final processor = ref.watch(roundProcessorProvider);
+    return (String sessionId) => processor.resetMatch(sessionId: sessionId);
+  },
+);

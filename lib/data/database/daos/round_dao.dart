@@ -291,6 +291,24 @@ class RoundDao extends DatabaseAccessor<AppDatabase> with _$RoundDaoMixin {
     });
   }
 
+  /// Deletes all rounds (and their votes/score changes) for a session.
+  Future<void> deleteAllRoundsForSession(String sessionId) {
+    return transaction(() async {
+      final sessionRounds = await (select(rounds)
+            ..where((r) => r.sessionId.equals(sessionId)))
+          .get();
+
+      for (final round in sessionRounds) {
+        await (delete(votes)..where((v) => v.roundId.equals(round.id))).go();
+        await (delete(scoreChanges)
+              ..where((sc) => sc.roundId.equals(round.id)))
+            .go();
+      }
+
+      await (delete(rounds)..where((r) => r.sessionId.equals(sessionId))).go();
+    });
+  }
+
   static String _reasonLabel(Enum reason) => switch (reason.name) {
     'storytellerGoodClue' => 'Good clue',
     'correctGuess' => 'Correct guess',

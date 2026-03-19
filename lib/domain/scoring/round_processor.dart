@@ -1,4 +1,6 @@
+import 'package:drift/drift.dart';
 import 'package:story_score/core/utils/id_generator.dart';
+import 'package:story_score/data/database/app_database.dart';
 import 'package:story_score/data/database/daos/round_dao.dart';
 import 'package:story_score/data/database/daos/session_dao.dart';
 import 'package:story_score/domain/scoring/scoring_engine.dart';
@@ -108,6 +110,22 @@ class RoundProcessor {
   Future<void> undoLastRound({required String sessionId}) async {
     await _roundDao.deleteLastRound(sessionId);
     await _sessionDao.recomputePlayerScores(sessionId);
+  }
+
+  /// Reset match: delete all rounds, zero all scores, reset storyteller.
+  Future<void> resetMatch({required String sessionId}) async {
+    await _roundDao.deleteAllRoundsForSession(sessionId);
+
+    final sessionPlayers = await _sessionDao.getPlayersForSession(sessionId);
+    for (final player in sessionPlayers) {
+      await _sessionDao.updatePlayerScore(player.id, 0);
+    }
+
+    await _sessionDao.updateSession(sessionId, GameSessionsCompanion(
+      currentStorytellerSeat: Value(0),
+      roundCount: Value(0),
+      updatedAt: Value(DateTime.now()),
+    ));
   }
 }
 

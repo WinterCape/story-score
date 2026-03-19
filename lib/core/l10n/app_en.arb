@@ -707,5 +707,35 @@
   "@dataSection": { "description": "Settings section header for data" },
 
   "premiumSection": "PREMIUM",
-  "@premiumSection": { "description": "Settings section header for premium" }
+  "@premiumSection": { "description": "Settings section header for premium" },
+
+  "editGame": "Edit Game",
+  "@editGame": { "description": "Menu item to edit active game settings" },
+
+  "resetMatch": "Reset Match",
+  "@resetMatch": { "description": "Menu item to reset all scores and rounds" },
+
+  "resetMatchQuestion": "Reset Match?",
+  "@resetMatchQuestion": { "description": "Confirmation dialog title for reset match" },
+
+  "resetMatchConfirmation": "This will delete all rounds and reset scores to zero. This cannot be undone.",
+  "@resetMatchConfirmation": { "description": "Confirmation dialog body for reset match" },
+
+  "matchReset": "Match has been reset",
+  "@matchReset": { "description": "Snackbar message after match reset" },
+
+  "saveChanges": "Save Changes",
+  "@saveChanges": { "description": "Button to save edits to game" },
+
+  "changesSaved": "Changes saved",
+  "@changesSaved": { "description": "Snackbar message after game edit saved" },
+
+  "noRoundsToUndo": "No rounds to undo",
+  "@noRoundsToUndo": { "description": "Message when trying to undo with no rounds" },
+
+  "playerAdded": "Player added",
+  "@playerAdded": { "description": "Snackbar message after adding a player" },
+
+  "maxPlayersReached": "Maximum 10 players",
+  "@maxPlayersReached": { "description": "Message when trying to add beyond max players" }
 }

@@ -127,6 +127,25 @@ class SessionDao extends DatabaseAccessor<AppDatabase> with _$SessionDaoMixin {
     });
   }
 
+  /// Updates fields on an existing player (name, color, seat order, etc.).
+  Future<void> updatePlayer(String playerId, PlayersCompanion companion) async {
+    await (update(players)..where((p) => p.id.equals(playerId)))
+        .write(companion);
+  }
+
+  /// Adds a new player to an existing session.
+  Future<void> addPlayerToSession(PlayersCompanion player) async {
+    await into(players).insert(player);
+  }
+
+  /// Returns all players for [sessionId] as a one-shot query.
+  Future<List<Player>> getPlayersForSession(String sessionId) {
+    return (select(players)
+          ..where((p) => p.sessionId.equals(sessionId))
+          ..orderBy([(p) => OrderingTerm.asc(p.seatOrder)]))
+        .get();
+  }
+
   /// Advances the storyteller to the next seat for [sessionId].
   Future<void> advanceStoryteller(String sessionId) {
     return transaction(() async {

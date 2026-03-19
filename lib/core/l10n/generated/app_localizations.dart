@@ -854,7 +854,7 @@ abstract class AppLocalizations {
   /// **'Edit Votes'**
   String get editVotes;
 
-  /// Button to save edited changes
+  /// Button to save edits to game
   ///
   /// In en, this message translates to:
   /// **'Save Changes'**
@@ -1513,6 +1513,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'PREMIUM'**
   String get premiumSection;
+
+  /// Menu item to edit active game settings
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Game'**
+  String get editGame;
+
+  /// Menu item to reset all scores and rounds
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Match'**
+  String get resetMatch;
+
+  /// Confirmation dialog title for reset match
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Match?'**
+  String get resetMatchQuestion;
+
+  /// Confirmation dialog body for reset match
+  ///
+  /// In en, this message translates to:
+  /// **'This will delete all rounds and reset scores to zero. This cannot be undone.'**
+  String get resetMatchConfirmation;
+
+  /// Snackbar message after match reset
+  ///
+  /// In en, this message translates to:
+  /// **'Match has been reset'**
+  String get matchReset;
+
+  /// Snackbar message after game edit saved
+  ///
+  /// In en, this message translates to:
+  /// **'Changes saved'**
+  String get changesSaved;
+
+  /// Message when trying to undo with no rounds
+  ///
+  /// In en, this message translates to:
+  /// **'No rounds to undo'**
+  String get noRoundsToUndo;
+
+  /// Snackbar message after adding a player
+  ///
+  /// In en, this message translates to:
+  /// **'Player added'**
+  String get playerAdded;
+
+  /// Message when trying to add beyond max players
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum 10 players'**
+  String get maxPlayersReached;
 }
 
 class _AppLocalizationsDelegate

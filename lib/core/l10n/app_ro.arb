@@ -237,5 +237,16 @@
   "viewLinks": "Vezi link-uri",
   "nSaved": "{count} salvate",
   "dataSection": "DATE",
-  "premiumSection": "PREMIUM"
+  "premiumSection": "PREMIUM",
+
+  "editGame": "Editează Jocul",
+  "resetMatch": "Resetează Meciul",
+  "resetMatchQuestion": "Resetează Meciul?",
+  "resetMatchConfirmation": "Toate rundele vor fi șterse și scorurile resetate la zero. Această acțiune nu poate fi anulată.",
+  "matchReset": "Meciul a fost resetat",
+  "saveChanges": "Salvează Modificările",
+  "changesSaved": "Modificările au fost salvate",
+  "noRoundsToUndo": "Nu există runde de anulat",
+  "playerAdded": "Jucător adăugat",
+  "maxPlayersReached": "Maximum 10 jucători"
 }

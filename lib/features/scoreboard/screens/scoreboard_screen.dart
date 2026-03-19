@@ -11,6 +11,7 @@ import 'package:story_score/data/database/app_database.dart';
 import 'package:story_score/data/database/tables/game_sessions.dart';
 import 'package:story_score/data/export/export_helper.dart';
 import 'package:story_score/data/export/session_exporter.dart';
+import 'package:story_score/features/history/providers/history_providers.dart';
 import 'package:story_score/features/premium/providers/premium_providers.dart';
 import 'package:story_score/features/scoreboard/providers/scoreboard_providers.dart';
 import 'package:story_score/features/scoreboard/widgets/player_score_card.dart';
@@ -191,6 +192,12 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
               PopupMenuButton<String>(
                 onSelected: (value) {
                   switch (value) {
+                    case 'edit_game':
+                      context.push('/game/${session.id}/edit');
+                    case 'undo_last_round':
+                      _showUndoLastRoundDialog(context, ref, session);
+                    case 'reset_match':
+                      _showResetMatchDialog(context, ref, session);
                     case 'export_game':
                       _showExportSheet(context, ref);
                     case 'end_game':
@@ -198,6 +205,39 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
                   }
                 },
                 itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: 'edit_game',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.edit_rounded, size: 20),
+                        const SizedBox(width: SpacingTokens.sm),
+                        Text(l10n.editGame),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 'undo_last_round',
+                    enabled: session.roundCount > 0,
+                    child: Row(
+                      children: [
+                        const Icon(Icons.undo_rounded, size: 20),
+                        const SizedBox(width: SpacingTokens.sm),
+                        Text(l10n.undoLastRound),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 'reset_match',
+                    enabled: session.roundCount > 0,
+                    child: Row(
+                      children: [
+                        const Icon(Icons.refresh_rounded, size: 20),
+                        const SizedBox(width: SpacingTokens.sm),
+                        Text(l10n.resetMatch),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuDivider(),
                   PopupMenuItem(
                     value: 'export_game',
                     child: Row(
@@ -364,6 +404,74 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
     } catch (e) {
       messenger.showSnackBar(SnackBar(content: Text(l10n.exportFailed('$e'))));
     }
+  }
+
+  void _showUndoLastRoundDialog(
+    BuildContext context,
+    WidgetRef ref,
+    GameSession session,
+  ) {
+    if (session.roundCount == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.l10n.noRoundsToUndo)),
+      );
+      return;
+    }
+    final l10n = context.l10n;
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.undoLastRound),
+        content: Text(l10n.undoLastRoundConfirmation),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () async {
+              Navigator.of(dialogContext).pop();
+              await ref.read(undoLastRoundProvider)(sessionId);
+            },
+            child: Text(l10n.undo),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showResetMatchDialog(
+    BuildContext context,
+    WidgetRef ref,
+    GameSession session,
+  ) {
+    if (session.roundCount == 0) return;
+    final l10n = context.l10n;
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.resetMatchQuestion),
+        content: Text(l10n.resetMatchConfirmation),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () async {
+              Navigator.of(dialogContext).pop();
+              await ref.read(resetMatchProvider)(sessionId);
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(l10n.matchReset)),
+                );
+              }
+            },
+            child: Text(l10n.resetMatch),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showEndGameDialog(

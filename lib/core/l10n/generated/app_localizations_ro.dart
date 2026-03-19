@@ -808,4 +808,32 @@ class AppLocalizationsRo extends AppLocalizations {
 
   @override
   String get premiumSection => 'PREMIUM';
+
+  @override
+  String get editGame => 'Editează Jocul';
+
+  @override
+  String get resetMatch => 'Resetează Meciul';
+
+  @override
+  String get resetMatchQuestion => 'Resetează Meciul?';
+
+  @override
+  String get resetMatchConfirmation =>
+      'Toate rundele vor fi șterse și scorurile resetate la zero. Această acțiune nu poate fi anulată.';
+
+  @override
+  String get matchReset => 'Meciul a fost resetat';
+
+  @override
+  String get changesSaved => 'Modificările au fost salvate';
+
+  @override
+  String get noRoundsToUndo => 'Nu există runde de anulat';
+
+  @override
+  String get playerAdded => 'Jucător adăugat';
+
+  @override
+  String get maxPlayersReached => 'Maximum 10 jucători';
 }

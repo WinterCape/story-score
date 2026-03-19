@@ -807,4 +807,32 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get premiumSection => 'PREMIUM';
+
+  @override
+  String get editGame => 'Edit Game';
+
+  @override
+  String get resetMatch => 'Reset Match';
+
+  @override
+  String get resetMatchQuestion => 'Reset Match?';
+
+  @override
+  String get resetMatchConfirmation =>
+      'This will delete all rounds and reset scores to zero. This cannot be undone.';
+
+  @override
+  String get matchReset => 'Match has been reset';
+
+  @override
+  String get changesSaved => 'Changes saved';
+
+  @override
+  String get noRoundsToUndo => 'No rounds to undo';
+
+  @override
+  String get playerAdded => 'Player added';
+
+  @override
+  String get maxPlayersReached => 'Maximum 10 players';
 }

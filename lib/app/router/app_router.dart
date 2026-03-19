@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:story_score/features/endgame/screens/endgame_screen.dart';
+import 'package:story_score/features/game_edit/screens/game_edit_screen.dart';
 import 'package:story_score/features/game_setup/screens/game_setup_screen.dart';
 import 'package:story_score/features/history/screens/history_screen.dart';
 import 'package:story_score/features/home/screens/home_screen.dart';
@@ -80,6 +81,13 @@ final routerProvider = Provider<GoRouter>((ref) {
           final sessionId = state.pathParameters['sessionId']!;
           final roundId = state.pathParameters['roundId']!;
           return RoundDetailScreen(sessionId: sessionId, roundId: roundId);
+        },
+      ),
+      GoRoute(
+        path: '/game/:sessionId/edit',
+        builder: (context, state) {
+          final sessionId = state.pathParameters['sessionId']!;
+          return GameEditScreen(sessionId: sessionId);
         },
       ),
       GoRoute(
