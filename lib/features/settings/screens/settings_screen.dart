@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:story_score/app/theme/color_tokens.dart';
 import 'package:story_score/app/theme/spacing_tokens.dart';
+import 'package:story_score/app/theme/theme_extensions.dart';
 import 'package:story_score/core/constants/app_assets.dart';
 import 'package:story_score/features/premium/providers/premium_providers.dart';
 import 'package:story_score/features/settings/providers/settings_providers.dart';
@@ -20,23 +21,23 @@ class SettingsScreen extends ConsumerWidget {
 
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              ColorTokens.darkBackground,
-              ColorTokens.darkSurface,
-              ColorTokens.darkCard,
+              Theme.of(context).scaffoldBackgroundColor,
+              Theme.of(context).colorScheme.surface,
+              Theme.of(context).cardColor,
             ],
           ),
         ),
         child: SafeArea(
           child: settingsAsync.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
+            loading: () => Center(child: CircularProgressIndicator()),
             error: (e, _) => Center(child: Text('${l10n.error}: $e')),
             data: (settings) => ListView(
-              padding: const EdgeInsets.symmetric(
+              padding: EdgeInsets.symmetric(
                 horizontal: SpacingTokens.lg,
                 vertical: SpacingTokens.md,
               ),
@@ -49,16 +50,16 @@ class SettingsScreen extends ConsumerWidget {
                       height: 40,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: ColorTokens.darkCard,
+                        color: Theme.of(context).cardColor,
                         border: Border.all(
                           color:
-                              ColorTokens.goldAccent.withValues(alpha: 0.3),
+                              Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
                         ),
                       ),
                       child: IconButton(
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.arrow_back_rounded,
-                          color: ColorTokens.goldAccent,
+                          color: Theme.of(context).colorScheme.primary,
                           size: 20,
                         ),
                         padding: EdgeInsets.zero,
@@ -71,24 +72,24 @@ class SettingsScreen extends ConsumerWidget {
                         },
                       ),
                     ),
-                    const SizedBox(width: SpacingTokens.md),
+                    SizedBox(width: SpacingTokens.md),
                     Text(
                       l10n.settings,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: 'Nunito',
                         fontSize: 28,
                         fontWeight: FontWeight.w800,
-                        color: ColorTokens.parchment,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                   ],
                 ),
 
-                const SizedBox(height: SpacingTokens.lg),
+                SizedBox(height: SpacingTokens.lg),
 
                 // ── APPEARANCE ──
                 const _SectionHeader('APPEARANCE'),
-                const SizedBox(height: SpacingTokens.sm),
+                SizedBox(height: SpacingTokens.sm),
                 _SettingsCard(
                   children: [
                     _SettingsRow(
@@ -98,15 +99,15 @@ class SettingsScreen extends ConsumerWidget {
                         children: [
                           Text(
                             _themeModeLabel(context, settings.themeMode),
-                            style: const TextStyle(
-                              color: ColorTokens.mutedText,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                               fontSize: 14,
                             ),
                           ),
-                          const SizedBox(width: 4),
-                          const Icon(
+                          SizedBox(width: 4),
+                          Icon(
                             Icons.expand_more_rounded,
-                            color: ColorTokens.mutedText,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                             size: 18,
                           ),
                         ],
@@ -123,15 +124,15 @@ class SettingsScreen extends ConsumerWidget {
                             settings.selectedTheme.isEmpty
                                 ? 'Storybook Gold'
                                 : _capitalizeFirst(settings.selectedTheme),
-                            style: const TextStyle(
-                              color: ColorTokens.mutedText,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                               fontSize: 14,
                             ),
                           ),
-                          const SizedBox(width: 4),
-                          const Icon(
+                          SizedBox(width: 4),
+                          Icon(
                             Icons.expand_more_rounded,
-                            color: ColorTokens.mutedText,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                             size: 18,
                           ),
                         ],
@@ -146,15 +147,15 @@ class SettingsScreen extends ConsumerWidget {
                         children: [
                           Text(
                             _localeLabel(settings.locale),
-                            style: const TextStyle(
-                              color: ColorTokens.mutedText,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                               fontSize: 14,
                             ),
                           ),
-                          const SizedBox(width: 4),
-                          const Icon(
+                          SizedBox(width: 4),
+                          Icon(
                             Icons.expand_more_rounded,
-                            color: ColorTokens.mutedText,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                             size: 18,
                           ),
                         ],
@@ -164,11 +165,11 @@ class SettingsScreen extends ConsumerWidget {
                   ],
                 ),
 
-                const SizedBox(height: SpacingTokens.lg),
+                SizedBox(height: SpacingTokens.lg),
 
                 // ── GAMEPLAY ──
                 const _SectionHeader('GAMEPLAY'),
-                const SizedBox(height: SpacingTokens.sm),
+                SizedBox(height: SpacingTokens.sm),
                 _SettingsCard(
                   children: [
                     _SettingsToggleRow(
@@ -215,19 +216,19 @@ class SettingsScreen extends ConsumerWidget {
                   ],
                 ),
 
-                const SizedBox(height: SpacingTokens.lg),
+                SizedBox(height: SpacingTokens.lg),
 
                 // ── DATA ──
                 const _SectionHeader('DATA'),
-                const SizedBox(height: SpacingTokens.sm),
+                SizedBox(height: SpacingTokens.sm),
                 _SettingsCard(
                   children: [
                     _SettingsRow(
                       title: l10n.playerPresets,
                       trailing: Text(
                         '3 saved',
-                        style: const TextStyle(
-                          color: ColorTokens.mutedText,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontSize: 14,
                         ),
                       ),
@@ -236,10 +237,10 @@ class SettingsScreen extends ConsumerWidget {
                     const _SettingsDivider(),
                     _SettingsRow(
                       title: 'Export / Import',
-                      trailing: const Text(
+                      trailing: Text(
                         'Manage data',
                         style: TextStyle(
-                          color: ColorTokens.mutedText,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontSize: 14,
                         ),
                       ),
@@ -250,42 +251,42 @@ class SettingsScreen extends ConsumerWidget {
                   ],
                 ),
 
-                const SizedBox(height: SpacingTokens.lg),
+                SizedBox(height: SpacingTokens.lg),
 
                 // ── PREMIUM ──
                 const _SectionHeader('PREMIUM'),
-                const SizedBox(height: SpacingTokens.sm),
+                SizedBox(height: SpacingTokens.sm),
                 _SettingsCard(
                   children: [
                     InkWell(
                       onTap: () => context.push('/settings/premium'),
                       borderRadius: BorderRadius.circular(14),
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(
+                        padding: EdgeInsets.symmetric(
                           horizontal: SpacingTokens.md,
                           vertical: SpacingTokens.md,
                         ),
                         child: Row(
                           children: [
-                            const Text(
+                            Text(
                               'Supporter Pack',
                               style: TextStyle(
                                 fontFamily: 'Nunito',
                                 fontSize: 15,
                                 fontWeight: FontWeight.w700,
-                                color: ColorTokens.parchment,
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
                             ),
-                            const SizedBox(width: SpacingTokens.sm),
+                            SizedBox(width: SpacingTokens.sm),
                             Image.asset(
                               AppAssets.supporterBadge,
                               width: 20,
                             ),
-                            const Spacer(),
-                            const Text(
+                            Spacer(),
+                            Text(
                               'Unlock more magic',
                               style: TextStyle(
-                                color: ColorTokens.mutedText,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 fontSize: 14,
                               ),
                             ),
@@ -296,19 +297,19 @@ class SettingsScreen extends ConsumerWidget {
                   ],
                 ),
 
-                const SizedBox(height: SpacingTokens.lg),
+                SizedBox(height: SpacingTokens.lg),
 
                 // ── ABOUT ──
                 const _SectionHeader('ABOUT'),
-                const SizedBox(height: SpacingTokens.sm),
+                SizedBox(height: SpacingTokens.sm),
                 _SettingsCard(
                   children: [
                     _SettingsRow(
                       title: 'Version',
-                      trailing: const Text(
+                      trailing: Text(
                         '1.0.0',
                         style: TextStyle(
-                          color: ColorTokens.mutedText,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontSize: 14,
                         ),
                       ),
@@ -316,10 +317,10 @@ class SettingsScreen extends ConsumerWidget {
                     const _SettingsDivider(),
                     _SettingsRow(
                       title: 'Privacy & Support',
-                      trailing: const Text(
+                      trailing: Text(
                         'View links',
                         style: TextStyle(
-                          color: ColorTokens.mutedText,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontSize: 14,
                         ),
                       ),
@@ -330,7 +331,7 @@ class SettingsScreen extends ConsumerWidget {
                   ],
                 ),
 
-                const SizedBox(height: SpacingTokens.xxl),
+                SizedBox(height: SpacingTokens.xxl),
               ],
             ),
           ),
@@ -354,14 +355,14 @@ class SettingsScreen extends ConsumerWidget {
   ) {
     showModalBottomSheet<void>(
       context: context,
-      backgroundColor: ColorTokens.darkCard,
-      shape: const RoundedRectangleBorder(
+      backgroundColor: Theme.of(context).cardColor,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
       ),
       builder: (sheetContext) {
         return SafeArea(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+            padding: EdgeInsets.fromLTRB(24, 24, 24, 16),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -371,22 +372,22 @@ class SettingsScreen extends ConsumerWidget {
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: ColorTokens.mutedText.withValues(alpha: 0.3),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
-                const Text(
+                SizedBox(height: 20),
+                Text(
                   'CHOOSE THEME',
                   style: TextStyle(
-                    color: ColorTokens.goldAccent,
+                    color: Theme.of(context).colorScheme.primary,
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 1.5,
                   ),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 _ThemeModeOption(
                   icon: Icons.phone_android_rounded,
                   label: 'System',
@@ -397,7 +398,7 @@ class SettingsScreen extends ConsumerWidget {
                     Navigator.pop(sheetContext);
                   },
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 _ThemeModeOption(
                   icon: Icons.light_mode_rounded,
                   label: 'Light',
@@ -408,7 +409,7 @@ class SettingsScreen extends ConsumerWidget {
                     Navigator.pop(sheetContext);
                   },
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 _ThemeModeOption(
                   icon: Icons.dark_mode_rounded,
                   label: 'Dark',
@@ -419,7 +420,7 @@ class SettingsScreen extends ConsumerWidget {
                     Navigator.pop(sheetContext);
                   },
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
               ],
             ),
           ),
@@ -434,7 +435,7 @@ class SettingsScreen extends ConsumerWidget {
     String currentTheme,
   ) {
     final themes = [
-      ('', 'Storybook Gold', 'Default warm enchanted theme', [ColorTokens.goldAccent, ColorTokens.burgundy, ColorTokens.parchment]),
+      ('', 'Storybook Gold', 'Default warm enchanted theme', [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.secondary, Theme.of(context).colorScheme.onSurface]),
       ('ocean', 'Ocean Depths', 'Deep blue ocean theme', [const Color(0xFF1A6B8A), const Color(0xFF0A3D5C), const Color(0xFF7BC8E8)]),
       ('ember', 'Ember', 'Warm fire theme', [const Color(0xFFE85830), const Color(0xFFA01820), const Color(0xFFFFB060)]),
       ('frost', 'Frost', 'Cool ice theme', [const Color(0xFF6AA8D8), const Color(0xFF3A6898), const Color(0xFFD0E8F8)]),
@@ -445,14 +446,14 @@ class SettingsScreen extends ConsumerWidget {
 
     showModalBottomSheet<void>(
       context: context,
-      backgroundColor: ColorTokens.darkCard,
-      shape: const RoundedRectangleBorder(
+      backgroundColor: Theme.of(context).cardColor,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
       ),
       builder: (sheetContext) {
         return SafeArea(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+            padding: EdgeInsets.fromLTRB(24, 24, 24, 16),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -461,22 +462,22 @@ class SettingsScreen extends ConsumerWidget {
                   child: Container(
                     width: 40, height: 4,
                     decoration: BoxDecoration(
-                      color: ColorTokens.mutedText.withValues(alpha: 0.3),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
-                const Text(
+                SizedBox(height: 20),
+                Text(
                   'COLOR THEME',
                   style: TextStyle(
-                    color: ColorTokens.goldAccent,
+                    color: Theme.of(context).colorScheme.primary,
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 1.5,
                   ),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 ...themes.map((t) {
                   final (id, label, desc, colors) = t;
                   final isPremium = id.isNotEmpty;
@@ -484,7 +485,7 @@ class SettingsScreen extends ConsumerWidget {
                   final isSelected = currentTheme == id || (currentTheme.isEmpty && id.isEmpty);
 
                   return Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
+                    padding: EdgeInsets.only(bottom: 8),
                     child: _ThemeModeOption(
                       icon: isLocked ? Icons.lock_rounded : Icons.palette_rounded,
                       label: isLocked ? '$label 🔒' : label,
@@ -517,14 +518,14 @@ class SettingsScreen extends ConsumerWidget {
   ) {
     showModalBottomSheet<void>(
       context: context,
-      backgroundColor: ColorTokens.darkCard,
-      shape: const RoundedRectangleBorder(
+      backgroundColor: Theme.of(context).cardColor,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
       ),
       builder: (sheetContext) {
         return SafeArea(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+            padding: EdgeInsets.fromLTRB(24, 24, 24, 16),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -533,22 +534,22 @@ class SettingsScreen extends ConsumerWidget {
                   child: Container(
                     width: 40, height: 4,
                     decoration: BoxDecoration(
-                      color: ColorTokens.mutedText.withValues(alpha: 0.3),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
-                const Text(
+                SizedBox(height: 20),
+                Text(
                   'LANGUAGE',
                   style: TextStyle(
-                    color: ColorTokens.goldAccent,
+                    color: Theme.of(context).colorScheme.primary,
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 1.5,
                   ),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 _ThemeModeOption(
                   icon: Icons.phone_android_rounded,
                   label: 'System',
@@ -559,7 +560,7 @@ class SettingsScreen extends ConsumerWidget {
                     Navigator.pop(sheetContext);
                   },
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 _ThemeModeOption(
                   icon: Icons.language_rounded,
                   label: 'English',
@@ -570,7 +571,7 @@ class SettingsScreen extends ConsumerWidget {
                     Navigator.pop(sheetContext);
                   },
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 _ThemeModeOption(
                   icon: Icons.language_rounded,
                   label: 'Română',
@@ -581,7 +582,7 @@ class SettingsScreen extends ConsumerWidget {
                     Navigator.pop(sheetContext);
                   },
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
               ],
             ),
           ),
@@ -617,12 +618,12 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: const TextStyle(
+      style: TextStyle(
         fontFamily: 'Nunito',
         fontSize: 10,
         fontWeight: FontWeight.w700,
         letterSpacing: 1.5,
-        color: ColorTokens.goldAccent,
+        color: Theme.of(context).colorScheme.primary,
       ),
     );
   }
@@ -640,10 +641,10 @@ class _SettingsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: ColorTokens.darkCard.withValues(alpha: 0.5),
+        color: Theme.of(context).cardColor.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: ColorTokens.goldAccent.withValues(alpha: 0.15),
+          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
         ),
       ),
       child: Column(children: children),
@@ -672,7 +673,7 @@ class _SettingsRow extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(14),
       child: Padding(
-        padding: const EdgeInsets.symmetric(
+        padding: EdgeInsets.symmetric(
           horizontal: SpacingTokens.md,
           vertical: SpacingTokens.md,
         ),
@@ -680,14 +681,14 @@ class _SettingsRow extends StatelessWidget {
           children: [
             Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'Nunito',
                 fontSize: 15,
                 fontWeight: FontWeight.w700,
-                color: ColorTokens.parchment,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
-            const Spacer(),
+            Spacer(),
             trailing,
           ],
         ),
@@ -714,7 +715,7 @@ class _SettingsToggleRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(
+      padding: EdgeInsets.symmetric(
         horizontal: SpacingTokens.md,
         vertical: SpacingTokens.xs,
       ),
@@ -722,17 +723,17 @@ class _SettingsToggleRow extends StatelessWidget {
         children: [
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: 'Nunito',
               fontSize: 15,
               fontWeight: FontWeight.w700,
-              color: ColorTokens.parchment,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
-          const Spacer(),
+          Spacer(),
           Switch(
             value: value,
-            activeTrackColor: ColorTokens.goldAccent,
+            activeTrackColor: Theme.of(context).colorScheme.primary,
             onChanged: onChanged,
           ),
         ],
@@ -755,7 +756,7 @@ class _SettingsDivider extends StatelessWidget {
       thickness: 0.5,
       indent: SpacingTokens.md,
       endIndent: SpacingTokens.md,
-      color: ColorTokens.mutedText.withValues(alpha: 0.15),
+      color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.15),
     );
   }
 }
@@ -784,15 +785,15 @@ class _ThemeModeOption extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(14),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           decoration: BoxDecoration(
             color: isSelected
-                ? ColorTokens.goldAccent.withValues(alpha: 0.12)
-                : ColorTokens.mutedText.withValues(alpha: 0.05),
+                ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.12)
+                : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
               color: isSelected
-                  ? ColorTokens.goldAccent.withValues(alpha: 0.5)
+                  ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.5)
                   : Colors.transparent,
               width: 1.5,
             ),
@@ -801,10 +802,10 @@ class _ThemeModeOption extends StatelessWidget {
             children: [
               Icon(
                 icon,
-                color: isSelected ? ColorTokens.goldAccent : ColorTokens.mutedText,
+                color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurfaceVariant,
                 size: 22,
               ),
-              const SizedBox(width: 14),
+              SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -813,8 +814,8 @@ class _ThemeModeOption extends StatelessWidget {
                       label,
                       style: TextStyle(
                         color: isSelected
-                            ? ColorTokens.parchment
-                            : ColorTokens.mutedText,
+                            ? Theme.of(context).colorScheme.onSurface
+                            : Theme.of(context).colorScheme.onSurfaceVariant,
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
                       ),
@@ -822,7 +823,7 @@ class _ThemeModeOption extends StatelessWidget {
                     Text(
                       description,
                       style: TextStyle(
-                        color: ColorTokens.mutedText.withValues(alpha: 0.7),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
                         fontSize: 12,
                       ),
                     ),
@@ -830,9 +831,9 @@ class _ThemeModeOption extends StatelessWidget {
                 ),
               ),
               if (isSelected)
-                const Icon(
+                Icon(
                   Icons.check_circle_rounded,
-                  color: ColorTokens.goldAccent,
+                  color: Theme.of(context).colorScheme.primary,
                   size: 20,
                 ),
             ],
